@@ -8,8 +8,11 @@ export default async function FeaturedProjects() {
   const t = await getTranslations("Home");
   const projects = getFeaturedProjects();
 
+  // `lg:-mt-16` recupera el hueco muerto que deja la banda de servicios: esa
+  // banda sube visualmente con -translate-y-24 pero conserva su espacio de
+  // layout, lo que abría ~100px de vacío antes de esta sección.
   return (
-    <section className="bg-paper py-16 lg:py-28">
+    <section className="bg-paper py-16 lg:-mt-16 lg:py-24">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
         <span className="eyebrow text-accent">{t("featuredEyebrow")}</span>
 

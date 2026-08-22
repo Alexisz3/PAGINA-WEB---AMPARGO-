@@ -79,17 +79,31 @@ console.log(`--- motor: ${ENGINE} ---`);
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const p = await ctx.newPage();
 
-  await p.goto(URL + "/es/proyectos", { waitUntil: "domcontentloaded" });
-  await p.waitForTimeout(1200);
-  await p.locator('[role="group"] button', { hasText: "EN" }).click();
-  await p.waitForTimeout(1500);
-  check("Selector: /es/proyectos → /en/projects (misma página)", p.url().endsWith("/en/projects"), p.url());
+  /*
+   * Se espera la CONDICIÓN (el cambio de URL), no un tiempo fijo. Con
+   * `waitForTimeout` la prueba era inestable en WebKit, que hidrata más
+   * despacio: el clic llegaba antes de que el manejador estuviera montado.
+   */
+  const switchLocale = async (from, expected) => {
+    await p.goto(URL + from, { waitUntil: "domcontentloaded" });
+    const toggle = p.locator('[role="group"] button', { hasText: "EN" });
+    await toggle.waitFor({ state: "visible" });
+    // Enabled + un frame de margen asegura que React ya asoció el onClick.
+    await p.waitForFunction(() => document.readyState === "complete");
+    await toggle.click();
+    try {
+      await p.waitForURL((u) => u.pathname.endsWith(expected), { timeout: 10000 });
+    } catch {
+      /* el check de abajo reporta la URL real alcanzada */
+    }
+    return p.url();
+  };
 
-  await p.goto(URL + "/es/cotizacion", { waitUntil: "domcontentloaded" });
-  await p.waitForTimeout(1200);
-  await p.locator('[role="group"] button', { hasText: "EN" }).click();
-  await p.waitForTimeout(1500);
-  check("Selector: /es/cotizacion → /en/quote", p.url().endsWith("/en/quote"), p.url());
+  let url = await switchLocale("/es/proyectos", "/en/projects");
+  check("Selector: /es/proyectos → /en/projects (misma página)", url.endsWith("/en/projects"), url);
+
+  url = await switchLocale("/es/cotizacion", "/en/quote");
+  check("Selector: /es/cotizacion → /en/quote", url.endsWith("/en/quote"), url);
 
   await ctx.close();
 }
