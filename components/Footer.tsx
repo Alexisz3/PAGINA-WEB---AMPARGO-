@@ -17,8 +17,8 @@ export default async function Footer() {
 
   return (
     <footer className="bg-surface">
-      <div className="mx-auto max-w-[1400px] px-6 py-12 lg:px-10">
-        <div className="grid gap-10 border-b border-line pb-10 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto max-w-[1400px] px-6 py-8 lg:px-10 lg:py-12">
+        <div className="grid gap-6 border-b border-line pb-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10 lg:pb-10">
           <div>
             <span className="font-display text-lg font-semibold text-ink">
               AMPARGO<span className="text-accent">.</span>
@@ -45,7 +45,7 @@ export default async function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-5">
           <p className="font-mono text-xs text-muted">
             &copy; {year} AMPARGO. {t("rights")}
           </p>

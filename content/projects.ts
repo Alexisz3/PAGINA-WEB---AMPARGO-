@@ -84,11 +84,10 @@ export const PROJECTS: Project[] = [
     },
     location: "Houston, TX",
     coverPhoto: { file: "cocina-cuarzo-05.jpeg", orientation: "horizontal" },
-    gallery: [
-      { file: "cocina-cuarzo-05.jpeg", orientation: "horizontal" },
-      { file: "cocina-cuarzo-06.jpeg", orientation: "horizontal" },
-      { file: "cocina-cuarzo-04.jpeg", orientation: "vertical" },
-    ],
+    // `cocina-cuarzo-04` y `-06` quedan FUERA: en ambas el rostro del operario
+    // es identificable y no hay consentimiento por escrito. Ver §Privacidad en
+    // AUDITORIA_Y_PLAN_AMPARGO.md. No reincorporar sin autorización firmada.
+    gallery: [{ file: "cocina-cuarzo-05.jpeg", orientation: "horizontal" }],
     featuredOnHome: true,
   },
   {

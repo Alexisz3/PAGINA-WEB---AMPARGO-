@@ -16,6 +16,11 @@ Formulario_Requerimientos_Web_Rellenable.pdf
 *.zip
 _fotos_originales/
 
+# RETIRADAS POR PRIVACIDAD: rostro del operario claramente identificable y
+# sin consentimiento por escrito. No reincorporar sin autorización firmada.
+public/images/proyectos/cocina-cuarzo-04.jpeg
+public/images/proyectos/cocina-cuarzo-06.jpeg
+
 # Fotografías no usadas por la aplicación actual. Permanecen locales para
 # revisión del cliente, pero no se publican por inercia en el repositorio.
 public/images/proyectos/acabado-01.jpeg

@@ -15,6 +15,18 @@ export default function QuoteStepper({
   const labels = [t("step1"), t("step2"), t("step3")];
 
   return (
+    <>
+    {/*
+      En móvil los círculos solos no comunican en qué paso estás ni cuántos
+      faltan. Esta línea da el nombre del paso y la posición; en pantallas
+      anchas se oculta porque las etiquetas ya se ven junto a cada círculo.
+    */}
+    <p className="mb-4 text-sm text-muted sm:hidden" aria-hidden="true">
+      <span className="font-medium text-accent">{labels[current - 1]}</span>
+      {" · "}
+      {t("stepOf", { n: current })}
+    </p>
+
     <ol className="flex items-center gap-3" aria-label={t("stepOf", { n: current })}>
       {STEPS.map((n, i) => {
         const active = n === current;
@@ -51,5 +63,6 @@ export default function QuoteStepper({
         );
       })}
     </ol>
+    </>
   );
 }

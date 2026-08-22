@@ -7,6 +7,8 @@ interface PageHeroProps {
   intro?: string;
   imageSrc: string;
   imageAlt: string;
+  /** Altura reducida: para páginas donde el contenido debe empezar antes. */
+  compact?: boolean;
 }
 
 /**
@@ -14,7 +16,14 @@ interface PageHeroProps {
  * palabra monumental + punto acento) pero más bajo, para que el contenido
  * de la página empiece antes. Las referencias aprobadas lo muestran así.
  */
-export default function PageHero({ title, tagline, intro, imageSrc, imageAlt }: PageHeroProps) {
+export default function PageHero({
+  title,
+  tagline,
+  intro,
+  imageSrc,
+  imageAlt,
+  compact = false,
+}: PageHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-carbon">
       <Image
@@ -29,7 +38,11 @@ export default function PageHero({ title, tagline, intro, imageSrc, imageAlt }: 
       <div className="absolute inset-0 bg-gradient-to-t from-carbon from-20% via-carbon/80 via-55% to-carbon/35" />
       <div className="absolute inset-0 bg-gradient-to-r from-carbon/85 via-carbon/40 to-transparent" />
 
-      <div className="relative mx-auto max-w-[1400px] px-6 pb-16 pt-36 lg:px-10 lg:pb-20 lg:pt-44">
+      <div
+        className={`relative mx-auto max-w-[1400px] px-6 lg:px-10 ${
+          compact ? "pb-10 pt-28 lg:pb-14 lg:pt-36" : "pb-14 pt-32 lg:pb-20 lg:pt-44"
+        }`}
+      >
         <h1 className="font-display font-bold leading-[0.9] tracking-[-0.02em] text-bone [font-size:clamp(2.5rem,8vw,6rem)]">
           {title}
           <span className="text-accent">.</span>

@@ -108,6 +108,9 @@ export default function MobileMenu({ open, onClose, links, triggerRef }: MobileM
         role="dialog"
         aria-modal="true"
         aria-label={t("menuTitle")}
+        // El panel puede desbordar en pantallas bajas; hacerlo alcanzable por
+        // teclado permite desplazarlo con las flechas sin salir del diálogo.
+        tabIndex={0}
         className="absolute inset-x-0 top-0 max-h-full overflow-y-auto bg-carbon px-6 pb-8 pt-4 text-bone"
       >
         <div className="flex items-center justify-between">

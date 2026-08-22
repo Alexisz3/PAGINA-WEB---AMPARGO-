@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "check:i18n": "node qa/check-i18n.mjs",
     "qa:visual": "node qa/capture-pages.mjs",
-    "qa:functional": "node qa/functional.mjs"
+    "qa:functional": "node qa/functional.mjs",
+    "qa:axe": "node qa/axe.mjs",
+    "qa:lighthouse": "node qa/lighthouse.mjs"
   },
   "dependencies": {
     "framer-motion": "^11.15.0",
@@ -20,6 +22,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3.2.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.2",
@@ -27,9 +30,11 @@
     "@types/react-dom": "^19.0.2",
     "eslint": "^9.17.0",
     "eslint-config-next": "^16.3.2",
+    "lighthouse": "^13.4.1",
     "playwright": "^1.62.1",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wait-on": "^9.1.0"
   },
   "engines": {
     "node": ">=20.9.0"

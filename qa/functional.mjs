@@ -2,7 +2,7 @@
  * QA funcional multipágina. Ejecutar contra el build de producción:
  *   node qa/functional.mjs [baseUrl]
  */
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 
 const URL = process.argv[2] ?? "http://127.0.0.1:4318";
 const results = [];
@@ -12,7 +12,10 @@ function check(name, passed, detail = "") {
   console.log(`${passed ? "OK   " : "FALLA"} ${name}${detail ? " — " + detail : ""}`);
 }
 
-const browser = await chromium.launch();
+const ENGINE = process.env.QA_BROWSER ?? "chromium";
+const engines = { chromium, firefox, webkit };
+const browser = await engines[ENGINE].launch();
+console.log(`--- motor: ${ENGINE} ---`);
 
 // ─── 1. Enrutado por idioma y detección ─────────────────────────────────
 {

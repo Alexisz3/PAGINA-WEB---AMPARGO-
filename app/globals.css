@@ -78,6 +78,16 @@ body {
   background-color: currentColor;
 }
 
+/*
+ * Safe area que COMPONE con el padding de Tailwind en vez de sobrescribirlo.
+ * Un `style={{paddingBottom}}` en línea gana siempre a `lg:pb-24`, lo que
+ * rompía la holgura del hero en escritorio: las tarjetas de servicio (que
+ * suben con -translate-y-24) acababan tapando 32px de los botones.
+ */
+.pb-safe {
+  padding-bottom: max(var(--pb, 4rem), calc(env(safe-area-inset-bottom, 0px) + 3rem));
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

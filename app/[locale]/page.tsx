@@ -29,13 +29,18 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <FeaturedProjects />
         <ValueProps />
 
-        <section className="bg-paper pb-20 lg:pb-28">
-          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-            <span className="eyebrow text-accent">{t("processEyebrow")}</span>
-            <h2 className="mt-5 max-w-2xl text-balance font-display font-semibold leading-tight text-ink [font-size:clamp(1.75rem,3.4vw,2.75rem)]">
-              {t("processHeading")}
-            </h2>
-            <div className="mt-12">
+        <section className="bg-paper pb-16 lg:pb-28">
+          {/* El carril de proceso sangra al borde en móvil (sin px-6 en el
+              contenedor) para que la última tarjeta asome; el texto sí
+              conserva el margen. */}
+          <div className="mx-auto max-w-[1400px] lg:px-10">
+            <div className="px-6 lg:px-0">
+              <span className="eyebrow text-accent">{t("processEyebrow")}</span>
+              <h2 className="mt-4 max-w-2xl text-balance font-display font-semibold leading-tight text-ink [font-size:clamp(1.625rem,3.4vw,2.75rem)]">
+                {t("processHeading")}
+              </h2>
+            </div>
+            <div className="mt-8 pl-6 lg:mt-12 lg:pl-0">
               <ProcessTimeline />
             </div>
           </div>

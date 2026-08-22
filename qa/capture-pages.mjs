@@ -17,14 +17,28 @@ const PAGES = [
   { name: "proyectos", es: "/es/proyectos", en: "/en/projects" },
   { name: "cotizacion", es: "/es/cotizacion", en: "/en/quote" },
   { name: "servicios", es: "/es/servicios", en: "/en/services" },
+  { name: "proceso", es: "/es/proceso", en: "/en/process" },
+  {
+    name: "detalle-proyecto",
+    es: "/es/proyectos/renovacion-de-cocina",
+    en: "/en/projects/kitchen-renovation",
+  },
+  { name: "404", es: "/es/no-existe", en: "/en/does-not-exist" },
 ];
 
 const VIEWPORTS = [
   { name: "320x568", width: 320, height: 568 },
+  { name: "360x800", width: 360, height: 800 },
   { name: "375x812", width: 375, height: 812 },
   { name: "390x844", width: 390, height: 844 },
+  { name: "393x852", width: 393, height: 852 },
+  { name: "412x915", width: 412, height: 915 },
+  { name: "430x932", width: 430, height: 932 },
+  { name: "568x320-landscape", width: 568, height: 320 },
+  { name: "812x375-landscape", width: 812, height: 375 },
   { name: "768x1024", width: 768, height: 1024 },
   { name: "1024x768", width: 1024, height: 768 },
+  { name: "1280x800", width: 1280, height: 800 },
   { name: "1366x768", width: 1366, height: 768 },
   { name: "1440x900", width: 1440, height: 900 },
   { name: "1920x1080", width: 1920, height: 1080 },
@@ -49,6 +63,9 @@ async function main() {
       for (const vp of VIEWPORTS) {
         consoleErrors = [];
         pageErrors = [];
+        // La página 404 devuelve HTTP 404 por diseño; el navegador lo registra
+        // como error de consola. Contarlo sería un falso positivo.
+        const expects404 = page.name === "404";
         await p.setViewportSize({ width: vp.width, height: vp.height });
 
         const url = baseUrl + page[locale];
@@ -112,9 +129,13 @@ async function main() {
         const file = path.join(outDir, `${locale}-${page.name}-${vp.name}.png`);
         await p.screenshot({ path: file, fullPage: true });
 
+        const filteredConsole = expects404
+          ? consoleErrors.filter((m) => !/404 \(Not Found\)/.test(m))
+          : consoleErrors;
+
         report.results.push({
           page: page.name, locale, viewport: vp.name, url, screenshot: file,
-          consoleErrors: [...consoleErrors], pageErrors: [...pageErrors], ...diag,
+          consoleErrors: filteredConsole, pageErrors: [...pageErrors], ...diag,
         });
       }
     }

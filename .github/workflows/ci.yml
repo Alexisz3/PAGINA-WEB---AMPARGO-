@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Permisos mínimos: el workflow solo necesita leer el código.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobar tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Falla ante claves de traducción desiguales, slugs duplicados,
+      # entidades sin pareja de idioma o fotos referenciadas inexistentes.
+      - name: Integridad i18n
+        run: npm run check:i18n
+
+      - name: Build de producción
+        run: npm run build
+        env:
+          # Los previews nunca deben indexarse.
+          NEXT_PUBLIC_INDEXABLE: "false"
+
+      - name: Instalar navegador para E2E
+        run: npx playwright install --with-deps chromium
+
+      - name: Pruebas funcionales contra el build
+        run: |
+          npx next start --port 4318 &
+          npx wait-on http://127.0.0.1:4318/es --timeout 60000
+          npm run qa:functional http://127.0.0.1:4318
+
+      - name: Accesibilidad (axe)
+        run: npm run qa:axe http://127.0.0.1:4318
+
+      - name: Capturas en caso de fallo
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-fallos
+          path: qa/shots/
+          retention-days: 7
+          if-no-files-found: ignore

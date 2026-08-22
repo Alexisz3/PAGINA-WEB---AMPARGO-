@@ -5,24 +5,30 @@ const ITEMS = [1, 2, 3, 4] as const;
 /**
  * Cuatro proposiciones de valor cualitativas.
  *
+ * Móvil: cuadrícula 2×2 compacta. Antes era una columna de cuatro tarjetas
+ * altas — mucha altura para poca información.
+ *
  * Deliberadamente NO son métricas ("450+ obras", "12 años") como en algunos
- * mockups de referencia: el cliente no ha confirmado ninguna cifra y la regla
- * del proyecto prohíbe publicar datos inventados. Cualitativo y verificable
- * es preferible a numérico y falso.
+ * mockups: el cliente no ha confirmado ninguna cifra, y la regla del proyecto
+ * prohíbe publicar datos inventados.
  */
 export default async function ValueProps() {
   const t = await getTranslations("Home");
 
   return (
-    <section className="bg-paper pb-20 lg:pb-28">
+    <section className="bg-paper pb-16 lg:pb-28">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <ul className="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-px overflow-hidden border border-line bg-line lg:grid-cols-4">
           {ITEMS.map((n) => (
-            <li key={n} className="bg-surface p-8">
-              <h3 className="font-display text-lg font-semibold leading-snug text-ink">
+            <li key={n} className="bg-surface p-5 lg:p-8">
+              <h3 className="text-balance font-display text-base font-semibold leading-snug text-ink lg:text-lg">
                 {t(`valuesHeading${n}`)}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted">{t(`valuesBody${n}`)}</p>
+              {/* El cuerpo se oculta en la cuadrícula estrecha: a 2 columnas
+                  el titular ya comunica, y el párrafo dispararía la altura. */}
+              <p className="mt-2 hidden text-sm leading-relaxed text-muted sm:block">
+                {t(`valuesBody${n}`)}
+              </p>
             </li>
           ))}
         </ul>

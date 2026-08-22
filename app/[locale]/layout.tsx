@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, type Locale } from "next-intl";
 import { NextIntlClientProvider } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { SITE_URL, INDEXABLE } from "@/lib/site";
@@ -87,6 +87,21 @@ export default async function LocaleLayout({ children, params }: Props) {
   // Habilita el renderizado estático: sin esto, next-intl fuerza dinámico.
   setRequestLocale(locale);
 
+  /*
+   * Solo viajan al navegador los espacios de nombres que usan Client
+   * Components (Header, MobileMenu, LocaleSwitcher, ProjectCarousel,
+   * ProjectFilters). `Home`, `Footer`, `Process`, `ServiceCards`, `Metadata`
+   * y `NotFound` se renderizan en servidor y no tienen por qué pesar en el
+   * bundle. La página de cotización añade `Quote` y `Services` con su propio
+   * proveedor anidado, para no cargarlos en el resto del sitio.
+   */
+  const messages = await getMessages();
+  const clientMessages = {
+    Nav: messages.Nav,
+    Contact: messages.Contact,
+    Projects: messages.Projects,
+  };
+
   return (
     <html
       lang={locale}
@@ -94,7 +109,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
       <body>
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={clientMessages}>
           <SkipLink />
           {children}
         </NextIntlClientProvider>

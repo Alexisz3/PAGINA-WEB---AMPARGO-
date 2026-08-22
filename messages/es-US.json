@@ -132,7 +132,8 @@
     "closeLightbox": "Cerrar",
     "previous": "Proyecto anterior",
     "next": "Proyecto siguiente",
-    "filterInteriors": "Interiores"
+    "filterInteriors": "Interiores",
+    "counter": "Proyecto {n} de {total}"
   },
   "Contact": {
     "eyebrow": "CONTACTO",

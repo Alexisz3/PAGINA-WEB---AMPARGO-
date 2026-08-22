@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { hasLocale } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -17,6 +17,11 @@ export default async function QuotePage({ params }: PageProps<"/[locale]/quote">
 
   const tn = await getTranslations("Nav");
   const tq = await getTranslations("Quote");
+
+  // Proveedor anidado: `Quote` y `Services` solo se envían al navegador en
+  // esta página, no en todo el sitio.
+  const messages = await getMessages();
+  const quoteMessages = { Quote: messages.Quote, Services: messages.Services };
 
   return (
     <>
@@ -35,7 +40,9 @@ export default async function QuotePage({ params }: PageProps<"/[locale]/quote">
           </div>
         </section>
 
-        <QuoteShell />
+        <NextIntlClientProvider messages={quoteMessages}>
+          <QuoteShell />
+        </NextIntlClientProvider>
       </main>
       <Footer />
     </>

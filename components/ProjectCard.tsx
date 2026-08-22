@@ -10,9 +10,21 @@ interface ProjectCardProps {
   /** `eager` solo para las primeras tarjetas visibles. */
   priority?: boolean;
   sizes?: string;
+  /**
+   * Oculta el extracto. En el índice de proyectos, repetir una descripción
+   * larga bajo cada tarjeta convertía la página en una lista de texto:
+   * el título y la categoría ya identifican la obra, y el detalle está
+   * a un toque de distancia.
+   */
+  compact?: boolean;
 }
 
-export default async function ProjectCard({ project, priority = false, sizes }: ProjectCardProps) {
+export default async function ProjectCard({
+  project,
+  priority = false,
+  sizes,
+  compact = false,
+}: ProjectCardProps) {
   const locale = (await getLocale()) as AppLocale;
   const t = await getTranslations("Projects");
 
@@ -52,8 +64,10 @@ export default async function ProjectCard({ project, priority = false, sizes }: 
           <h3 className="font-display text-lg font-semibold leading-snug text-ink">
             {project.title[locale]}
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted">{project.excerpt[locale]}</p>
-          <p className="mt-3 font-mono text-xs text-muted">{project.location}</p>
+          {compact ? null : (
+            <p className="mt-2 text-sm leading-relaxed text-muted">{project.excerpt[locale]}</p>
+          )}
+          <p className="mt-2 font-mono text-xs text-muted">{project.location}</p>
         </div>
       </Link>
     </article>
