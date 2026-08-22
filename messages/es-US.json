@@ -1,0 +1,203 @@
+{
+  "Metadata": {
+    "title": "Ampargo | Construcción y remodelación en Houston, TX",
+    "description": "Ampargo construye y remodela viviendas y espacios comerciales en Houston, TX. 30 años de experiencia en construcción, remodelación, acabados y diseño arquitectónico."
+  },
+  "Nav": {
+    "home": "Inicio",
+    "services": "Servicios",
+    "projects": "Proyectos",
+    "process": "Proceso",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "quote": "Solicitar cotización",
+    "skipToContent": "Saltar al contenido",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "menuTitle": "Menú",
+    "languageSwitcherLabel": "Cambiar idioma"
+  },
+  "Home": {
+    "heroEyebrow": "AMPARGO — CONSTRUCCIÓN Y REMODELACIÓN",
+    "heroHeadline": "AMPARGO",
+    "heroSubhead": "Construcción y remodelación en Houston",
+    "heroCtaPrimary": "Solicitar cotización",
+    "heroCtaSecondary": "Ver proyectos",
+    "heroImageAlt": "Terraza y piscina en construcción junto a un lago, con cabaña de techo metálico — proyecto real de Ampargo en Houston, TX.",
+    "servicesEyebrow": "SERVICIOS",
+    "featuredEyebrow": "PROYECTOS DESTACADOS",
+    "featuredHeading": "Trabajos reales. Resultados que duran.",
+    "featuredCta": "Ver todos los proyectos",
+    "valuesHeading1": "Enfoque personalizado",
+    "valuesBody1": "Escuchamos sus objetivos y diseñamos soluciones a su medida.",
+    "valuesHeading2": "Calidad en cada detalle",
+    "valuesBody2": "Materiales seleccionados y trabajo ejecutado con altos estándares.",
+    "valuesHeading3": "Gestión transparente",
+    "valuesBody3": "Comunicación clara y cronogramas realistas de principio a fin.",
+    "valuesHeading4": "Orgullosamente Houston",
+    "valuesBody4": "Conocemos la zona, los códigos locales y lo que importa a nuestra comunidad.",
+    "processEyebrow": "NUESTRO PROCESO",
+    "processHeading": "Un proceso claro para resultados exitosos.",
+    "ctaBandEyebrow": "HABLEMOS DE SU PROYECTO",
+    "ctaBandHeading": "Construyamos algo extraordinario juntos.",
+    "ctaBandBody": "Solicite una cotización sin compromiso y dé el primer paso hacia su nuevo espacio."
+  },
+  "Services": {
+    "housing": {
+      "title": "Construcción de viviendas",
+      "description": "Casas nuevas a medida, con atención al detalle y ejecución precisa."
+    },
+    "remodeling": {
+      "title": "Remodelaciones",
+      "description": "Transformamos espacios existentes para adaptarlos a su estilo de vida."
+    },
+    "finishes": {
+      "title": "Acabados",
+      "description": "Pisos, paredes, encimeras y detalles finales que definen la calidad de una obra."
+    },
+    "design": {
+      "title": "Diseño arquitectónico",
+      "description": "Convertimos ideas y planos en un proyecto claro antes de la primera herramienta."
+    },
+    "planning": {
+      "title": "Planificación de obras",
+      "description": "Organizamos tiempos, materiales y equipo para que su proyecto avance sin sorpresas."
+    },
+    "commercial": {
+      "title": "Construcción comercial",
+      "description": "Levantamos y adecuamos espacios comerciales con los mismos estándares de calidad."
+    },
+    "maintenance": {
+      "title": "Mantenimiento",
+      "description": "Seguimiento y mantenimiento de las obras entregadas para que duren en el tiempo."
+    },
+    "electrical": {
+      "title": "Instalaciones eléctricas",
+      "description": "Instalación y adecuación eléctrica integrada a cada proyecto."
+    },
+    "plumbing": {
+      "title": "Instalaciones sanitarias",
+      "description": "Plomería completa, desde la estructura hasta el acabado final."
+    }
+  },
+  "ServiceCards": {
+    "custom": {
+      "title": "Construcción personalizada",
+      "description": "Casas nuevas a medida con atención al detalle y ejecución precisa."
+    },
+    "remodeling": {
+      "title": "Remodelaciones",
+      "description": "Transformamos espacios existentes para adaptarlos a su estilo de vida."
+    },
+    "kitchensBaths": {
+      "title": "Cocinas y baños",
+      "description": "Diseño y renovación con acabados de calidad y funcionalidad."
+    },
+    "outdoor": {
+      "title": "Espacios exteriores",
+      "description": "Patios, terrazas, cocinas exteriores y piscinas construidas para durar."
+    },
+    "repairs": {
+      "title": "Reparaciones y mejoras",
+      "description": "Soluciones confiables para mantener y mejorar su propiedad."
+    }
+  },
+  "Process": {
+    "step1Title": "Consulta",
+    "step1Body": "Hablamos de su proyecto, necesidades y presupuesto.",
+    "step2Title": "Planificación",
+    "step2Body": "Definimos el alcance, materiales y cronograma.",
+    "step3Title": "Construcción",
+    "step3Body": "Ejecutamos con precisión y cuidamos cada detalle.",
+    "step4Title": "Revisión",
+    "step4Body": "Verificamos calidad y aseguramos su satisfacción.",
+    "step5Title": "Entrega",
+    "step5Body": "Entregamos su proyecto listo para disfrutar."
+  },
+  "Projects": {
+    "eyebrow": "PROYECTOS",
+    "heading": "Trabajo real. Proceso visible.",
+    "intro": "Explore una selección de proyectos de construcción y remodelación en Houston. Cada uno refleja nuestro compromiso con la calidad, la funcionalidad y la atención al detalle.",
+    "filterAll": "Todos",
+    "filterKitchens": "Cocinas",
+    "filterBathrooms": "Baños",
+    "filterExteriors": "Exteriores",
+    "filterStructures": "Estructuras",
+    "filterInProgress": "En proceso",
+    "statusCompleted": "Completado",
+    "statusInProgress": "En proceso",
+    "viewProject": "Ver proyecto",
+    "resultsNote": "Mostrando trabajos reales de nuestro portafolio.",
+    "openLightbox": "Ver la fotografía ampliada",
+    "closeLightbox": "Cerrar",
+    "previous": "Proyecto anterior",
+    "next": "Proyecto siguiente",
+    "filterInteriors": "Interiores"
+  },
+  "Contact": {
+    "eyebrow": "CONTACTO",
+    "heading": "Hablemos de su proyecto",
+    "callLabel": "Llámenos",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "Envíenos un correo",
+    "emailPending": "Correo en configuración — use WhatsApp mientras tanto",
+    "addressLabel": "Área de servicio",
+    "address": "Houston y alrededores, TX",
+    "mapTitle": "Mapa de la ubicación de Ampargo en Houston, TX"
+  },
+  "Footer": {
+    "tagline": "Construcción y remodelación en Houston, TX.",
+    "linksHeading": "Enlaces",
+    "followHeading": "Síguenos",
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de servicio"
+  },
+  "NotFound": {
+    "heading": "Página no encontrada",
+    "body": "La página que busca no existe o cambió de dirección.",
+    "cta": "Volver al inicio"
+  },
+  "Quote": {
+    "subtitle": "Cuéntenos sobre su proyecto.",
+    "step1": "Proyecto",
+    "step2": "Referencias",
+    "step3": "Contacto",
+    "stepOf": "Paso {n} de 3",
+    "serviceLabel": "Tipo de servicio",
+    "servicePlaceholder": "Seleccione un servicio",
+    "locationLabel": "Ubicación del proyecto",
+    "locationPlaceholder": "Ciudad o código postal",
+    "descriptionLabel": "Descripción del proyecto",
+    "descriptionPlaceholder": "Cuéntenos qué necesita. No incluya datos bancarios ni números de documento.",
+    "photosHeading": "Agregue imágenes de referencia",
+    "photosHint": "Opcional · Hasta 8 imágenes · JPG, PNG o WebP · Máx. 10 MB por archivo",
+    "photosSelect": "Seleccionar imágenes",
+    "photosDrop": "O arrastre sus archivos aquí",
+    "photosCount": "{n} de 8 imágenes seleccionadas",
+    "photosRemove": "Quitar imagen",
+    "nameLabel": "Nombre completo",
+    "namePlaceholder": "Su nombre",
+    "phoneLabel": "Teléfono",
+    "emailLabel": "Correo electrónico",
+    "channelLabel": "Canal preferido",
+    "channelHint": "Elija un canal",
+    "channelEmail": "Email",
+    "channelWhatsapp": "WhatsApp",
+    "consent": "Acepto el tratamiento de mis datos para responder a esta solicitud.",
+    "summaryHeading": "Resumen de su solicitud",
+    "summaryService": "Servicio",
+    "summaryLocation": "Ubicación del proyecto",
+    "summaryPhotos": "Imágenes de referencia",
+    "summaryChannel": "Canal preferido",
+    "summaryEmpty": "Sin seleccionar",
+    "draftHeading": "Estado del borrador",
+    "draftSaved": "Guardado localmente en este navegador",
+    "secureHeading": "Su información está segura",
+    "secureBody": "Usamos sus datos solo para preparar y dar seguimiento a su cotización.",
+    "back": "Volver",
+    "next": "Continuar",
+    "submit": "Enviar solicitud",
+    "devNotice": "Modo de desarrollo: esta solicitud no se envía a nadie todavía. El registro y los canales reales están pendientes de que el cliente contrate los servicios."
+  }
+}

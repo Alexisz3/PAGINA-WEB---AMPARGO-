@@ -1,0 +1,47 @@
+/node_modules
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+npm-debug.log*
+
+# Variables de entorno — nunca versionar secretos.
+# `.env*.local` por sí solo NO cubre `.env` ni `.env.production`.
+.env*
+!.env.example
+
+# Material del cliente con datos personales (nombres, teléfonos, dirección).
+# No debe acabar en el historial de Git: es irreversible sin reescribir historia.
+Formulario_Requerimientos_Web_Rellenable.pdf
+*.zip
+_fotos_originales/
+
+# Fotografías no usadas por la aplicación actual. Permanecen locales para
+# revisión del cliente, pero no se publican por inercia en el repositorio.
+public/images/proyectos/acabado-01.jpeg
+public/images/proyectos/bano-02.jpeg
+public/images/proyectos/cocina-cuarzo-01.jpeg
+public/images/proyectos/cocina-cuarzo-02.jpeg
+public/images/proyectos/cocina-cuarzo-03.jpeg
+public/images/proyectos/cocina-cuarzo-07.jpeg
+public/images/proyectos/demolicion-01.jpeg
+public/images/proyectos/demolicion-02.jpeg
+public/images/proyectos/estructura-03.jpeg
+public/images/proyectos/estructura-05.jpeg
+public/images/proyectos/estructura-06.jpeg
+public/images/proyectos/estructura-07.jpeg
+public/images/proyectos/exterior-jardin-02.jpeg
+public/images/proyectos/plomeria-02-descartada.jpeg
+
+# Salidas de QA: capturas pesadas, se regeneran con `node qa/capture.mjs`.
+qa/shots/
+qa/tmp/
+test-results/
+playwright-report/
+
+.DS_Store
+.claude/settings.local.json
+
+# Herramientas/skills locales de los agentes; no son dependencias de runtime.
+.claude/skills/
+skills-lock.json

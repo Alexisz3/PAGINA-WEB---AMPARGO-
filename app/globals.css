@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/*
+ * Sistema de diseño — Concepto A "Monolithic Editorial".
+ * Reemplaza al sistema anterior ("hoja de plano"): ver
+ * docs/design-references/README.md para la dirección de arte aprobada.
+ *
+ * Todos los pares de contraste están medidos (WCAG 2.x, luminancia relativa
+ * sRGB), no estimados — script de verificación en AUDITORIA_Y_PLAN_AMPARGO.md.
+ */
+@theme {
+  --color-carbon: #121412;
+  --color-carbon-raised: #1c1f1c;
+  --color-paper: #f2efe8;
+  --color-surface: #faf8f3;
+  --color-ink: #181a18;
+  --color-muted: #626963;
+  --color-line: rgb(24 26 24 / 16%);
+  --color-bone: #f8f6f0;
+  --color-accent: #b8452f;
+  --color-accent-hover: #9d3826;
+  --color-success: #2f6b50;
+  --color-error: #a83232;
+
+  /*
+   * accent (#B8452F) sobre paper = 4.65:1 -> vale como texto normal.
+   * accent sobre carbon = 3.46:1 -> NO vale como texto (falla 4.5:1).
+   * accent-ink es la variante segura para texto sobre superficies oscuras.
+   */
+  --color-accent-ink: #d9764f;
+
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body: var(--font-plex-sans), "IBM Plex Sans", sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* El header interior es sticky (~64px). Sin esto, al pulsar un enlace del
+     menú la sección queda oculta detrás del header. */
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-bone);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Etiqueta editorial: guion corto + texto mono en mayúsculas, como en las
+   referencias aprobadas ("— PROYECTOS DESTACADOS"). */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  display: block;
+  width: 1.5rem;
+  height: 2px;
+  background-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "Metadata": {
+    "title": "Ampargo | Construction & Remodeling in Houston, TX",
+    "description": "Ampargo builds and remodels homes and commercial spaces in Houston, TX. 30 years of experience in construction, remodeling, finishes, and architectural design."
+  },
+  "Nav": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "process": "Process",
+    "about": "About",
+    "contact": "Contact",
+    "quote": "Request a quote",
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu",
+    "languageSwitcherLabel": "Switch language"
+  },
+  "Home": {
+    "heroEyebrow": "AMPARGO — CONSTRUCTION & REMODELING",
+    "heroHeadline": "AMPARGO",
+    "heroSubhead": "Construction & remodeling in Houston",
+    "heroCtaPrimary": "Request a quote",
+    "heroCtaSecondary": "View projects",
+    "heroImageAlt": "Patio and pool under construction next to a lake, with a metal-roof pavilion — a real Ampargo project in Houston, TX.",
+    "servicesEyebrow": "SERVICES",
+    "featuredEyebrow": "FEATURED PROJECTS",
+    "featuredHeading": "Real work. Results that last.",
+    "featuredCta": "View all projects",
+    "valuesHeading1": "A personalized approach",
+    "valuesBody1": "We listen to your goals and design solutions built around you.",
+    "valuesHeading2": "Quality in every detail",
+    "valuesBody2": "Selected materials and work carried out to a high standard.",
+    "valuesHeading3": "Transparent management",
+    "valuesBody3": "Clear communication and realistic timelines from start to finish.",
+    "valuesHeading4": "Proudly Houston",
+    "valuesBody4": "We know the area, the local codes, and what matters to our community.",
+    "processEyebrow": "OUR PROCESS",
+    "processHeading": "A clear process for successful results.",
+    "ctaBandEyebrow": "LET'S TALK ABOUT YOUR PROJECT",
+    "ctaBandHeading": "Let's build something extraordinary together.",
+    "ctaBandBody": "Request a no-obligation quote and take the first step toward your new space."
+  },
+  "Services": {
+    "housing": {
+      "title": "Home construction",
+      "description": "Custom new homes, built with attention to detail and precise execution."
+    },
+    "remodeling": {
+      "title": "Remodeling",
+      "description": "We transform existing spaces to fit your lifestyle."
+    },
+    "finishes": {
+      "title": "Finishes",
+      "description": "Flooring, walls, countertops, and final details that define the quality of a build."
+    },
+    "design": {
+      "title": "Architectural design",
+      "description": "We turn ideas and drawings into a clear plan before the first tool touches the site."
+    },
+    "planning": {
+      "title": "Project planning",
+      "description": "We organize schedule, materials, and crew so your project moves forward without surprises."
+    },
+    "commercial": {
+      "title": "Commercial construction",
+      "description": "We build and fit out commercial spaces to the same quality standards."
+    },
+    "maintenance": {
+      "title": "Maintenance",
+      "description": "We follow up and maintain completed work so it holds up over time."
+    },
+    "electrical": {
+      "title": "Electrical work",
+      "description": "Electrical installation integrated into every project."
+    },
+    "plumbing": {
+      "title": "Plumbing",
+      "description": "Complete plumbing work, from rough-in to final fixtures."
+    }
+  },
+  "ServiceCards": {
+    "custom": {
+      "title": "Custom construction",
+      "description": "Custom new homes with attention to detail and precise execution."
+    },
+    "remodeling": {
+      "title": "Remodeling",
+      "description": "We transform existing spaces to fit your lifestyle."
+    },
+    "kitchensBaths": {
+      "title": "Kitchens & baths",
+      "description": "Design and renovation with quality finishes and function."
+    },
+    "outdoor": {
+      "title": "Outdoor spaces",
+      "description": "Patios, decks, outdoor kitchens, and pools built to last."
+    },
+    "repairs": {
+      "title": "Repairs & upgrades",
+      "description": "Reliable solutions to maintain and improve your property."
+    }
+  },
+  "Process": {
+    "step1Title": "Consultation",
+    "step1Body": "We talk about your project, needs, and budget.",
+    "step2Title": "Planning",
+    "step2Body": "We define scope, materials, and schedule.",
+    "step3Title": "Construction",
+    "step3Body": "We execute with precision and care for every detail.",
+    "step4Title": "Review",
+    "step4Body": "We verify quality and make sure you're satisfied.",
+    "step5Title": "Handoff",
+    "step5Body": "We deliver your project ready to enjoy."
+  },
+  "Projects": {
+    "eyebrow": "PROJECTS",
+    "heading": "Real work. Visible process.",
+    "intro": "Explore a selection of construction and remodeling projects in Houston. Each one reflects our commitment to quality, function, and attention to detail.",
+    "filterAll": "All",
+    "filterKitchens": "Kitchens",
+    "filterBathrooms": "Bathrooms",
+    "filterExteriors": "Exteriors",
+    "filterStructures": "Structures",
+    "filterInProgress": "In progress",
+    "statusCompleted": "Completed",
+    "statusInProgress": "In progress",
+    "viewProject": "View project",
+    "resultsNote": "Showing real work from our portfolio.",
+    "openLightbox": "View the photo enlarged",
+    "closeLightbox": "Close",
+    "previous": "Previous project",
+    "next": "Next project",
+    "filterInteriors": "Interiors"
+  },
+  "Contact": {
+    "eyebrow": "CONTACT",
+    "heading": "Let's talk about your project",
+    "callLabel": "Call us",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "Email us",
+    "emailPending": "Email is being set up — use WhatsApp for now",
+    "addressLabel": "Service area",
+    "address": "Houston and surrounding areas, TX",
+    "mapTitle": "Map showing Ampargo's location in Houston, TX"
+  },
+  "Footer": {
+    "tagline": "Construction & remodeling in Houston, TX.",
+    "linksHeading": "Links",
+    "followHeading": "Follow us",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service"
+  },
+  "NotFound": {
+    "heading": "Page not found",
+    "body": "The page you're looking for doesn't exist or moved.",
+    "cta": "Back to home"
+  },
+  "Quote": {
+    "subtitle": "Tell us about your project.",
+    "step1": "Project",
+    "step2": "References",
+    "step3": "Contact",
+    "stepOf": "Step {n} of 3",
+    "serviceLabel": "Service type",
+    "servicePlaceholder": "Select a service",
+    "locationLabel": "Project location",
+    "locationPlaceholder": "City or ZIP code",
+    "descriptionLabel": "Project description",
+    "descriptionPlaceholder": "Tell us what you need. Please don't include bank details or ID numbers.",
+    "photosHeading": "Add reference images",
+    "photosHint": "Optional · Up to 8 images · JPG, PNG or WebP · Max 10 MB per file",
+    "photosSelect": "Select images",
+    "photosDrop": "Or drag your files here",
+    "photosCount": "{n} of 8 images selected",
+    "photosRemove": "Remove image",
+    "nameLabel": "Full name",
+    "namePlaceholder": "Your name",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email address",
+    "channelLabel": "Preferred channel",
+    "channelHint": "Choose one channel",
+    "channelEmail": "Email",
+    "channelWhatsapp": "WhatsApp",
+    "consent": "I agree to my data being used to respond to this request.",
+    "summaryHeading": "Your request summary",
+    "summaryService": "Service",
+    "summaryLocation": "Project location",
+    "summaryPhotos": "Reference images",
+    "summaryChannel": "Preferred channel",
+    "summaryEmpty": "Not selected yet",
+    "draftHeading": "Draft status",
+    "draftSaved": "Saved locally in this browser",
+    "secureHeading": "Your information is safe",
+    "secureBody": "We use your details only to prepare and follow up on your quote.",
+    "back": "Back",
+    "next": "Continue",
+    "submit": "Send request",
+    "devNotice": "Development mode: this request is not sent to anyone yet. Real persistence and delivery channels are pending the client contracting the services."
+  }
+}
