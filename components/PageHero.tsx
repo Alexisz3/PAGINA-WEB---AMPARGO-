@@ -9,6 +9,12 @@ interface PageHeroProps {
   imageAlt: string;
   /** Altura reducida: para páginas donde el contenido debe empezar antes. */
   compact?: boolean;
+  /**
+   * Sin mayúsculas monumentales ni punto acento. Los títulos de servicio son
+   * frases ("Cocinas y baños"), no una palabra-marca: tratarlos como
+   * PROYECTOS. los volvía ilegibles y rompía el ritmo de la página.
+   */
+  plainTitle?: boolean;
 }
 
 /**
@@ -23,6 +29,7 @@ export default function PageHero({
   imageSrc,
   imageAlt,
   compact = false,
+  plainTitle = false,
 }: PageHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-carbon">
@@ -43,9 +50,15 @@ export default function PageHero({
           compact ? "pb-10 pt-28 lg:pb-14 lg:pt-36" : "pb-14 pt-32 lg:pb-20 lg:pt-44"
         }`}
       >
-        <h1 className="font-display font-bold leading-[0.9] tracking-[-0.02em] text-bone [font-size:clamp(2.5rem,8vw,6rem)]">
+        <h1
+          className={
+            plainTitle
+              ? "max-w-3xl text-balance font-display font-semibold leading-[1.05] text-bone [font-size:clamp(2rem,5vw,3.5rem)]"
+              : "font-display font-bold leading-[0.9] tracking-[-0.02em] text-bone [font-size:clamp(2.5rem,8vw,6rem)]"
+          }
+        >
           {title}
-          <span className="text-accent">.</span>
+          {plainTitle ? null : <span className="text-accent">.</span>}
         </h1>
         {tagline ? (
           <p className="mt-4 font-display text-bone [font-size:clamp(1.05rem,2vw,1.5rem)]">{tagline}</p>

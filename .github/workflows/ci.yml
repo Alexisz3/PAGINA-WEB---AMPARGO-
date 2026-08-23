@@ -37,6 +37,17 @@ jobs:
       - name: Integridad i18n
         run: npm run check:i18n
 
+      # Verifica que una variable de entorno vacía o inválida no rompa el
+      # prerender, que es exactamente como falló el primer deploy en Vercel.
+      - name: Resolución de SITE_URL
+        run: npm run check:env
+
+      - name: Build con SITE_URL vacío (regresión de Vercel)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: ""
+          NEXT_PUBLIC_INDEXABLE: "false"
+
       - name: Build de producción
         run: npm run build
         env:

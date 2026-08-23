@@ -6,12 +6,73 @@
  * provisional no se indexe y compita después con el dominio real.
  */
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/**
+ * Convierte un valor de entorno en un origen HTTP(S) normalizado, o `null`.
+ *
+ * `allowProtocolLess` distingue dos tipos de fuente:
+ *  - Las variables de Vercel (`VERCEL_URL`) llegan como host desnudo
+ *    (`foo.vercel.app`) y es correcto asumir https.
+ *  - Un valor escrito a mano SIN protocolo es casi siempre un error de
+ *    configuración; asumir https lo convertiría en un dominio aparente y
+ *    ocultaría el fallo. Por eso ahí se rechaza.
+ */
+export function parseHttpOrigin(
+  value: string | undefined,
+  { allowProtocolLess = false }: { allowProtocolLess?: boolean } = {}
+): string | null {
+  // `?? fallback` NO basta: una variable definida como cadena vacía en el
+  // panel de Vercel pasa el `??` y revienta `new URL("")` durante el
+  // prerender. Hay que tratar "" y "   " como ausencia.
+  const candidate = value?.trim();
+  if (!candidate) return null;
+
+  const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(candidate);
+  if (hasProtocol && !/^https?:\/\//i.test(candidate)) return null; // javascript:, file:, data:…
+  if (!hasProtocol && !allowProtocolLess) return null; // ruta relativa o dominio suelto
+
+  try {
+    const url = new URL(hasProtocol ? candidate : `https://${candidate}`);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (!url.hostname) return null;
+    return url.origin; // normaliza y elimina la barra final
+  } catch {
+    return null;
+  }
+}
+
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  const fromExplicit = parseHttpOrigin(explicit);
+  if (fromExplicit) return fromExplicit;
+
+  // Un valor presente pero inválido es un error de configuración, no una
+  // ausencia: se avisa en build en lugar de degradar en silencio a localhost
+  // y publicar metadata apuntando a una máquina local.
+  if (explicit?.trim() && process.env.NODE_ENV === "production") {
+    console.warn(
+      `[ampargo] NEXT_PUBLIC_SITE_URL no es una URL http(s) absoluta válida. ` +
+        `Se ignora y se usa el fallback. Valor recibido: ${JSON.stringify(explicit)}`
+    );
+  }
+
+  // Vercel expone estas sin protocolo; ahí sí es correcto asumir https.
+  const production = parseHttpOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL, {
+    allowProtocolLess: true,
+  });
+  if (production) return production;
+
+  const preview = parseHttpOrigin(process.env.VERCEL_URL, { allowProtocolLess: true });
+  if (preview) return preview;
+
+  return "http://localhost:3000";
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 /**
  * Solo se permite indexar cuando se activa explícitamente.
  * Poner `NEXT_PUBLIC_INDEXABLE=true` únicamente cuando el dominio definitivo
- * esté apuntando al sitio. Ver el checklist de lanzamiento en GUIA_PROYECTO.md.
+ * esté apuntando al sitio. Ver el checklist de lanzamiento en README.md.
  */
 export const INDEXABLE = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 

@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
-import { routing } from "@/i18n/routing";
+import { routing, type AppLocale } from "@/i18n/routing";
+import { getPublishedServices } from "@/content/services";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuoteShell from "@/components/quote/QuoteShell";
@@ -10,10 +11,27 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export default async function QuotePage({ params }: PageProps<"/[locale]/quote">) {
+export default async function QuotePage({ params, searchParams }: PageProps<"/[locale]/quote">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+
+  const loc = locale as AppLocale;
+
+  // Las etiquetas se resuelven en servidor: al cliente solo viaja
+  // {id, label} en el idioma actual, no ambos diccionarios de servicios.
+  const serviceOptions = getPublishedServices().map((s) => ({
+    id: s.id,
+    label: s.title[loc],
+  }));
+
+  // `?servicio=` trae un ID estable. Se valida contra el catálogo real:
+  // un valor inventado se ignora en vez de preseleccionar basura.
+  const sp = await searchParams;
+  const rawService = typeof sp.servicio === "string" ? sp.servicio : undefined;
+  const initialServiceId = serviceOptions.some((s) => s.id === rawService)
+    ? rawService
+    : undefined;
 
   const tn = await getTranslations("Nav");
   const tq = await getTranslations("Quote");
@@ -41,7 +59,7 @@ export default async function QuotePage({ params }: PageProps<"/[locale]/quote">
         </section>
 
         <NextIntlClientProvider messages={quoteMessages}>
-          <QuoteShell />
+          <QuoteShell services={serviceOptions} initialServiceId={initialServiceId} />
         </NextIntlClientProvider>
       </main>
       <Footer />

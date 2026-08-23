@@ -1,26 +1,27 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { getPublishedServices } from "@/content/services";
+import type { AppLocale } from "@/i18n/routing";
 import ArrowRight from "../icons/ArrowRight";
-
-const CARDS = ["custom", "remodeling", "kitchensBaths", "outdoor", "repairs"] as const;
 
 /**
  * Servicios.
  *
- * Móvil: carril horizontal con scroll-snap nativo. Antes eran cinco bloques
- * verticales altos apilados — monótonos y responsables de ~1.400px de scroll.
- * La tarjeta ocupa el 82% del viewport para que asome la siguiente: eso es lo
- * que comunica "hay más" sin necesidad de flechas ni instrucciones.
+ * Cada tarjeta enlaza a SU detalle. Antes las cinco usaban `href="/services"`
+ * y todas caían en el mismo índice, que es como no tener páginas de servicio.
  *
- * Escritorio: se conserva la banda de cinco columnas montada sobre el hero,
- * que es la solución de la referencia aprobada.
+ * Móvil: carril horizontal con scroll-snap nativo. La tarjeta ocupa el 82%
+ * del viewport para que asome la siguiente — eso comunica "hay más" sin
+ * flechas ni instrucciones.
+ * Escritorio: banda de cinco columnas montada sobre el hero, como en la
+ * referencia aprobada.
  *
- * Sin JavaScript: el carril sigue siendo desplazable (scroll nativo del
- * navegador), así que no hay dependencia de hidratación.
+ * Sin JavaScript el carril sigue siendo desplazable: no depende de hidratación.
  */
 export default async function ServiceCards() {
-  const t = await getTranslations("ServiceCards");
+  const locale = (await getLocale()) as AppLocale;
   const th = await getTranslations("Home");
+  const services = getPublishedServices();
 
   return (
     <section className="relative bg-paper">
@@ -30,9 +31,6 @@ export default async function ServiceCards() {
         </h2>
 
         <ul
-          // `tabIndex` hace el carril alcanzable por teclado: sin él, quien
-          // navega con teclado no puede desplazarlo con las flechas (axe:
-          // scrollable-region-focusable).
           tabIndex={0}
           aria-label={th("servicesEyebrow")}
           className="
@@ -42,13 +40,15 @@ export default async function ServiceCards() {
             lg:bg-bone/10 lg:px-0 lg:pb-0
           "
         >
-          {CARDS.map((key, i) => (
+          {services.map((service, i) => (
             <li
-              key={key}
+              key={service.id}
               className="w-[82%] flex-none snap-start bg-carbon sm:w-[46%] lg:w-auto"
             >
+              {/* La tarjeta entera es el enlace: la flecha es decorativa y no
+                  un segundo control vacío que duplique el destino. */}
               <Link
-                href="/services"
+                href={{ pathname: "/services/[slug]", params: { slug: service.slugs[locale] } }}
                 className="group flex h-full min-h-[188px] flex-col justify-between p-6 transition-colors hover:bg-carbon-raised"
               >
                 <div>
@@ -56,10 +56,10 @@ export default async function ServiceCards() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <h3 className="mt-3 font-display text-lg font-semibold leading-tight text-bone">
-                    {t(`${key}.title`)}
+                    {service.title[locale]}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-bone/70">
-                    {t(`${key}.description`)}
+                    {service.shortDescription[locale]}
                   </p>
                 </div>
                 <span

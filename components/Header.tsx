@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
@@ -61,7 +61,22 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <LocaleSwitcher />
+            {/*
+              `LocaleSwitcher` lee `useSearchParams()` para conservar los
+              filtros al cambiar de idioma; eso obliga a un límite de Suspense
+              para que el resto de la página siga prerenderizándose estática.
+              El fallback reserva el mismo tamaño y evita salto de layout.
+            */}
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  className="h-11 w-[6.5rem] rounded-full border border-bone/30"
+                />
+              }
+            >
+              <LocaleSwitcher />
+            </Suspense>
             <div className="hidden md:block">
               <WhatsAppButton />
             </div>

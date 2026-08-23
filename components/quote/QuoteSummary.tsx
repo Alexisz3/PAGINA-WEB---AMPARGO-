@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { QuoteDraft } from "./QuoteShell";
+import type { QuoteDraft, ServiceOption } from "./QuoteShell";
 
 /**
  * Resumen de la solicitud.
@@ -13,11 +13,19 @@ import type { QuoteDraft } from "./QuoteShell";
  *
  * Escritorio: panel lateral siempre visible y sticky, donde sí hay espacio.
  */
-export default function QuoteSummary({ draft }: { draft: QuoteDraft }) {
+export default function QuoteSummary({
+  draft,
+  services,
+}: {
+  draft: QuoteDraft;
+  services: ServiceOption[];
+}) {
   const t = useTranslations("Quote");
+  // El borrador guarda el ID; el resumen muestra la etiqueta del idioma actual.
+  const serviceLabel = services.find((s) => s.id === draft.service)?.label ?? "";
 
   const rows = [
-    { label: t("summaryService"), value: draft.service },
+    { label: t("summaryService"), value: serviceLabel },
     { label: t("summaryLocation"), value: draft.location },
     {
       label: t("summaryPhotos"),

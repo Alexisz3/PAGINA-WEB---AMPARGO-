@@ -23,6 +23,7 @@ const PAGES = [
     es: "/es/proyectos/renovacion-de-cocina",
     en: "/en/projects/kitchen-renovation",
   },
+  { name: "servicio-detalle", es: "/es/servicios/cocinas-y-banos", en: "/en/services/kitchens-and-bathrooms" },
   { name: "404", es: "/es/no-existe", en: "/en/does-not-exist" },
 ];
 

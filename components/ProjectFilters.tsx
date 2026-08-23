@@ -36,8 +36,8 @@ export default function ProjectFilters({ active }: { active: FilterValue }) {
 
   const select = (value: FilterValue) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === "all") params.delete("cat");
-    else params.set("cat", value);
+    if (value === "all") params.delete("categoria");
+    else params.set("categoria", value);
 
     // Forma de objeto: el router tipado de next-intl no acepta una cadena
     // con query string, y así el pathname se sigue validando contra el

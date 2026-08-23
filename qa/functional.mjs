@@ -202,7 +202,121 @@ console.log(`--- motor: ${ENGINE} ---`);
   await ctx.close();
 }
 
-// ─── 8. 404 localizado ──────────────────────────────────────────────────
+// ─── 8. Servicios: enlaces únicos y detalles ────────────────────────────
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+  await p.goto(URL + "/es", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1200);
+
+  const hrefs = await p.locator("section a[href*='/servicios/']").evaluateAll((els) =>
+    els.map((e) => e.getAttribute("href"))
+  );
+  const unique = new Set(hrefs);
+  check("Servicios: las 5 tarjetas tienen href distintos", hrefs.length === 5 && unique.size === 5,
+    `${hrefs.length} enlaces, ${unique.size} únicos`);
+
+  const SERVICE_PATHS = [
+    ["/es/servicios/construccion-personalizada", "/en/services/custom-construction"],
+    ["/es/servicios/remodelaciones", "/en/services/remodeling"],
+    ["/es/servicios/cocinas-y-banos", "/en/services/kitchens-and-bathrooms"],
+    ["/es/servicios/espacios-exteriores", "/en/services/outdoor-spaces"],
+    ["/es/servicios/reparaciones-y-mejoras", "/en/services/repairs-and-improvements"],
+  ];
+
+  let all200 = true;
+  for (const pair of SERVICE_PATHS) {
+    for (const path of pair) {
+      const r = await p.request.get(URL + path);
+      if (r.status() !== 200) all200 = false;
+    }
+  }
+  check("Servicios: los 5 detalles responden 200 en ambos idiomas", all200);
+
+  // Un slug del idioma equivocado no debe servir contenido duplicado.
+  const wrong = await p.request.get(URL + "/en/services/cocinas-y-banos");
+  check("Servicios: slug del idioma equivocado devuelve 404", wrong.status() === 404, String(wrong.status()));
+
+  // Metadata propia por servicio.
+  const html = await (await p.request.get(URL + "/es/servicios/cocinas-y-banos")).text();
+  check("Servicios: canonical propio del detalle", html.includes("/es/servicios/cocinas-y-banos"));
+  const lower = html.toLowerCase();
+  check("Servicios: alternates recíprocos por entidad",
+    lower.includes("/en/services/kitchens-and-bathrooms"));
+
+  await ctx.close();
+}
+
+// ─── 9. Preselección de servicio en la cotización ───────────────────────
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+  await p.goto(URL + "/es/cotizacion?servicio=kitchens-bathrooms", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1600);
+  check("Cotización: preselecciona el servicio del enlace",
+    (await p.locator("#service").inputValue()) === "kitchens-bathrooms");
+
+  // Un ID inventado se ignora en vez de preseleccionar basura.
+  // Se limpia el borrador antes: si no, la elección guardada del caso
+  // anterior gana (que es el comportamiento correcto, pero no lo que se
+  // está probando aquí).
+  await p.evaluate(() => {
+    try { window.sessionStorage.clear(); } catch { /* sin storage */ }
+  });
+  await p.goto(URL + "/es/cotizacion?servicio=no-existe", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1600);
+  check("Cotización: ignora un servicio inexistente",
+    (await p.locator("#service").inputValue()) === "");
+
+  await ctx.close();
+}
+
+// ─── 10. El idioma preserva el contexto ─────────────────────────────────
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+
+  /*
+   * React no expone ningún evento de "ya hidraté": `readyState === complete`
+   * ocurre ANTES de que el onClick esté asociado, así que un clic temprano
+   * no hace nada. En vez de subir un sleep a ciegas, se reintenta el clic
+   * hasta que surta efecto. Es determinista y se detiene solo.
+   */
+  const switchAndGet = async (from, to, attempts = 5) => {
+    await p.goto(URL + from, { waitUntil: "domcontentloaded" });
+    // `URL` está sombreado por la constante de arriba: se usa el global.
+    const startPath = new globalThis.URL(URL + from).pathname;
+    const btn = p.locator('[role="group"] button', { hasText: to });
+    await btn.waitFor({ state: "visible" });
+
+    for (let i = 0; i < attempts; i++) {
+      await btn.click().catch(() => {});
+      try {
+        await p.waitForURL((u) => u.pathname !== startPath, { timeout: 1500 });
+        break;
+      } catch {
+        /* aún no había hidratado: se reintenta */
+      }
+    }
+    return p.url().replace(URL, "");
+  };
+
+  let got = await switchAndGet("/es/proyectos/renovacion-de-cocina", "EN");
+  check("Idioma: proyecto dinámico traduce el slug", got === "/en/projects/kitchen-renovation", got);
+
+  got = await switchAndGet("/en/projects/kitchen-renovation", "ES");
+  check("Idioma: vuelta conserva la entidad", got === "/es/proyectos/renovacion-de-cocina", got);
+
+  got = await switchAndGet("/es/servicios/cocinas-y-banos", "EN");
+  check("Idioma: servicio dinámico traduce el slug", got === "/en/services/kitchens-and-bathrooms", got);
+
+  got = await switchAndGet("/es/proyectos?categoria=kitchens", "EN");
+  check("Idioma: conserva el filtro de la query", got === "/en/projects?categoria=kitchens", got);
+
+  await ctx.close();
+}
+
+// ─── 11. 404 localizado ─────────────────────────────────────────────────
 {
   const ctx = await browser.newContext();
   const p = await ctx.newPage();

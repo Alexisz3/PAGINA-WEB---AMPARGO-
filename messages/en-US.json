@@ -15,7 +15,16 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "menuTitle": "Menu",
-    "languageSwitcherLabel": "Switch language"
+    "languageSwitcherLabel": "Switch language",
+    "languageCurrent": "Current language: {name}",
+    "languageSwitchTo": "Switch to {name}",
+    "servicesAll": "All services",
+    "backToServices": "Back to Services",
+    "breadcrumb": "Breadcrumb",
+    "languageName": {
+      "es-US": "Spanish",
+      "en-US": "English"
+    }
   },
   "Home": {
     "heroEyebrow": "AMPARGO — CONSTRUCTION & REMODELING",
@@ -40,7 +49,10 @@
     "processHeading": "A clear process for successful results.",
     "ctaBandEyebrow": "LET'S TALK ABOUT YOUR PROJECT",
     "ctaBandHeading": "Let's build something extraordinary together.",
-    "ctaBandBody": "Request a no-obligation quote and take the first step toward your new space."
+    "ctaBandBody": "Request a no-obligation quote and take the first step toward your new space.",
+    "servicesIntro": "Construction, remodeling, and maintenance in Houston. Every project starts by reviewing what you need.",
+    "serviceCtaHeading": "Have a project like this?",
+    "serviceCtaBody": "Tell us what you need and we'll review your case. The quote form opens with this service already selected."
   },
   "Services": {
     "housing": {

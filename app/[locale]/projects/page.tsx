@@ -43,7 +43,7 @@ export default async function ProjectsPage({ params, searchParams }: PageProps<"
   setRequestLocale(locale);
 
   const sp = await searchParams;
-  const raw = typeof sp.cat === "string" ? sp.cat : "all";
+  const raw = typeof sp.categoria === "string" ? sp.categoria : "all";
   const active: FilterValue = VALID.includes(raw as FilterValue) ? (raw as FilterValue) : "all";
 
   const visible =

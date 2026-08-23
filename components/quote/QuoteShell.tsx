@@ -1,16 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import QuoteStepper from "./QuoteStepper";
 import ReferenceUploader from "./ReferenceUploader";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
 import QuoteSummary from "./QuoteSummary";
 
-const SERVICE_KEYS = [
-  "housing", "remodeling", "finishes", "design", "planning",
-  "commercial", "maintenance", "electrical", "plumbing",
-] as const;
+export interface ServiceOption {
+  /** ID estable, no traducido. Es lo que viaja en ?servicio= */
+  id: string;
+  label: string;
+}
+
+/**
+ * Clave de persistencia del borrador.
+ *
+ * Solo texto: nunca archivos ni blobs, que llenarían el almacenamiento.
+ * Se usa `sessionStorage` y no `localStorage` porque son datos de una sesión
+ * de contacto, no una preferencia duradera: al cerrar la pestaña desaparecen.
+ * Tampoco viajan en la query string, para no dejar datos personales en URLs
+ * que se comparten o quedan en el historial.
+ */
+const DRAFT_KEY = "ampargo-quote-draft";
+
+/** Campos que se persisten. `photoCount` queda fuera a propósito: los
+ *  archivos no sobreviven a una recarga y anunciar un número que ya no
+ *  corresponde a nada sería engañoso. */
+type PersistedDraft = Omit<QuoteDraft, "photoCount"> & { step?: number };
 
 export interface QuoteDraft {
   service: string;
@@ -37,9 +54,14 @@ const FIELD =
  * muestra un aviso explícito de modo desarrollo en lugar de afirmar que la
  * solicitud se envió. Ver AUDITORIA_Y_PLAN_AMPARGO.md §11.
  */
-export default function QuoteShell() {
+export default function QuoteShell({
+  services,
+  initialServiceId,
+}: {
+  services: ServiceOption[];
+  initialServiceId?: string;
+}) {
   const t = useTranslations("Quote");
-  const ts = useTranslations("Services");
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<QuoteDraft>({
     service: "", location: "", description: "",
@@ -49,6 +71,63 @@ export default function QuoteShell() {
 
   const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
+
+  const restored = useRef(false);
+
+  /*
+   * Restaura el borrador y aplica la preselección de servicio.
+   *
+   * Orden importante: lo escrito por el visitante gana sobre `?servicio=`.
+   * Si alguien ya eligió un servicio y luego llega un enlace con otro, no se
+   * le sobrescribe la elección.
+   */
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+
+    let saved: Partial<PersistedDraft> = {};
+    try {
+      const raw = window.sessionStorage.getItem(DRAFT_KEY);
+      if (raw) saved = JSON.parse(raw) as Partial<PersistedDraft>;
+    } catch {
+      /* almacenamiento no disponible o JSON corrupto: se sigue sin borrador */
+    }
+
+    // El ID de la URL solo se acepta si corresponde a un servicio real.
+    const validInitial =
+      initialServiceId && services.some((s) => s.id === initialServiceId)
+        ? initialServiceId
+        : "";
+
+    const savedStep = Number(saved.step ?? 0);
+
+    /*
+     * setState dentro de un efecto, a propósito y una sola vez.
+     *
+     * `sessionStorage` no existe durante el render del servidor, así que no
+     * se puede leer en el inicializador de `useState` sin provocar un
+     * desajuste de hidratación. Este es el caso que los efectos existen para
+     * cubrir: sincronizar con un sistema externo al montar. El centinela
+     * `restored` garantiza que ocurre una única vez y no encadena renders.
+     */
+    setDraft((d) => ({ ...d, ...saved, service: saved.service || validInitial || d.service }));
+    if (savedStep >= 1 && savedStep <= 3) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- ver comentario arriba
+      setStep(savedStep);
+    }
+  }, [initialServiceId, services]);
+
+  // Persiste en cada cambio, excepto el conteo de fotos.
+  useEffect(() => {
+    if (!restored.current) return;
+    try {
+      const { photoCount: _omit, ...rest } = draft;
+      void _omit;
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...rest, step }));
+    } catch {
+      /* almacenamiento lleno o bloqueado: el formulario sigue funcionando */
+    }
+  }, [draft, step]);
 
   return (
     <section className="bg-paper py-12 lg:py-16">
@@ -72,9 +151,11 @@ export default function QuoteShell() {
                     onChange={(e) => update("service", e.target.value)}
                   >
                     <option value="">{t("servicePlaceholder")}</option>
-                    {SERVICE_KEYS.map((k) => (
-                      <option key={k} value={ts(`${k}.title`)}>
-                        {ts(`${k}.title`)}
+                    {/* El VALOR es el ID estable, no la etiqueta traducida:
+                        así el borrador sobrevive a un cambio de idioma. */}
+                    {services.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
                       </option>
                     ))}
                   </select>
@@ -206,7 +287,7 @@ export default function QuoteShell() {
           </div>
         </div>
 
-        <QuoteSummary draft={draft} />
+        <QuoteSummary draft={draft} services={services} />
       </div>
     </section>
   );

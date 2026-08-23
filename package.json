@@ -12,7 +12,8 @@
     "qa:visual": "node qa/capture-pages.mjs",
     "qa:functional": "node qa/functional.mjs",
     "qa:axe": "node qa/axe.mjs",
-    "qa:lighthouse": "node qa/lighthouse.mjs"
+    "qa:lighthouse": "node qa/lighthouse.mjs",
+    "check:env": "node --experimental-strip-types qa/check-env.mjs"
   },
   "dependencies": {
     "framer-motion": "^11.15.0",
@@ -37,6 +38,6 @@
     "wait-on": "^9.1.0"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "22.x"
   }
 }
