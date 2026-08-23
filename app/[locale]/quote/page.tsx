@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale, NextIntlClientProvider, type Locale } from "next-intl";
 import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
-import { routing, type AppLocale } from "@/i18n/routing";
+import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { getPublishedServices } from "@/content/services";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,6 +10,30 @@ import QuoteShell from "@/components/quote/QuoteShell";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/quote">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+
+  const t = await getTranslations({ locale: locale as Locale, namespace: "Quote" });
+  const path = (l: AppLocale) =>
+    `${LOCALE_PREFIXES[l]}${l === "es-US" ? "/cotizacion" : "/quote"}`;
+
+  return {
+    title:
+      locale === "es-US"
+        ? "Solicite su cotización sin costo | Ampargo Houston"
+        : "Request a Free Estimate | Ampargo Houston",
+    description: t("intro"),
+    alternates: {
+      canonical: path(locale as AppLocale),
+      languages: { "es-US": path("es-US"), "en-US": path("en-US") },
+    },
+    openGraph: { type: "website", title: t("heading"), url: path(locale as AppLocale) },
+  };
 }
 
 export default async function QuotePage({ params, searchParams }: PageProps<"/[locale]/quote">) {

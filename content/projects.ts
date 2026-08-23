@@ -22,7 +22,41 @@ export interface Project {
   gallery: ProjectPhoto[];
   /** Featured en portada solo si aporta variedad de categoría. */
   featuredOnHome: boolean;
+
+  /* ─── Campos de caso de estudio ───────────────────────────────────────
+   * Todos OPCIONALES y todos ausentes hoy: describen decisiones y resultados
+   * de obra que solo el cliente conoce. La página de detalle renderiza cada
+   * bloque únicamente si su campo existe, así que un proyecto sin estos datos
+   * se ve completo y sin huecos, y se enriquece solo cuando lleguen.
+   *
+   * Deducirlos de las fotos sería inventar: una encimera de cuarzo no prueba
+   * quién hizo la plomería.
+   */
+
+  /** Alcance contratado, en viñetas. Confirmado por el cliente. */
+  scope?: Record<AppLocale, string[]>;
+  /** Oficios realmente ejecutados en ESTA obra. Nunca supuestos. */
+  workCompleted?: Record<AppLocale, string[]>;
+  /** Resultado final descrito por el cliente. */
+  result?: Record<AppLocale, string>;
+  /** Id de un par en BEFORE_AFTER_PAIRS, si existe material confirmado. */
+  beforeAfterId?: string;
 }
+
+/**
+ * Categoría de obra → servicio que la cubre.
+ *
+ * Es una correspondencia DERIVADA, no un dato inventado: una obra de cocina
+ * la cubre el servicio de cocinas y baños. Permite que la ficha del proyecto
+ * enlace a su servicio sin pedirle al cliente un dato más.
+ */
+export const CATEGORY_TO_SERVICE: Record<ProjectCategory, string> = {
+  kitchens: "kitchens-bathrooms",
+  bathrooms: "kitchens-bathrooms",
+  exteriors: "outdoor-spaces",
+  structures: "custom-construction",
+  interiors: "remodeling",
+};
 
 /**
  * Fuente de verdad de proyectos publicables.

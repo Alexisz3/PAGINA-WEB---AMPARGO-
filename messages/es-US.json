@@ -52,7 +52,13 @@
     "ctaBandBody": "Solicite una cotización sin compromiso y dé el primer paso hacia su nuevo espacio.",
     "servicesIntro": "Construcción, remodelación y mantenimiento en Houston. Cada proyecto empieza revisando lo que usted necesita.",
     "serviceCtaHeading": "¿Tiene un proyecto así?",
-    "serviceCtaBody": "Cuéntenos qué necesita y revisamos su caso. La cotización llega ya con este servicio seleccionado."
+    "serviceCtaBody": "Cuéntenos qué necesita y revisamos su caso. La cotización llega ya con este servicio seleccionado.",
+    "trustServiceArea": "Houston y alrededores",
+    "trustResidentialCommercial": "Residencial y comercial",
+    "trustFreeEstimates": "Presupuestos sin costo",
+    "trustBilingual": "Atención en inglés y español",
+    "valuesEyebrow": "POR QUÉ AMPARGO",
+    "valuesSectionHeading": "Por qué los propietarios eligen Ampargo"
   },
   "Services": {
     "housing": {
@@ -124,7 +130,9 @@
     "step4Title": "Revisión",
     "step4Body": "Verificamos calidad y aseguramos su satisfacción.",
     "step5Title": "Entrega",
-    "step5Body": "Entregamos su proyecto listo para disfrutar."
+    "step5Body": "Entregamos su proyecto listo para disfrutar.",
+    "heading": "Cómo trabajamos",
+    "intro": "Una secuencia clara desde la primera conversación hasta la revisión final, para que siempre sepa qué sigue."
   },
   "Projects": {
     "eyebrow": "PROYECTOS",
@@ -145,7 +153,24 @@
     "previous": "Proyecto anterior",
     "next": "Proyecto siguiente",
     "filterInteriors": "Interiores",
-    "counter": "Proyecto {n} de {total}"
+    "counter": "Proyecto {n} de {total}",
+    "theProject": "El proyecto",
+    "detailsHeading": "Ficha del proyecto",
+    "detailService": "Servicio",
+    "detailLocation": "Ubicación",
+    "detailCategory": "Tipo de obra",
+    "detailStatus": "Estado",
+    "scopeHeading": "Alcance de la obra",
+    "workCompletedHeading": "Trabajos realizados",
+    "galleryHeading": "Galería del proyecto",
+    "resultHeading": "El resultado",
+    "similarHeading": "¿Tiene en mente algo parecido?",
+    "similarBody": "Cuéntenos sobre su espacio y le ayudamos a definir el siguiente paso.",
+    "viewService": "Ver este servicio",
+    "backToProjects": "Todos los proyectos",
+    "beforeLabel": "Antes",
+    "afterLabel": "Después",
+    "compareLabel": "Arrastre para comparar el antes y el después"
   },
   "Contact": {
     "eyebrow": "CONTACTO",
@@ -153,10 +178,15 @@
     "callLabel": "Llámenos",
     "whatsappLabel": "WhatsApp",
     "emailLabel": "Envíenos un correo",
-    "emailPending": "Correo en configuración — use WhatsApp mientras tanto",
     "addressLabel": "Área de servicio",
     "address": "Houston y alrededores, TX",
-    "mapTitle": "Mapa de la ubicación de Ampargo en Houston, TX"
+    "intro": "Cuéntenos qué tiene en mente y seguimos desde ahí.",
+    "callHelp": "De lunes a sábado",
+    "whatsappHelp": "Envíe fotos de su espacio",
+    "whatsappAction": "Abrir WhatsApp",
+    "serviceAreaHelp": "Trabajamos en toda el área metropolitana de Houston",
+    "preferLabel": "¿Prefiere escribirlo?",
+    "preferBody": "Envíenos los detalles por el formulario de cotización y los revisamos antes de llamarle."
   },
   "Footer": {
     "tagline": "Construcción y remodelación en Houston, TX.",
@@ -164,7 +194,10 @@
     "followHeading": "Síguenos",
     "rights": "Todos los derechos reservados.",
     "privacy": "Política de privacidad",
-    "terms": "Términos de servicio"
+    "terms": "Términos de servicio",
+    "servicesHeading": "Servicios",
+    "companyHeading": "Empresa",
+    "contactHeading": "Contacto"
   },
   "NotFound": {
     "heading": "Página no encontrada",
@@ -211,6 +244,20 @@
     "back": "Volver",
     "next": "Continuar",
     "submit": "Enviar solicitud",
-    "devNotice": "Modo de desarrollo: esta solicitud no se envía a nadie todavía. El registro y los canales reales están pendientes de que el cliente contrate los servicios."
+    "devNotice": "Modo de desarrollo: esta solicitud no se envía a nadie todavía. El registro y los canales reales están pendientes de que el cliente contrate los servicios.",
+    "heading": "Solicite su cotización sin costo",
+    "intro": "Cuéntenos sobre su proyecto y revisamos los detalles antes de ponernos en contacto."
+  },
+  "Testimonials": {
+    "heading": "Lo que dicen nuestros clientes",
+    "eyebrow": "CLIENTES"
+  },
+  "About": {
+    "eyebrow": "NOSOTROS",
+    "heading": "Construido en torno a su visión",
+    "storyHeading": "Nuestra historia",
+    "teamHeading": "Las personas detrás de Ampargo",
+    "valuesHeading": "Cómo trabajamos",
+    "ctaHeading": "Construyamos algo bueno juntos"
   }
 }

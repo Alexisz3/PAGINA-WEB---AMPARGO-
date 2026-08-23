@@ -1,0 +1,913 @@
+<title>Presupuesto Ampargo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+
+<style>
+  /* ─── Tokens ───────────────────────────────────────────────────────────
+     Heredados del sistema de diseño del sitio (app/globals.css) para que la
+     propuesta y el producto se lean como la misma marca.                  */
+  :root {
+    --ground:        #f2efe8;
+    --surface:       #faf8f3;
+    --surface-sunk:  #eae6dd;
+    --ink:           #181a18;
+    --muted:         #626963;
+    --line:          rgb(24 26 24 / 16%);
+    --line-soft:     rgb(24 26 24 / 8%);
+    --accent:        #b8452f;
+    --accent-soft:   rgb(184 69 47 / 9%);
+    --accent-line:   rgb(184 69 47 / 35%);
+    /* El bloque de precio invierte el fondo respecto a la página, así que
+       necesita su propio juego de acento y filete: el acento del tema claro
+       sobre fondo oscuro no alcanza contraste, y viceversa. */
+    --inverse:        #121412;
+    --inverse-ink:    #f8f6f0;
+    --inverse-muted:  #9aa39c;
+    --inverse-accent: #d9764f;   /* 5.95:1 sobre #121412 */
+    --inverse-line:   rgb(248 246 240 / 14%);
+
+    --step--1: clamp(0.75rem, 0.72rem + 0.14vw, 0.82rem);
+    --step-0:  clamp(0.95rem, 0.92rem + 0.16vw, 1.02rem);
+    --step-1:  clamp(1.12rem, 1.05rem + 0.3vw, 1.28rem);
+    --step-2:  clamp(1.4rem, 1.25rem + 0.6vw, 1.75rem);
+    --step-3:  clamp(1.85rem, 1.5rem + 1.4vw, 2.6rem);
+    --step-4:  clamp(2.6rem, 1.9rem + 3vw, 4.2rem);
+
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-body:    "IBM Plex Sans", "Segoe UI", sans-serif;
+    --font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:        #121412;
+      --surface:       #1a1d1a;
+      --surface-sunk:  #0d0f0d;
+      --ink:           #f8f6f0;
+      --muted:         #9aa39c;
+      --line:          rgb(248 246 240 / 15%);
+      --line-soft:     rgb(248 246 240 / 7%);
+      --accent:        #d9764f;
+      --accent-soft:   rgb(217 118 79 / 12%);
+      --accent-line:   rgb(217 118 79 / 40%);
+      --inverse:        #f2efe8;
+      --inverse-ink:    #181a18;
+      --inverse-muted:  #626963;
+      --inverse-accent: #b8452f;   /* 4.66:1 sobre #f2efe8 */
+      --inverse-line:   rgb(24 26 24 / 15%);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:        #121412;
+    --surface:       #1a1d1a;
+    --surface-sunk:  #0d0f0d;
+    --ink:           #f8f6f0;
+    --muted:         #9aa39c;
+    --line:          rgb(248 246 240 / 15%);
+    --line-soft:     rgb(248 246 240 / 7%);
+    --accent:        #d9764f;
+    --accent-soft:   rgb(217 118 79 / 12%);
+    --accent-line:   rgb(217 118 79 / 40%);
+    --inverse:        #f2efe8;
+    --inverse-ink:    #181a18;
+    --inverse-muted:  #626963;
+    --inverse-accent: #b8452f;
+    --inverse-line:   rgb(24 26 24 / 15%);
+  }
+
+  /* ─── Base ─────────────────────────────────────────────────────────── */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.15rem, 4vw, 3rem) 4rem;
+  }
+
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+
+  /* Etiqueta de hoja técnica: mono, versalitas, filete de registro.
+     `max-width: none` es obligatorio: la regla de prosa `p { max-width: 68ch }`
+     alcanza a estos párrafos estructurales y les corta el filete a media
+     anchura. Lo mismo vale para el encabezado del cajetín. */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    max-width: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.9rem;
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--accent-line);
+  }
+
+  section { margin-top: clamp(2.75rem, 6vw, 4.5rem); }
+
+  .lede {
+    max-width: 60ch;
+    color: var(--muted);
+    font-size: var(--step-1);
+    line-height: 1.6;
+  }
+
+  p { max-width: 68ch; }
+
+  /* ─── Portada ──────────────────────────────────────────────────────── */
+  .cover { border-bottom: 2px solid var(--ink); padding-bottom: 2rem; }
+
+  .cover h1 {
+    font-size: var(--step-4);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 0.6rem;
+  }
+
+  .cover .sub {
+    font-size: var(--step-2);
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--muted);
+    max-width: 24ch;
+    line-height: 1.2;
+  }
+
+  /* Los filetes de la rejilla son el fondo del contenedor visto a través de
+     un `gap` de 1px. Por eso el número de columnas debe dividir exacto al
+     número de celdas (6): si sobra hueco, el fondo se ve como un bloque
+     macizo. 3 · 2 · 1 dividen a 6; `auto-fit` no lo garantiza. */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 2.25rem;
+  }
+  @media (max-width: 40rem) { .meta-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 22rem) { .meta-grid { grid-template-columns: 1fr; } }
+  .meta-grid div { background: var(--ground); padding: 0.8rem 0.95rem; }
+  .meta-grid dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.3rem;
+  }
+  .meta-grid dd {
+    margin: 0;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Hechos verificados ───────────────────────────────────────────── */
+  /* Mismo criterio que .meta-grid: 6 celdas, columnas que dividen a 6. */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 1.75rem;
+  }
+  @media (max-width: 60rem) { .facts { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 30rem) { .facts { grid-template-columns: repeat(2, 1fr); } }
+  .fact { background: var(--surface); padding: 1.1rem 1rem; }
+  .fact .n {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .fact .l {
+    display: block;
+    font-size: var(--step--1);
+    color: var(--muted);
+    margin-top: 0.35rem;
+    line-height: 1.35;
+  }
+
+  .liveline {
+    margin-top: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+  }
+  .liveline a {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-weight: 500;
+    word-break: break-all;
+  }
+
+  /* ─── Firma: acotación arquitectónica del precio ───────────────────── */
+  .price-block {
+    margin-top: 2rem;
+    background: var(--inverse);
+    color: var(--inverse-ink);
+    padding: clamp(1.6rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .price-rows {
+    display: grid;
+    gap: 0;
+    max-width: 34rem;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .price-row .tag {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--inverse-muted);
+  }
+
+  .price-row .amt {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .price-row.list .amt {
+    font-size: var(--step-2);
+    color: var(--inverse-muted);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .price-row.final .amt {
+    font-size: var(--step-4);
+    font-weight: 600;
+    color: var(--inverse-accent);
+  }
+  .price-row.final .tag { color: var(--inverse-ink); }
+
+  /* Línea de acotación: filete con marcas de tope y medida centrada,
+     como la anotación de un plano. Mide el descuento. */
+  .dimension {
+    position: relative;
+    margin: 1.5rem 0;
+    padding: 0.9rem 0;
+    max-width: 34rem;
+  }
+  .dimension::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--inverse-accent);
+    opacity: 0.4;
+  }
+  .dimension .tick {
+    position: absolute;
+    top: 50%;
+    width: 1px;
+    height: 15px;
+    background: var(--inverse-accent);
+    transform: translateY(-50%);
+  }
+  .dimension .tick.a { left: 0; }
+  .dimension .tick.b { right: 0; }
+  .dimension .measure {
+    position: relative;
+    display: inline-block;
+    background: var(--inverse);
+    padding: 0 0.85rem;
+    margin-left: 1.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--inverse-accent);
+  }
+
+  .price-note {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--inverse-line);
+    color: var(--inverse-muted);
+    font-size: var(--step--1);
+    max-width: 56ch;
+  }
+
+  /* ─── Planes ───────────────────────────────────────────────────────── */
+  /* 3 planes: solo 3 y 1 dividen exacto. Un 2+1 dejaría el hueco macizo. */
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 1.75rem;
+  }
+  @media (max-width: 52rem) { .plans { grid-template-columns: 1fr; } }
+
+  .plan {
+    background: var(--surface);
+    padding: 1.5rem 1.35rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .plan.pick { background: var(--accent-soft); }
+
+  .plan .flag {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    min-height: 1.2em;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .plan h3 {
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .plan .rate {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin: 0.7rem 0 0.15rem;
+  }
+  .plan .per { font-size: var(--step--1); color: var(--muted); font-weight: 400; letter-spacing: 0; }
+  .plan .daily {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+    margin-bottom: 1.1rem;
+  }
+
+  .plan ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: var(--step--1);
+    line-height: 1.5;
+    border-top: 1px solid var(--line);
+    padding-top: 1.1rem;
+  }
+  .plan li { display: flex; gap: 0.6rem; }
+  .plan li::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 1px;
+    background: var(--accent);
+    margin-top: 0.72em;
+  }
+  .plan li.carry { color: var(--muted); font-style: italic; }
+  .plan li.carry::before { background: var(--muted); }
+
+  /* ─── Tablas ───────────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin-top: 1.5rem; border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; min-width: 30rem; font-size: var(--step--1); }
+  th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    background: var(--surface-sunk);
+    border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ─── Listas de alcance ────────────────────────────────────────────── */
+  /* 2 celdas: 2 o 1. Con `auto-fit` resolvía a 3 columnas en escritorio y
+     dejaba la tercera vacía y maciza. */
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 1.5rem;
+  }
+  @media (max-width: 44rem) { .cols { grid-template-columns: 1fr; } }
+  .col { background: var(--surface); padding: 1.35rem 1.25rem 1.6rem; }
+  .col h3 {
+    font-size: var(--step-0);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+  .col.yes h3 { color: var(--accent); }
+  .col.no h3 { color: var(--muted); }
+  .col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; font-size: var(--step--1); line-height: 1.5; }
+  .col li { display: flex; gap: 0.6rem; }
+  .col li::before { content: ""; flex: none; width: 6px; height: 1px; margin-top: 0.72em; background: currentColor; opacity: 0.5; }
+
+  /* ─── Nota honesta ─────────────────────────────────────────────────── */
+  .note {
+    margin-top: 1.5rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    padding: 1.15rem 1.35rem;
+  }
+  .note h3 {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.55rem;
+  }
+  .note p { font-size: var(--step--1); margin: 0 0 0.6rem; }
+  .note p:last-child { margin-bottom: 0; }
+
+  /* ─── Cajetín de firma ─────────────────────────────────────────────── */
+  .titleblock {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    border: 2px solid var(--ink);
+  }
+  .titleblock .tb-head {
+    background: var(--ink);
+    color: var(--ground);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.1rem;
+    max-width: none;
+    margin: 0;
+  }
+  /* 3 celdas de firma: 3 o 1, por el mismo motivo. */
+  .tb-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+  }
+  @media (max-width: 44rem) { .tb-body { grid-template-columns: 1fr; } }
+  .tb-cell { background: var(--ground); padding: 1.1rem 1.15rem 1.5rem; }
+  .tb-cell .k {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .tb-cell .v { font-weight: 500; }
+  .sigline { margin-top: 2rem; border-bottom: 1px solid var(--ink); }
+
+  footer {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .sheet { max-width: none; padding: 0; }
+    section { break-inside: avoid; }
+    .plan, .note, .titleblock, .price-block { break-inside: avoid; }
+  }
+</style>
+
+<div class="sheet">
+
+  <!-- ══ Portada ══════════════════════════════════════════════════════ -->
+  <header class="cover">
+    <p class="eyebrow">Propuesta comercial · Sitio web</p>
+    <h1>Ampargo</h1>
+    <p class="sub">Sitio web bilingüe, construido y en línea</p>
+
+    <dl class="meta-grid">
+      <div><dt>Preparado para</dt><dd>Jose Andrade</dd></div>
+      <div><dt>Empresa</dt><dd>Ampargo</dd></div>
+      <div><dt>Ubicación</dt><dd>Houston, TX</dd></div>
+      <div><dt>Fecha</dt><dd>22 ago 2026</dd></div>
+      <div><dt>Validez</dt><dd>30 días</dd></div>
+      <div><dt>Estado</dt><dd>Listo para revisión</dd></div>
+    </dl>
+  </header>
+
+  <!-- ══ Lo construido ════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">01 · Lo que ya está construido</p>
+    <h2 class="lede" style="color: var(--ink); font-family: var(--font-display); font-weight: 500;">
+      Esta propuesta no describe un trabajo por hacer. El sitio ya existe,
+      funciona y usted puede recorrerlo antes de decidir.
+    </h2>
+
+    <div class="facts">
+      <div class="fact"><span class="n">2</span><span class="l">Idiomas completos, español e inglés</span></div>
+      <div class="fact"><span class="n">11</span><span class="l">Tipos de página, cada uno en ambos idiomas</span></div>
+      <div class="fact"><span class="n">5</span><span class="l">Páginas de servicio con detalle propio</span></div>
+      <div class="fact"><span class="n">7</span><span class="l">Proyectos publicados con galería</span></div>
+      <div class="fact"><span class="n">43/43</span><span class="l">Pruebas de funcionamiento superadas</span></div>
+      <div class="fact"><span class="n">0</span><span class="l">Fallos de accesibilidad detectados</span></div>
+    </div>
+
+    <div class="liveline">
+      <p style="margin:0 0 0.35rem; font-size: var(--step--1); color: var(--muted);">
+        Véalo funcionando ahora mismo, desde su teléfono o su computadora:
+      </p>
+      <a href="https://pagina-web-ampargo.vercel.app">pagina-web-ampargo.vercel.app</a>
+    </div>
+
+    <p style="margin-top:1.5rem;">
+      El sitio se probó en los tres motores de navegador que usa prácticamente
+      todo el mundo (Chrome, Firefox y Safari) y en 15 tamaños de pantalla,
+      desde un teléfono pequeño hasta un monitor grande. Se revisó también con
+      una herramienta de accesibilidad, que verifica que una persona con baja
+      visión o que navegue solo con el teclado pueda usarlo sin barreras.
+    </p>
+  </section>
+
+  <!-- ══ Precio ═══════════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">02 · Desarrollo, pago único</p>
+
+    <div class="price-block">
+      <div class="price-rows">
+        <div class="price-row list">
+          <span class="tag">Precio de lista</span>
+          <span class="amt">$1,000</span>
+        </div>
+
+        <div class="dimension" role="img" aria-label="Descuento de 150 dólares al contratar un plan de mantenimiento">
+          <span class="tick a"></span>
+          <span class="tick b"></span>
+          <span class="measure">−$150 con plan</span>
+        </div>
+
+        <div class="price-row final">
+          <span class="tag">Su precio</span>
+          <span class="amt">$850</span>
+        </div>
+      </div>
+
+      <p class="price-note">
+        El precio de $850 aplica al contratar cualquiera de los planes de
+        mantenimiento por doce meses. Sin plan, el desarrollo se factura a $1,000
+        y el sitio se entrega tal cual, sin soporte posterior. Cifras en dólares
+        estadounidenses.
+      </p>
+    </div>
+
+    <p style="margin-top:1.5rem;">
+      El pago único cubre el sitio terminado y su puesta en línea. La propiedad
+      del código, los textos y las fotografías es de Ampargo desde el momento en
+      que se liquida la factura.
+    </p>
+  </section>
+
+  <!-- ══ Planes ═══════════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">03 · Mantenimiento mensual</p>
+    <p class="lede">
+      Un sitio sin mantenimiento envejece: las tecnologías que lo sostienen se
+      actualizan, aparecen fallos de seguridad y los proyectos nuevos nunca se
+      publican. El plan mantiene el sitio vivo y al día.
+    </p>
+
+    <div class="plans">
+
+      <article class="plan">
+        <span class="flag"></span>
+        <h3>Esencial</h3>
+        <p class="rate">$60<span class="per"> /mes</span></p>
+        <p class="daily">$2 al día</p>
+        <ul>
+          <li>Alojamiento y certificado de seguridad gestionados</li>
+          <li>Respaldos y vigilancia de que el sitio esté en línea</li>
+          <li>Actualizaciones de seguridad del software</li>
+          <li>Hasta 2 cambios de contenido al mes</li>
+          <li>Soporte por WhatsApp, respuesta en 48 h hábiles</li>
+        </ul>
+      </article>
+
+      <article class="plan pick">
+        <span class="flag">Recomendado</span>
+        <h3>Profesional</h3>
+        <p class="rate">$120<span class="per"> /mes</span></p>
+        <p class="daily">$4 al día</p>
+        <ul>
+          <li class="carry">Todo lo del plan Esencial</li>
+          <li>Hasta 6 cambios de contenido al mes</li>
+          <li>Publicación de hasta 4 proyectos nuevos al mes, con sus fotos</li>
+          <li>Informe mensual: visitas y clics al botón de WhatsApp</li>
+          <li>Ficha de Google Business creada y mantenida</li>
+          <li>Respuesta en 24 h hábiles</li>
+        </ul>
+      </article>
+
+      <article class="plan">
+        <span class="flag"></span>
+        <h3>Crecimiento</h3>
+        <p class="rate">$200<span class="per"> /mes</span></p>
+        <p class="daily">$6.60 al día</p>
+        <ul>
+          <li class="carry">Todo lo del plan Profesional</li>
+          <li>Cambios de contenido sin límite razonable</li>
+          <li>Una página nueva de servicio o campaña cada trimestre</li>
+          <li>Gestión de Google Ads (la inversión publicitaria va aparte)</li>
+          <li>Trabajo continuo de posicionamiento en buscadores</li>
+          <li>Respuesta en 8 h hábiles</li>
+        </ul>
+      </article>
+
+    </div>
+
+    <div class="note">
+      <h3>Pago anual adelantado</h3>
+      <p>
+        Si prefiere pagar el año completo por adelantado, paga <strong>diez meses
+        en lugar de doce</strong>. En el plan Profesional son $1,200 al año en vez
+        de $1,440.
+      </p>
+      <p>
+        El plan se puede cancelar con 30 días de aviso. Si cancela, el sitio sigue
+        siendo suyo: se le entregan el código y los accesos completos.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ Alcance ══════════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">04 · Alcance</p>
+
+    <div class="cols">
+      <div class="col yes">
+        <h3>Incluido</h3>
+        <ul>
+          <li>Sitio completo en español e inglés, con cambio de idioma</li>
+          <li>Diseño pensado primero para teléfono</li>
+          <li>Botón de WhatsApp con los dos números de contacto</li>
+          <li>Formulario de solicitud de cotización</li>
+          <li>Galería de proyectos con filtros por tipo de trabajo</li>
+          <li>Preparación para buscadores: mapa del sitio y datos estructurados</li>
+          <li>Puesta en línea y conexión del dominio</li>
+          <li>Capacitación de una hora para el manejo del sitio</li>
+        </ul>
+      </div>
+
+      <div class="col no">
+        <h3>No incluido</h3>
+        <ul>
+          <li>Redacción legal definitiva de las políticas (requiere abogado)</li>
+          <li>Fotografía y video profesional en obra</li>
+          <li>Diseño de logotipo</li>
+          <li>Inversión publicitaria de Google Ads</li>
+          <li>Idiomas distintos del español y el inglés</li>
+          <li>Tienda en línea o cobros por el sitio</li>
+          <li>Conexión con programas de contabilidad o CRM</li>
+          <li>Herramienta de planos en 3D (proyecto aparte, ver punto 07)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Costos de terceros ═══════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">05 · Costos de terceros</p>
+    <p>
+      Estos servicios no los cobra Ampargo ni yo: son de empresas externas y se
+      pagan directamente a ellas. Los incluyo para que el costo real quede
+      claro desde el principio.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Concepto</th>
+            <th scope="col">Costo aproximado</th>
+            <th scope="col">Quién lo paga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dominio propio (ej. ampargo.com)</td>
+            <td class="num">$15 / año</td>
+            <td>Ampargo, a su nombre</td>
+          </tr>
+          <tr>
+            <td>Alojamiento del sitio</td>
+            <td class="num">Incluido</td>
+            <td>Dentro del plan de mantenimiento</td>
+          </tr>
+          <tr>
+            <td>Correo corporativo (ej. contacto@ampargo.com)</td>
+            <td class="num">$7 / mes por buzón</td>
+            <td>Ampargo, opcional</td>
+          </tr>
+          <tr>
+            <td>Inversión en Google Ads</td>
+            <td class="num">A su criterio</td>
+            <td>Ampargo, solo si decide anunciarse</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:1rem; font-size: var(--step--1); color: var(--muted);">
+      El dominio se registra a nombre de Ampargo, no al mío. Es un punto
+      importante: significa que la dirección de su sitio le pertenece a usted y
+      nadie más puede retenerla.
+    </p>
+  </section>
+
+  <!-- ══ Forma de pago ════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">06 · Forma de pago</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Momento</th>
+            <th scope="col">Concepto</th>
+            <th scope="col">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Al aceptar</td>
+            <td>Anticipo del desarrollo</td>
+            <td class="num">$425</td>
+          </tr>
+          <tr>
+            <td>Al conectar el dominio</td>
+            <td>Liquidación del desarrollo</td>
+            <td class="num">$425</td>
+          </tr>
+          <tr>
+            <td>Cada mes, desde la publicación</td>
+            <td>Plan de mantenimiento elegido</td>
+            <td class="num">$60 – $200</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ Pendientes del cliente ═══════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">07 · Lo que necesito de usted</p>
+    <p>
+      El sitio está listo, pero hay cinco cosas que solo Ampargo puede aportar y
+      que hacen una diferencia real en el resultado.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Pendiente</th>
+            <th scope="col">Por qué importa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fotos en su tamaño original</td>
+            <td>Las que recibí llegaron por WhatsApp, que las reduce a 960 píxeles de ancho. Se ven bien en teléfono, pero pierden nitidez en pantallas grandes. Las originales, enviadas por correo o memoria USB, mejoran el sitio de inmediato y sin costo.</td>
+          </tr>
+          <tr>
+            <td>Permiso escrito para fotos con personas</td>
+            <td>Dos fotos mostraban el rostro de un trabajador. Las retiré del sitio por precaución. Si él firma un permiso, vuelven; si no, se quedan fuera.</td>
+          </tr>
+          <tr>
+            <td>Dominio elegido</td>
+            <td>Mientras no haya dominio propio, el sitio vive en una dirección provisional y no aparece en Google.</td>
+          </tr>
+          <tr>
+            <td>Correo de la empresa</td>
+            <td>Hoy no existe uno. Un correo con el nombre del negocio transmite más seriedad que uno personal.</td>
+          </tr>
+          <tr>
+            <td>Datos de cada proyecto</td>
+            <td>Zona, año y tipo de trabajo. Con eso las obras dejan de ser fotos sueltas y se vuelven casos que convencen.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <h3>Sobre el sitio y Google</h3>
+      <p>
+        Hoy el sitio está deliberadamente oculto para Google. No es un error: es
+        para que la dirección provisional no se posicione y luego compita contra
+        su dominio definitivo. En cuanto conectemos el dominio propio, se activa
+        la indexación y el sitio empieza a aparecer en las búsquedas.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ Fase futura ══════════════════════════════════════════════════ -->
+  <section>
+    <p class="eyebrow">08 · Idea para más adelante</p>
+    <h2 style="font-size: var(--step-2); font-weight:600; letter-spacing:-0.02em;">
+      Planos en papel convertidos a 3D
+    </h2>
+    <p style="margin-top:0.75rem;">
+      Usted mencionó la idea de una herramienta que tome un plano en papel y lo
+      convierta en un modelo tridimensional. Es una idea con mucho valor
+      comercial y merece un presupuesto propio: no es una página web, es
+      desarrollo de software con visión por computadora, y su costo y sus plazos
+      son de otro orden.
+    </p>
+    <p>
+      No la incluyo aquí ni le pongo precio todavía, porque hacerlo sin estudiar
+      el problema sería inventar una cifra. Cuando el sitio esté publicado y
+      funcionando, con gusto lo estudio y le presento una propuesta seria y
+      separada.
+    </p>
+  </section>
+
+  <!-- ══ Cajetín ══════════════════════════════════════════════════════ -->
+  <div class="titleblock">
+    <p class="tb-head">Aceptación de la propuesta</p>
+    <div class="tb-body">
+      <div class="tb-cell">
+        <span class="k">Plan elegido</span>
+        <span class="v">Esencial · Profesional · Crecimiento</span>
+        <div class="sigline"></div>
+      </div>
+      <div class="tb-cell">
+        <span class="k">Por Ampargo</span>
+        <span class="v">Nombre y firma</span>
+        <div class="sigline"></div>
+      </div>
+      <div class="tb-cell">
+        <span class="k">Fecha</span>
+        <span class="v">&nbsp;</span>
+        <div class="sigline"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Presupuesto Ampargo · 22 ago 2026</span>
+    <span>Válido hasta el 21 sep 2026</span>
+  </footer>
+
+</div>

@@ -52,7 +52,13 @@
     "ctaBandBody": "Request a no-obligation quote and take the first step toward your new space.",
     "servicesIntro": "Construction, remodeling, and maintenance in Houston. Every project starts by reviewing what you need.",
     "serviceCtaHeading": "Have a project like this?",
-    "serviceCtaBody": "Tell us what you need and we'll review your case. The quote form opens with this service already selected."
+    "serviceCtaBody": "Tell us what you need and we'll review your case. The quote form opens with this service already selected.",
+    "trustServiceArea": "Houston & surrounding areas",
+    "trustResidentialCommercial": "Residential & commercial",
+    "trustFreeEstimates": "Free estimates",
+    "trustBilingual": "English & Spanish",
+    "valuesEyebrow": "WHY AMPARGO",
+    "valuesSectionHeading": "Why homeowners choose Ampargo"
   },
   "Services": {
     "housing": {
@@ -124,7 +130,9 @@
     "step4Title": "Review",
     "step4Body": "We verify quality and make sure you're satisfied.",
     "step5Title": "Handoff",
-    "step5Body": "We deliver your project ready to enjoy."
+    "step5Body": "We deliver your project ready to enjoy.",
+    "heading": "How we work",
+    "intro": "A clear sequence from first conversation to final walkthrough, so you always know what comes next."
   },
   "Projects": {
     "eyebrow": "PROJECTS",
@@ -145,7 +153,24 @@
     "previous": "Previous project",
     "next": "Next project",
     "filterInteriors": "Interiors",
-    "counter": "Project {n} of {total}"
+    "counter": "Project {n} of {total}",
+    "theProject": "The project",
+    "detailsHeading": "Project details",
+    "detailService": "Service",
+    "detailLocation": "Location",
+    "detailCategory": "Project type",
+    "detailStatus": "Status",
+    "scopeHeading": "Scope of work",
+    "workCompletedHeading": "Work completed",
+    "galleryHeading": "Project gallery",
+    "resultHeading": "The result",
+    "similarHeading": "Planning a similar project?",
+    "similarBody": "Tell us about your space and we'll help you figure out the next step.",
+    "viewService": "View this service",
+    "backToProjects": "All projects",
+    "beforeLabel": "Before",
+    "afterLabel": "After",
+    "compareLabel": "Drag to compare before and after"
   },
   "Contact": {
     "eyebrow": "CONTACT",
@@ -153,10 +178,15 @@
     "callLabel": "Call us",
     "whatsappLabel": "WhatsApp",
     "emailLabel": "Email us",
-    "emailPending": "Email is being set up — use WhatsApp for now",
     "addressLabel": "Service area",
     "address": "Houston and surrounding areas, TX",
-    "mapTitle": "Map showing Ampargo's location in Houston, TX"
+    "intro": "Tell us what you have in mind and we'll take it from there.",
+    "callHelp": "Monday through Saturday",
+    "whatsappHelp": "Send photos of your space",
+    "whatsappAction": "Open WhatsApp",
+    "serviceAreaHelp": "We travel throughout the Houston metro area",
+    "preferLabel": "Prefer to write it out?",
+    "preferBody": "Send us your project details through the estimate form and we'll review them before we call."
   },
   "Footer": {
     "tagline": "Construction & remodeling in Houston, TX.",
@@ -164,7 +194,10 @@
     "followHeading": "Follow us",
     "rights": "All rights reserved.",
     "privacy": "Privacy policy",
-    "terms": "Terms of service"
+    "terms": "Terms of service",
+    "servicesHeading": "Services",
+    "companyHeading": "Company",
+    "contactHeading": "Contact"
   },
   "NotFound": {
     "heading": "Page not found",
@@ -211,6 +244,20 @@
     "back": "Back",
     "next": "Continue",
     "submit": "Send request",
-    "devNotice": "Development mode: this request is not sent to anyone yet. Real persistence and delivery channels are pending the client contracting the services."
+    "devNotice": "Development mode: this request is not sent to anyone yet. Real persistence and delivery channels are pending the client contracting the services.",
+    "heading": "Request a free estimate",
+    "intro": "Tell us about your project and we will review the details before we get in touch."
+  },
+  "Testimonials": {
+    "heading": "What our clients say",
+    "eyebrow": "CLIENTS"
+  },
+  "About": {
+    "eyebrow": "ABOUT",
+    "heading": "Built around your vision",
+    "storyHeading": "Our story",
+    "teamHeading": "The people behind Ampargo",
+    "valuesHeading": "How we work",
+    "ctaHeading": "Let's build something great together"
   }
 }

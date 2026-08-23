@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { track } from "@/lib/analytics";
 import QuoteStepper from "./QuoteStepper";
 import ReferenceUploader from "./ReferenceUploader";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
@@ -116,6 +117,18 @@ export default function QuoteShell({
       setStep(savedStep);
     }
   }, [initialServiceId, services]);
+
+  /*
+   * Inicio del embudo: se registra una sola vez por montaje del formulario.
+   * Sin el centinela, cada re-render dispararía el evento y la tasa de
+   * conversión saldría dividida por un número arbitrario.
+   */
+  const startTracked = useRef(false);
+  useEffect(() => {
+    if (startTracked.current) return;
+    startTracked.current = true;
+    track("quote_started", { service: initialServiceId || "none" });
+  }, [initialServiceId]);
 
   // Persiste en cada cambio, excepto el conteo de fotos.
   useEffect(() => {
@@ -278,7 +291,11 @@ export default function QuoteShell({
             </button>
             <button
               type="button"
-              onClick={() => setStep((s) => Math.min(3, s + 1))}
+              onClick={() => {
+                // Se registra la etapa que se DEJA, que es la que se completó.
+                track("quote_step_completed", { step });
+                setStep((s) => Math.min(3, s + 1));
+              }}
               disabled={step === 3}
               className="inline-flex min-h-[48px] items-center gap-2 bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover disabled:opacity-40"
             >

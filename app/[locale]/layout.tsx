@@ -7,6 +7,7 @@ import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { SITE_URL, INDEXABLE } from "@/lib/site";
 import SkipLink from "@/components/SkipLink";
+import Analytics from "@/components/Analytics";
 import "../globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -113,6 +114,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <SkipLink />
           {children}
         </NextIntlClientProvider>
+        {/* Devuelve null mientras no exista un ID de GA4 configurado. */}
+        <Analytics />
       </body>
     </html>
   );

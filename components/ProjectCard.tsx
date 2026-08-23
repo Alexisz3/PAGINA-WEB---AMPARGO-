@@ -17,6 +17,16 @@ interface ProjectCardProps {
    * a un toque de distancia.
    */
   compact?: boolean;
+  /**
+   * Nivel del encabezado de la tarjeta.
+   *
+   * En portada las tarjetas cuelgan de un H2 de sección, así que h3 es
+   * correcto. En el ÍNDICE de proyectos no hay sección intermedia: las
+   * tarjetas cuelgan directamente del H1, y dejarlas en h3 producía un salto
+   * H1→H3. Saltarse un nivel desorienta a quien navega por encabezados con
+   * lector de pantalla, que es como se recorre una página larga sin verla.
+   */
+  headingLevel?: "h2" | "h3";
 }
 
 export default async function ProjectCard({
@@ -24,6 +34,7 @@ export default async function ProjectCard({
   priority = false,
   sizes,
   compact = false,
+  headingLevel: Heading = "h3",
 }: ProjectCardProps) {
   const locale = (await getLocale()) as AppLocale;
   const t = await getTranslations("Projects");
@@ -61,9 +72,9 @@ export default async function ProjectCard({
         </div>
 
         <div className="mt-4">
-          <h3 className="font-display text-lg font-semibold leading-snug text-ink">
+          <Heading className="font-display text-lg font-semibold leading-snug text-ink">
             {project.title[locale]}
-          </h3>
+          </Heading>
           {compact ? null : (
             <p className="mt-2 text-sm leading-relaxed text-muted">{project.excerpt[locale]}</p>
           )}

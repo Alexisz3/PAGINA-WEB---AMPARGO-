@@ -5,9 +5,11 @@ import { routing } from "@/i18n/routing";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HomeHero from "@/components/home/HomeHero";
+import TrustBar from "@/components/home/TrustBar";
 import ServiceCards from "@/components/home/ServiceCards";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import ValueProps from "@/components/home/ValueProps";
+import Testimonials from "@/components/Testimonials";
 import ProcessTimeline from "@/components/ProcessTimeline";
 import CtaBand from "@/components/CtaBand";
 import StructuredData from "@/components/StructuredData";
@@ -25,9 +27,14 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       <Header />
       <main id="contenido" tabIndex={-1}>
         <HomeHero />
+        {/* La franja de confianza va inmediatamente bajo el hero: responde
+            "¿trabajan donde vivo?" antes de que el visitante siga bajando. */}
+        <TrustBar />
         <ServiceCards />
         <FeaturedProjects />
         <ValueProps />
+        {/* Devuelve null mientras no haya reseñas reales. */}
+        <Testimonials />
 
         <section className="bg-paper pb-16 lg:pb-28">
           {/* El carril de proceso sangra al borde en móvil (sin px-6 en el

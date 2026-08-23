@@ -7,12 +7,15 @@ import ArrowRight from "./icons/ArrowRight";
  * Banda oscura de cierre, presente en todas las páginas.
  *
  * Compactada respecto a la versión anterior: en móvil los teléfonos van en
- * una fila de dos, no apilados con etiquetas repetidas. El aviso de correo
- * pendiente se degrada a texto pequeño para que sea honesto sin dominar.
+ * una fila de dos, no apilados con etiquetas repetidas.
  *
- * Sólo datos confirmados. El correo empresarial NO existe todavía: en lugar
- * de inventar uno (los mockups mostraban "info@ampargo.com", ficticio) se
- * declara su estado real.
+ * Sólo datos confirmados. El correo empresarial NO existe todavía y la fila
+ * de correo simplemente NO se renderiza: antes se publicaba "Email is being
+ * set up — use WhatsApp for now", que es el estado interno de configuración
+ * del proyecto asomando en producción. Un sitio terminado no le cuenta al
+ * visitante lo que a su dueño le falta por hacer; sencillamente ofrece los
+ * canales que sí funcionan. Cuando exista correo real, `BUSINESS_EMAIL` deja
+ * de ser `null` y la fila aparece sola.
  */
 export default async function CtaBand() {
   const t = await getTranslations("Home");
@@ -59,10 +62,16 @@ export default async function CtaBand() {
               <dt className="text-bone/55">{tc("addressLabel")}:</dt>
               <dd>{tc("address")}</dd>
             </div>
-            <div className="flex flex-wrap gap-x-2">
-              <dt className="text-bone/55">{tc("emailLabel")}:</dt>
-              <dd className="text-bone/60">{BUSINESS_EMAIL ?? tc("emailPending")}</dd>
-            </div>
+            {BUSINESS_EMAIL ? (
+              <div className="flex flex-wrap gap-x-2">
+                <dt className="text-bone/55">{tc("emailLabel")}:</dt>
+                <dd>
+                  <a href={`mailto:${BUSINESS_EMAIL}`} className="hover:text-accent-ink">
+                    {BUSINESS_EMAIL}
+                  </a>
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </div>
       </div>

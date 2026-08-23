@@ -70,7 +70,15 @@ export default async function ProjectsPage({ params, searchParams }: PageProps<"
 
             <div className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {visible.map((project, i) => (
-                <ProjectCard key={project.id} project={project} priority={i < 2} compact />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  priority={i < 2}
+                  compact
+                  // Aquí las tarjetas cuelgan del H1 de la página, sin sección
+                  // intermedia: con h3 se producía un salto H1→H3.
+                  headingLevel="h2"
+                />
               ))}
             </div>
 
