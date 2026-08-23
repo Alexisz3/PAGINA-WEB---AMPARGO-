@@ -35,7 +35,11 @@ export default async function StructuredData() {
     description: t("description"),
     url: SITE_URL,
     telephone: BUSINESS.phones,
-    // Solo con local visitable; hoy `hasPublicOffice` es false.
+    /*
+     * La dirección solo se publica con local visitable: `address` le dice a
+     * Google "aquí se puede venir", y sobre un domicilio particular eso dirige
+     * desconocidos a la casa de alguien.
+     */
     ...(SERVICE_AREA.hasPublicOffice
       ? {
           address: {
@@ -47,17 +51,18 @@ export default async function StructuredData() {
             addressCountry: BUSINESS.country,
           },
         }
-      : {
-          // Sin sede pública, se declara la ciudad de operación sin calle.
-          areaServed: {
-            "@type": "City",
-            name: SERVICE_AREA.city,
-            containedInPlace: {
-              "@type": "State",
-              name: SERVICE_AREA.region,
-            },
-          },
-        }),
+      : {}),
+    /*
+     * `areaServed` va SIEMPRE, tenga oficina o no: son cosas distintas. La
+     * dirección dice dónde está la empresa; el área servida, hasta dónde se
+     * desplaza. Un contratista con sede en Houston que trabaja en todo el área
+     * metropolitana necesita declarar ambas, y antes eran excluyentes.
+     */
+    areaServed: {
+      "@type": "City",
+      name: SERVICE_AREA.city,
+      containedInPlace: { "@type": "State", name: SERVICE_AREA.region },
+    },
     knowsLanguage: ["es-US", "en-US"],
     hasOfferCatalog: {
       "@type": "OfferCatalog",

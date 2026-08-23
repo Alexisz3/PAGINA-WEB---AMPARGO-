@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { hasLocale, type Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
-import { WHATSAPP_CONTACTS, BUSINESS_EMAIL } from "@/lib/site";
+import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS } from "@/lib/site";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { SERVICE_AREA } from "@/content/company";
+import ServiceArea from "@/components/ServiceArea";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -134,23 +135,31 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                 </ul>
               </div>
 
-              {/* ── Zona de servicio ──
-                  Zona, no dirección: la que consta en el formulario es un
-                  domicilio particular y no hay local visitable por clientes.
-                  Por el mismo motivo no se incrusta un mapa. */}
+              {/* ── Oficina ──
+                  La zona de servicio y la dirección completa viven ahora en
+                  su propia sección (<ServiceArea />), más abajo: repetirlas
+                  aquí obligaba a mantener el mismo dato en dos sitios. Esta
+                  tarjeta se queda con lo accionable — pasar por la oficina — y
+                  con el correo cuando exista. */}
               <div className="bg-surface p-6 lg:p-8">
                 <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-accent">
-                  {tc("addressLabel")}
+                  {SERVICE_AREA.hasPublicOffice ? tc("officeLabel") : tc("addressLabel")}
                 </h2>
                 <p className="mt-2 text-sm text-muted">{tc("serviceAreaHelp")}</p>
-                <p className="mt-5 font-display text-lg font-semibold text-ink">
-                  {tc("address")}
-                </p>
-                {SERVICE_AREA.nearbyAreas.length > 0 ? (
-                  <p className="mt-2 text-sm text-muted">
-                    {SERVICE_AREA.nearbyAreas.join(" · ")}
+
+                {SERVICE_AREA.hasPublicOffice ? (
+                  <address className="mt-5 not-italic leading-relaxed text-ink">
+                    <span className="font-display text-lg font-semibold">
+                      {BUSINESS.streetAddress}
+                    </span>
+                    <br />
+                    {BUSINESS.city}, {BUSINESS.region} {BUSINESS.postalCode}
+                  </address>
+                ) : (
+                  <p className="mt-5 font-display text-lg font-semibold text-ink">
+                    {tc("address")}
                   </p>
-                ) : null}
+                )}
 
                 {/* Solo si existe un correo real configurado. */}
                 {BUSINESS_EMAIL ? (
@@ -158,12 +167,13 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                     <h3 className="font-mono text-xs uppercase tracking-[0.14em] text-accent">
                       {tc("emailLabel")}
                     </h3>
-                    <a
+                    <TrackedContactLink
                       href={`mailto:${BUSINESS_EMAIL}`}
+                      event="email_clicked"
                       className="mt-2 flex min-h-[44px] items-center text-ink transition-colors hover:text-accent"
                     >
                       {BUSINESS_EMAIL}
-                    </a>
+                    </TrackedContactLink>
                   </div>
                 ) : null}
               </div>
@@ -189,6 +199,10 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
             </div>
           </div>
         </section>
+
+        {/* Cobertura y sede, con enlace "cómo llegar" a Google Maps.
+            Sin iframe: ver el razonamiento en el propio componente. */}
+        <ServiceArea />
 
         <CtaBand />
       </main>

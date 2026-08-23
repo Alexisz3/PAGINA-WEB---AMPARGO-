@@ -2,7 +2,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname, AppLocale } from "@/i18n/routing";
 import { SERVICES } from "@/content/services";
-import { WHATSAPP_CONTACTS, BUSINESS_EMAIL } from "@/lib/site";
+import { SERVICE_AREA } from "@/content/company";
+import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS } from "@/lib/site";
 
 const COMPANY_LINKS: {
   href: StaticPathname;
@@ -113,7 +114,18 @@ export default async function Footer() {
                 </li>
               ) : null}
             </ul>
-            <p className="mt-2 text-sm text-muted">{tc("address")}</p>
+            {/* Con oficina que recibe clientes se publica la dirección: es un
+                factor fuerte de SEO local y un dato que el visitante busca en
+                el pie. Sin local visitable se afirma solo la zona. */}
+            {SERVICE_AREA.hasPublicOffice ? (
+              <address className="mt-2 not-italic text-sm leading-relaxed text-muted">
+                {BUSINESS.streetAddress}
+                <br />
+                {BUSINESS.city}, {BUSINESS.region} {BUSINESS.postalCode}
+              </address>
+            ) : (
+              <p className="mt-2 text-sm text-muted">{tc("address")}</p>
+            )}
           </div>
         </div>
 

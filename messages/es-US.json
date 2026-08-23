@@ -186,7 +186,11 @@
     "whatsappAction": "Abrir WhatsApp",
     "serviceAreaHelp": "Trabajamos en toda el área metropolitana de Houston",
     "preferLabel": "¿Prefiere escribirlo?",
-    "preferBody": "Envíenos los detalles por el formulario de cotización y los revisamos antes de llamarle."
+    "preferBody": "Envíenos los detalles por el formulario de cotización y los revisamos antes de llamarle.",
+    "officeLabel": "Nuestra oficina",
+    "directions": "Cómo llegar",
+    "visitNote": "Llame antes para que podamos atenderle con calma.",
+    "areaAsk": "¿No ve su zona? Pregúntenos, es posible que igual podamos ayudarle."
   },
   "Footer": {
     "tagline": "Construcción y remodelación en Houston, TX.",

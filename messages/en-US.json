@@ -186,7 +186,11 @@
     "whatsappAction": "Open WhatsApp",
     "serviceAreaHelp": "We travel throughout the Houston metro area",
     "preferLabel": "Prefer to write it out?",
-    "preferBody": "Send us your project details through the estimate form and we'll review them before we call."
+    "preferBody": "Send us your project details through the estimate form and we'll review them before we call.",
+    "officeLabel": "Our office",
+    "directions": "Get directions",
+    "visitNote": "Please call ahead so we can make time for you.",
+    "areaAsk": "Do not see your area? Ask us — we may still be able to help."
   },
   "Footer": {
     "tagline": "Construction & remodeling in Houston, TX.",

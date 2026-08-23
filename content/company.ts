@@ -49,19 +49,35 @@ export interface TeamMember {
 
 export const TEAM: TeamMember[] = [];
 
-/* ─── Zona de servicio ───────────────────────────────────────────────────
- * Confirmado por el cliente: opera en Houston y alrededores. NO se declara
- * una dirección de oficina abierta al público porque la dirección que consta
- * en el formulario es particular; publicarla invitaría visitas a un domicilio.
+/* ─── Zona de servicio y sede ────────────────────────────────────────────
+ * `hasPublicOffice` gobierna si se publica la dirección, si aparece el enlace
+ * "cómo llegar" y si el JSON-LD incluye `address`. Confirmado por el cliente
+ * (2026-08-23): 8027 Burning Hills Dr es una oficina comercial donde reciben
+ * clientes, no un domicilio particular.
+ *
+ * Esto importa más de lo que parece: una dirección verificable es uno de los
+ * factores más fuertes del SEO local, y es requisito para reclamar la ficha de
+ * Google Business Profile.
  */
 export const SERVICE_AREA = {
   city: "Houston",
   region: "TX",
   country: "US",
-  /** Municipios confirmados. Vacío = solo se afirma "Houston y alrededores". */
+  /**
+   * Municipios que Ampargo cubre de verdad, para la sección de cobertura.
+   *
+   * VACÍO A PROPÓSITO. Es tentador rellenarlo con los suburbios obvios del
+   * área metropolitana (Katy, Sugar Land, Pearland…), pero eso sería inventar:
+   * afirmar cobertura en un municipio al que quizá no se desplazan genera
+   * solicitudes que hay que rechazar, y es justo la clase de promesa que
+   * destruye la confianza que la sección busca construir.
+   *
+   * Mientras esté vacío, la sección afirma solo "Houston y alrededores" e
+   * invita a preguntar. Al añadir municipios, la lista aparece sola.
+   */
   nearbyAreas: [] as string[],
-  /** No hay local comercial visitable. Gobierna si se muestra mapa/dirección. */
-  hasPublicOffice: false,
+  /** Confirmado por el cliente: hay local comercial que recibe clientes. */
+  hasPublicOffice: true,
 } as const;
 
 /* ─── Señales de confianza ───────────────────────────────────────────────
