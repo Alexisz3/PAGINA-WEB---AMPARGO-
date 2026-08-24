@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { SERVICES, getServiceBySlug } from "@/content/services";
 import { PROJECTS } from "@/content/projects";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, BRAND } from "@/lib/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -38,7 +38,7 @@ export async function generateMetadata({
     `${LOCALE_PREFIXES[l]}${l === "es-US" ? "/servicios/" : "/services/"}${service.slugs[l]}`;
 
   return {
-    title: `${service.title[locale as AppLocale]} | ${t("services")} | Ampargo`,
+    title: `${service.title[locale as AppLocale]} | ${t("services")} | ${BRAND.name}`,
     description: service.shortDescription[locale as AppLocale],
     alternates: {
       canonical: path(locale as AppLocale),
@@ -87,7 +87,7 @@ export default async function ServiceDetail({ params }: PageProps<"/[locale]/ser
     areaServed: { "@type": "City", name: "Houston" },
     provider: {
       "@type": "GeneralContractor",
-      name: "Ampargo",
+      name: BRAND.name,
       url: SITE_URL,
     },
   };

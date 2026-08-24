@@ -10,6 +10,7 @@ import PageHero from "@/components/PageHero";
 import ProjectCard from "@/components/ProjectCard";
 import ProjectFilters, { type FilterValue } from "@/components/ProjectFilters";
 import CtaBand from "@/components/CtaBand";
+import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/projects
   const path = locale === "es-US" ? "/proyectos" : "/projects";
 
   return {
-    title: `${t("eyebrow")} | Ampargo`,
+    title: `${t("eyebrow")} | ${BRAND.name}`,
     description: t("intro"),
     alternates: {
       // Las vistas filtradas canonicalizan al índice limpio: no son páginas

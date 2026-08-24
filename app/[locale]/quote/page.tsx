@@ -7,6 +7,7 @@ import { getPublishedServices } from "@/content/services";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuoteShell from "@/components/quote/QuoteShell";
+import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -25,8 +26,8 @@ export async function generateMetadata({
   return {
     title:
       locale === "es-US"
-        ? "Solicite su cotización sin costo | Ampargo Houston"
-        : "Request a Free Estimate | Ampargo Houston",
+        ? `Solicite su cotización sin costo | ${BRAND.name}`
+        : `Request a Free Estimate | ${BRAND.name}`,
     description: t("intro"),
     alternates: {
       canonical: path(locale as AppLocale),

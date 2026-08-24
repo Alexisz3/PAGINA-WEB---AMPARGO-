@@ -7,7 +7,7 @@ import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { PROJECTS, getProjectBySlug, CATEGORY_TO_SERVICE } from "@/content/projects";
 import { SERVICES } from "@/content/services";
 import { publishablePairs } from "@/content/before-after";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, BRAND } from "@/lib/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -46,7 +46,7 @@ export async function generateMetadata({
     `${LOCALE_PREFIXES[l]}${l === "es-US" ? "/proyectos/" : "/projects/"}${project.slugs[l]}`;
 
   return {
-    title: `${project.title[loc]} | ${t("eyebrow")} | Ampargo`,
+    title: `${project.title[loc]} | ${t("eyebrow")} | ${BRAND.name}`,
     description: project.excerpt[loc],
     alternates: {
       canonical: path(loc),
@@ -104,7 +104,7 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
     description: project.excerpt[loc],
     image: `${SITE_URL}/images/proyectos/${project.coverPhoto.file}`,
     locationCreated: { "@type": "Place", name: project.location },
-    creator: { "@type": "GeneralContractor", name: "Ampargo", url: SITE_URL },
+    creator: { "@type": "GeneralContractor", name: BRAND.name, url: SITE_URL },
   };
 
   return (

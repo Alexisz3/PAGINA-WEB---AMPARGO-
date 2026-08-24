@@ -23,7 +23,17 @@ export interface ServiceOption {
  * Tampoco viajan en la query string, para no dejar datos personales en URLs
  * que se comparten o quedan en el historial.
  */
-const DRAFT_KEY = "ampargo-quote-draft";
+const DRAFT_KEY = "apc-quote-draft";
+
+/**
+ * Clave anterior al cambio de marca.
+ *
+ * Se sigue leyendo para no descartar el borrador de alguien que tenga la
+ * pestaña abierta justo cuando se despliega la versión nueva: perdería lo
+ * escrito sin motivo visible, que es la peor forma de perder una solicitud.
+ * Solo se lee; a partir de ahí todo se guarda ya en `DRAFT_KEY`.
+ */
+const LEGACY_DRAFT_KEY = "ampargo-quote-draft";
 
 /** Campos que se persisten. `photoCount` queda fuera a propósito: los
  *  archivos no sobreviven a una recarga y anunciar un número que ya no
@@ -88,8 +98,13 @@ export default function QuoteShell({
 
     let saved: Partial<PersistedDraft> = {};
     try {
-      const raw = window.sessionStorage.getItem(DRAFT_KEY);
+      // Se prueba la clave actual y, si no hay nada, la anterior al cambio de
+      // marca: así un borrador a medias sobrevive al despliegue.
+      const raw =
+        window.sessionStorage.getItem(DRAFT_KEY) ??
+        window.sessionStorage.getItem(LEGACY_DRAFT_KEY);
       if (raw) saved = JSON.parse(raw) as Partial<PersistedDraft>;
+      window.sessionStorage.removeItem(LEGACY_DRAFT_KEY);
     } catch {
       /* almacenamiento no disponible o JSON corrupto: se sigue sin borrador */
     }

@@ -50,7 +50,7 @@ function resolveSiteUrl(): string {
   // y publicar metadata apuntando a una máquina local.
   if (explicit?.trim() && process.env.NODE_ENV === "production") {
     console.warn(
-      `[ampargo] NEXT_PUBLIC_SITE_URL no es una URL http(s) absoluta válida. ` +
+      `[apc] NEXT_PUBLIC_SITE_URL no es una URL http(s) absoluta válida. ` +
         `Se ignora y se usa el fallback. Valor recibido: ${JSON.stringify(explicit)}`
     );
   }
@@ -76,8 +76,31 @@ export const SITE_URL = resolveSiteUrl();
  */
 export const INDEXABLE = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
+/**
+ * Identidad de marca — fuente única de verdad.
+ *
+ * "Andrade Parra Corporation" es un nombre propio: NO se traduce, en ninguna
+ * ruta ni en ningún idioma. Por eso vive aquí y no en los diccionarios de
+ * i18n, que existen precisamente para el texto que sí cambia entre idiomas.
+ * Colocarlo en `messages/*.json` invitaría a que alguien lo "tradujera".
+ *
+ * `descriptor` va igualmente fijo en inglés dentro del logotipo. En el cuerpo
+ * de las páginas en español sí se puede hablar de "remodelación general" como
+ * descripción del servicio, pero eso es copy, no la marca.
+ *
+ * La marca anterior era "Ampargo", usada por error.
+ */
+export const BRAND = {
+  /** Escritura oficial. Verificado carácter por carácter. */
+  name: "Andrade Parra Corporation",
+  /** Descriptor del logotipo. Siempre en inglés, siempre exacto. */
+  descriptor: "General Remodeling",
+  /** Sigla admitida en isotipo, favicon y variante compacta. Nunca sustituye al nombre completo. */
+  initials: "AP",
+} as const;
+
 export const BUSINESS = {
-  name: "Ampargo",
+  name: BRAND.name,
   streetAddress: "8027 Burning Hills Dr",
   city: "Houston",
   region: "TX",

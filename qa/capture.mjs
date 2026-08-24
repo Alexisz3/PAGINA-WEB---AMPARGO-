@@ -49,7 +49,7 @@ async function main() {
       // Fija el idioma antes de que la app hidrate, igual que un visitante recurrente.
       await context.addInitScript((loc) => {
         try {
-          window.localStorage.setItem("ampargo-locale", loc);
+          window.localStorage.setItem("apc-locale", loc);
         } catch {
           /* almacenamiento no disponible */
         }

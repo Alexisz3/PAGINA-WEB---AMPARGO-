@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import ProcessTimeline from "@/components/ProcessTimeline";
 import CtaBand from "@/components/CtaBand";
+import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -25,8 +26,8 @@ export async function generateMetadata({
   return {
     title:
       locale === "es-US"
-        ? "Cómo trabajamos | Proceso de construcción | Ampargo"
-        : "How We Work | Construction Process Houston | Ampargo",
+        ? `Cómo trabajamos | ${BRAND.name}`
+        : `How We Work | Construction Process Houston | ${BRAND.name}`,
     description: t("intro"),
     alternates: {
       canonical: path(locale as AppLocale),

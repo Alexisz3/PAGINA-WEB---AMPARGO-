@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import CtaBand from "@/components/CtaBand";
+import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -28,8 +29,8 @@ export async function generateMetadata({
   return {
     title:
       locale === "es-US"
-        ? "Sobre Ampargo | Empresa de construcción en Houston"
-        : "About Ampargo | Houston Construction Company",
+        ? `Sobre ${BRAND.name} | Houston, TX`
+        : `About ${BRAND.name} | Houston, TX`,
     description: t("heading"),
     alternates: {
       canonical: path(locale as AppLocale),
@@ -88,7 +89,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/about">
           </section>
         ) : null}
 
-        {/* ── Valores: cómo trabaja Ampargo ── */}
+        {/* ── Valores: cómo trabaja la empresa ── */}
         <section className="bg-paper py-16 lg:py-24">
           <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
             <h2 className="font-display text-2xl font-semibold text-ink lg:text-3xl">
@@ -110,7 +111,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/about">
         </section>
 
         {/*
-          ── Las personas detrás de Ampargo ──
+          ── Las personas detrás de la empresa ──
           Se conocen tres nombres por el formulario, pero no sus cargos, ni sus
           trayectorias, ni hay autorización para publicar sus fotos. Publicar un
           nombre real junto a un cargo supuesto es inventar sobre personas

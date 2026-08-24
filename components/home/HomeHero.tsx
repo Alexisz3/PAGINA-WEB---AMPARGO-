@@ -44,9 +44,21 @@ export default async function HomeHero() {
         el hero; con menos, taparían los botones (detectado por axe).
       */}
       <div className="relative mx-auto flex min-h-[86svh] max-w-[1400px] flex-col justify-end px-6 pt-28 pb-safe [--pb:4rem] sm:pt-32 lg:min-h-[92svh] lg:px-10 lg:[--pb:9rem]">
-        <h1 className="font-display font-bold leading-[0.85] tracking-[-0.02em] text-bone [font-size:clamp(3.25rem,13vw,11rem)]">
-          {t("heroHeadline")}
-          <span className="text-accent">.</span>
+        {/*
+          El titular pasa de una palabra de 7 letras ("AMPARGO") a un nombre de
+          25, así que se parte en los dos niveles de la marca en vez de crecer
+          hasta desbordar: con el clamp anterior, "CORPORATION" sola medía más
+          que el ancho útil de una pantalla de 375 px.
+
+          Desaparece también el punto de acento: era el remate del wordmark
+          antiguo. El nuevo lleva su acento en el travesaño rojo del isotipo, y
+          un punto final tras el nombre de una corporación se lee como errata.
+        */}
+        <h1 className="font-display font-bold leading-[0.85] tracking-[-0.02em] text-bone">
+          <span className="block [font-size:clamp(2.5rem,10vw,8rem)]">{t("heroHeadline")}</span>
+          <span className="mt-2 block font-medium tracking-[0.08em] text-bone/85 [font-size:clamp(1.05rem,3.4vw,2.6rem)]">
+            {t("heroHeadlineSuffix")}
+          </span>
         </h1>
 
         <p className="mt-4 max-w-2xl text-pretty font-display text-bone [font-size:clamp(1.0625rem,2.6vw,2rem)]">

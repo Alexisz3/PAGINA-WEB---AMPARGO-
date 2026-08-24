@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
-import { SITE_URL, INDEXABLE } from "@/lib/site";
+import { SITE_URL, INDEXABLE, BRAND } from "@/lib/site";
 import SkipLink from "@/components/SkipLink";
 import Analytics from "@/components/Analytics";
 import "../globals.css";
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       : { index: false, follow: false, nocache: true },
     openGraph: {
       type: "website",
-      siteName: "Ampargo",
+      siteName: BRAND.name,
       locale: locale.replace("-", "_"),
       alternateLocale: routing.locales.filter((l) => l !== locale).map((l) => l.replace("-", "_")),
       url: prefix,

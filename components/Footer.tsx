@@ -3,7 +3,8 @@ import { Link } from "@/i18n/navigation";
 import type { StaticPathname, AppLocale } from "@/i18n/routing";
 import { SERVICES } from "@/content/services";
 import { SERVICE_AREA } from "@/content/company";
-import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS } from "@/lib/site";
+import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS, BRAND } from "@/lib/site";
+import BrandLogo from "./BrandLogo";
 
 const COMPANY_LINKS: {
   href: StaticPathname;
@@ -41,9 +42,7 @@ export default async function Footer() {
         <div className="grid gap-10 border-b border-line pb-8 sm:grid-cols-2 lg:grid-cols-4 lg:pb-12">
           {/* ── Marca ── */}
           <div>
-            <span className="font-display text-lg font-semibold text-ink">
-              AMPARGO<span className="text-accent">.</span>
-            </span>
+            <BrandLogo variant="horizontal" size={26} className="text-ink" />
             <p className="mt-3 max-w-xs text-pretty text-sm leading-relaxed text-muted">
               {t("tagline")}
             </p>
@@ -131,7 +130,7 @@ export default async function Footer() {
 
         <div className="flex flex-wrap items-center justify-between gap-4 pt-6">
           <p className="font-mono text-xs text-muted">
-            &copy; {year} AMPARGO. {t("rights")}
+            &copy; {year} {BRAND.name}. {t("rights")}
           </p>
           {/*
             Los enlaces legales existen como rutas pero permanecen fuera de la

@@ -14,7 +14,7 @@ import { SERVICE_AREA } from "@/content/company";
  * visitable y puede mostrarla en el mapa del panel de conocimiento, así que
  * publicarla dirigía clientes a la casa de alguien.
  *
- * Ampargo es un negocio de ÁREA DE SERVICIO: se desplaza a la obra. Para ese
+ * La empresa es un negocio de ÁREA DE SERVICIO: se desplaza a la obra. Para
  * caso, la propia guía de Google es declarar `areaServed` y omitir la
  * dirección. `SERVICE_AREA.hasPublicOffice` gobierna la decisión: si algún día
  * abren oficina al público, se pone en `true` y la dirección vuelve sola.

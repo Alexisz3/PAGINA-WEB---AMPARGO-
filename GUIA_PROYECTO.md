@@ -1,12 +1,12 @@
-# Ampargo — Guía del proyecto
+# Andrade Parra Corporation — Guía del proyecto
 
-Documento guía del sitio web de Ampargo (construcción y remodelación, Houston TX). Sirve como brief permanente: de dónde salió cada decisión, qué se construyó, qué falta, y cómo retomar el trabajo en una sesión futura.
+Documento guía del sitio web de Andrade Parra Corporation (construcción y remodelación, Houston TX). Sirve como brief permanente: de dónde salió cada decisión, qué se construyó, qué falta, y cómo retomar el trabajo en una sesión futura.
 
 ---
 
 ## 1. Resumen ejecutivo
 
-**Cliente:** Ampargo — contratista de construcción y remodelación general en Houston, TX. Contacto: Jose Andrade (principal), Ramon Andrade, Mario Parra. 30 años de experiencia.
+**Cliente:** Andrade Parra Corporation — contratista de construcción y remodelación general en Houston, TX. Contacto: Jose Andrade (principal), Ramon Andrade, Mario Parra. 30 años de experiencia.
 
 **Fuente del brief:** `Formulario_Requerimientos_Web_Rellenable.pdf` — entrevista de levantamiento de requerimientos realizada por Alexis Patiño el 16-08-2026.
 
@@ -23,7 +23,7 @@ Documento guía del sitio web de Ampargo (construcción y remodelación, Houston
 
 ## 2. Sistema de diseño
 
-El punto de partida fue tratar a Ampargo como lo que realmente es: una empresa que vive de planos, medidas y dibujos técnicos. De ahí sale todo el lenguaje visual, evitando los clichés típicos de "constructora" (casco amarillo, naranja de seguridad, fotos de stock genéricas).
+El punto de partida fue tratar a Andrade Parra Corporation como lo que realmente es: una empresa que vive de planos, medidas y dibujos técnicos. De ahí sale todo el lenguaje visual, evitando los clichés típicos de "constructora" (casco amarillo, naranja de seguridad, fotos de stock genéricas).
 
 ### Color
 
@@ -67,7 +67,7 @@ El componente `<DimensionLine>` (`components/DimensionLine.tsx`) dibuja una lín
 
 Landing page de una sola página, secciones ancladas (`app/page.tsx` las ensambla en este orden):
 
-1. **Header** (`components/Header.tsx`) — wordmark "AMPARGO", navegación ancla, toggle ES/EN, botón WhatsApp siempre visible.
+1. **Header** (`components/Header.tsx`) — wordmark "Andrade Parra Corporation", navegación ancla, toggle ES/EN, botón WhatsApp siempre visible.
 2. **Hero** (`Hero.tsx`) — foto real del proyecto de patio/piscina de lujo como fondo, titular, CTA WhatsApp + "Ver proyectos", barra de confianza (30 años / Houston TX / especialidad).
 3. **Servicios** (`Services.tsx`) — los 9 servicios marcados por el cliente en el formulario.
 4. **Por qué elegirnos** (`WhyUs.tsx`) — 30 años de experiencia, garantía (fotos del proceso), los 8 valores marcados por el cliente en formato de lista tipo especificación.

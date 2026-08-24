@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
 import { WHATSAPP_CONTACTS } from "@/lib/site";
+import BrandLogo from "./BrandLogo";
 
 type NavKey = "services" | "projects" | "process" | "about" | "contact";
 
@@ -114,9 +115,11 @@ export default function MobileMenu({ open, onClose, links, triggerRef }: MobileM
         className="absolute inset-x-0 top-0 max-h-full overflow-y-auto bg-carbon px-6 pb-8 pt-4 text-bone"
       >
         <div className="flex items-center justify-between">
-          <span className="font-display text-lg font-semibold">
-            AMPARGO<span className="text-accent">.</span>
-          </span>
+          {/* Variante compacta: en la cabecera del panel el espacio es
+              estrecho y compite con el botón de cierre. Sin `decorative`, el
+              propio componente aporta el nombre accesible — no hace falta un
+              sr-only adicional, que lo anunciaría dos veces. */}
+          <BrandLogo variant="compact" size={24} />
           <button
             type="button"
             onClick={onClose}

@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Ampargo | Construcción y remodelación en Houston, TX",
-    "description": "Ampargo construye y remodela viviendas y espacios comerciales en Houston, TX. 30 años de experiencia en construcción, remodelación, acabados y diseño arquitectónico."
+    "title": "Andrade Parra Corporation | Construcción y remodelación en Houston, TX",
+    "description": "Andrade Parra Corporation construye y remodela viviendas y espacios comerciales en Houston, TX. 30 años de experiencia en construcción, remodelación, acabados y diseño arquitectónico."
   },
   "Nav": {
     "home": "Inicio",
@@ -27,12 +27,12 @@
     }
   },
   "Home": {
-    "heroEyebrow": "AMPARGO — CONSTRUCCIÓN Y REMODELACIÓN",
-    "heroHeadline": "AMPARGO",
+    "heroEyebrow": "REMODELACIÓN GENERAL — HOUSTON, TX",
+    "heroHeadline": "ANDRADE PARRA",
     "heroSubhead": "Construcción y remodelación en Houston",
     "heroCtaPrimary": "Solicitar cotización",
     "heroCtaSecondary": "Ver proyectos",
-    "heroImageAlt": "Terraza y piscina en construcción junto a un lago, con cabaña de techo metálico — proyecto real de Ampargo en Houston, TX.",
+    "heroImageAlt": "Terraza y piscina en construcción junto a un lago, con cabaña de techo metálico — proyecto real de Andrade Parra Corporation en Houston, TX.",
     "servicesEyebrow": "SERVICIOS",
     "featuredEyebrow": "PROYECTOS DESTACADOS",
     "featuredHeading": "Trabajos reales. Resultados que duran.",
@@ -57,8 +57,9 @@
     "trustResidentialCommercial": "Residencial y comercial",
     "trustFreeEstimates": "Presupuestos sin costo",
     "trustBilingual": "Atención en inglés y español",
-    "valuesEyebrow": "POR QUÉ AMPARGO",
-    "valuesSectionHeading": "Por qué los propietarios eligen Ampargo"
+    "valuesEyebrow": "POR QUÉ ANDRADE PARRA",
+    "valuesSectionHeading": "Por qué los propietarios eligen Andrade Parra Corporation",
+    "heroHeadlineSuffix": "CORPORATION"
   },
   "Services": {
     "housing": {
@@ -260,7 +261,7 @@
     "eyebrow": "NOSOTROS",
     "heading": "Construido en torno a su visión",
     "storyHeading": "Nuestra historia",
-    "teamHeading": "Las personas detrás de Ampargo",
+    "teamHeading": "Las personas detrás de Andrade Parra Corporation",
     "valuesHeading": "Cómo trabajamos",
     "ctaHeading": "Construyamos algo bueno juntos"
   }

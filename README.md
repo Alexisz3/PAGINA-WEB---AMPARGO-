@@ -1,6 +1,6 @@
-# AMPARGO — Sitio web
+# Andrade Parra Corporation — Sitio web
 
-Sitio multipágina bilingüe (español / inglés) para **AMPARGO**, empresa de
+Sitio multipágina bilingüe (español / inglés) para **Andrade Parra Corporation** (*General Remodeling*), empresa de
 construcción y remodelación en Houston, Texas.
 
 > **Estado:** implementación local terminada.

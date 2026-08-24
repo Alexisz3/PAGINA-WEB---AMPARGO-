@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import CtaBand from "@/components/CtaBand";
 import ArrowRight from "@/components/icons/ArrowRight";
+import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/services
   const path = locale === "es-US" ? "/servicios" : "/services";
 
   return {
-    title: `${t("services")} | Ampargo`,
+    title: `${t("services")} | ${BRAND.name}`,
     description: th("servicesIntro"),
     alternates: {
       canonical: `${prefix}${path}`,

@@ -4,6 +4,8 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
+import { BRAND } from "@/lib/site";
+import BrandLogo from "./BrandLogo";
 import LocaleSwitcher from "./LocaleSwitcher";
 import WhatsAppButton from "./WhatsAppButton";
 import MobileMenu from "./MobileMenu";
@@ -44,8 +46,37 @@ export default function Header() {
         }`}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-4 lg:px-10">
-          <Link href="/" className="flex min-h-[44px] items-center font-display text-lg font-semibold tracking-tight text-bone">
-            AMPARGO<span className="text-accent">.</span>
+          {/*
+            El nombre nuevo es mucho más largo que el anterior, así que el
+            enlace lleva `min-w-0`: sin él, el logotipo usa su ancho de
+            contenido como mínimo de flex y empuja la navegación fuera de la
+            pantalla en móvil. Por debajo de `sm` se muestra solo el isotipo.
+          */}
+          {/*
+            `min-w-[44px]` y no `min-w-0`: en móvil solo se ve el isotipo, que
+            mide 33 px de ancho, y el enlace se ajustaba a él — cumplía el alto
+            táctil de 44 px pero no el ancho. El encogimiento del texto largo lo
+            resuelve el `min-w-0` del <span> interior, no el enlace.
+          */}
+          <Link
+            href="/"
+            className="flex min-h-[44px] min-w-[44px] items-center text-bone"
+            aria-label={`${BRAND.name} — ${BRAND.descriptor}`}
+          >
+            {/*
+              El interruptor de variante va en un <span> envolvente, NO en el
+              className de BrandLogo: el componente ya trae `inline-flex` en su
+              clase base, y `hidden` tiene la misma especificidad, así que quien
+              gana es el orden en que Tailwind emite las reglas — no el orden en
+              que se escriben. Pasándolas al propio componente se pintaban las
+              DOS variantes a la vez.
+            */}
+            <span className="sm:hidden">
+              <BrandLogo variant="compact" size={26} decorative />
+            </span>
+            <span className="hidden min-w-0 sm:block">
+              <BrandLogo variant="horizontal" size={26} decorative />
+            </span>
           </Link>
 
           <nav aria-label={t("menuTitle")} className="hidden items-center gap-1 lg:flex">

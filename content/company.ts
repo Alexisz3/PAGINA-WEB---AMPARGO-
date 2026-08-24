@@ -1,7 +1,7 @@
 import type { AppLocale } from "@/i18n/routing";
 
 /**
- * Datos institucionales de Ampargo.
+ * Datos institucionales de Andrade Parra Corporation.
  *
  * Separado de los diccionarios de i18n a propósito: esto no es copy de
  * interfaz, son HECHOS sobre la empresa. Si un hecho no está confirmado por
@@ -64,7 +64,7 @@ export const SERVICE_AREA = {
   region: "TX",
   country: "US",
   /**
-   * Municipios que Ampargo cubre de verdad, para la sección de cobertura.
+   * Municipios que la empresa cubre de verdad, para la sección de cobertura.
    *
    * VACÍO A PROPÓSITO. Es tentador rellenarlo con los suburbios obvios del
    * área metropolitana (Katy, Sugar Land, Pearland…), pero eso sería inventar:

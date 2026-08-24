@@ -13,7 +13,8 @@
     "qa:functional": "node qa/functional.mjs",
     "qa:axe": "node qa/axe.mjs",
     "qa:lighthouse": "node qa/lighthouse.mjs",
-    "check:env": "node --experimental-strip-types qa/check-env.mjs"
+    "check:env": "node --experimental-strip-types qa/check-env.mjs",
+    "build:brand": "node qa/build-brand.mjs"
   },
   "dependencies": {
     "framer-motion": "^11.15.0",

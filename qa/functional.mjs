@@ -36,11 +36,42 @@ console.log(`--- motor: ${ENGINE} ---`);
   r = await redirect({ "Accept-Language": "fr" });
   check("Raíz: idioma no soportado → fallback /en", r.status === 307 && r.location.endsWith("/en"), `${r.status} ${r.location}`);
 
-  r = await redirect({ "Accept-Language": "en-US", Cookie: "AMPARGO_LOCALE=es-US" });
+  r = await redirect({ "Accept-Language": "en-US", Cookie: "APC_LOCALE=es-US" });
   check("Raíz: cookie es vence a cabecera en", r.status === 307 && r.location.endsWith("/es"), `${r.status} ${r.location}`);
 
+  /*
+   * Migración de la cookie tras el cambio de marca.
+   *
+   * Un visitante que eligió español antes del rebranding trae la clave
+   * antigua. Debe seguir aterrizando en /es pese a tener el navegador en
+   * inglés, y salir de la petición con la clave nueva escrita y la vieja
+   * borrada. Sin esta prueba, un futuro "ya no hace falta la migración"
+   * pasaría desapercibido hasta que los visitantes recurrentes acabaran en
+   * el idioma equivocado.
+   */
+  r = await redirect({ "Accept-Language": "en-US", Cookie: "AMPARGO_LOCALE=es-US" });
+  check(
+    "Idioma: la cookie anterior al rebranding conserva la preferencia",
+    r.status === 307 && r.location.endsWith("/es"),
+    `${r.status} ${r.location}`
+  );
+  {
+    const res = await p.request.get(URL + "/", {
+      headers: { "Accept-Language": "en-US", Cookie: "AMPARGO_LOCALE=es-US" },
+      maxRedirects: 0,
+    });
+    const setCookies = res.headersArray().filter((h) => h.name.toLowerCase() === "set-cookie");
+    const writesNew = setCookies.some((h) => /APC_LOCALE=es-US/.test(h.value));
+    const clearsOld = setCookies.some((h) => /AMPARGO_LOCALE=;/.test(h.value));
+    check(
+      "Idioma: migra a la cookie nueva y retira la antigua",
+      writesNew && clearsOld,
+      `nueva:${writesNew} borra-antigua:${clearsOld}`
+    );
+  }
+
   const explicit = await p.request.get(URL + "/en", {
-    headers: { Cookie: "AMPARGO_LOCALE=es-US" },
+    headers: { Cookie: "APC_LOCALE=es-US" },
     maxRedirects: 0,
   });
   check("Prefijo explícito /en vence a cookie es", explicit.status() === 200, String(explicit.status()));

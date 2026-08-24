@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { SERVICE_AREA } from "@/content/company";
-import { BUSINESS } from "@/lib/site";
+import { BUSINESS, BRAND } from "@/lib/site";
 
 /**
  * Zona de servicio y sede.
@@ -25,7 +25,7 @@ export default async function ServiceArea() {
   const fullAddress = `${BUSINESS.streetAddress}, ${BUSINESS.city}, ${BUSINESS.region} ${BUSINESS.postalCode}`;
   // Formato universal: lo entienden Google Maps web, Android e iOS.
   const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    `Ampargo, ${fullAddress}`
+    `${BRAND.name}, ${fullAddress}`
   )}`;
 
   return (

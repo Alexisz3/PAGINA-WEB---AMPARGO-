@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Ampargo | Construction & Remodeling in Houston, TX",
-    "description": "Ampargo builds and remodels homes and commercial spaces in Houston, TX. 30 years of experience in construction, remodeling, finishes, and architectural design."
+    "title": "Andrade Parra Corporation | General Remodeling in Houston, TX",
+    "description": "Andrade Parra Corporation builds and remodels homes and commercial spaces in Houston, TX. 30 years of experience in construction, remodeling, finishes, and architectural design."
   },
   "Nav": {
     "home": "Home",
@@ -27,12 +27,12 @@
     }
   },
   "Home": {
-    "heroEyebrow": "AMPARGO — CONSTRUCTION & REMODELING",
-    "heroHeadline": "AMPARGO",
+    "heroEyebrow": "GENERAL REMODELING — HOUSTON, TX",
+    "heroHeadline": "ANDRADE PARRA",
     "heroSubhead": "Construction & remodeling in Houston",
     "heroCtaPrimary": "Request a quote",
     "heroCtaSecondary": "View projects",
-    "heroImageAlt": "Patio and pool under construction next to a lake, with a metal-roof pavilion — a real Ampargo project in Houston, TX.",
+    "heroImageAlt": "Patio and pool under construction next to a lake, with a metal-roof pavilion — a real Andrade Parra Corporation project in Houston, TX.",
     "servicesEyebrow": "SERVICES",
     "featuredEyebrow": "FEATURED PROJECTS",
     "featuredHeading": "Real work. Results that last.",
@@ -57,8 +57,9 @@
     "trustResidentialCommercial": "Residential & commercial",
     "trustFreeEstimates": "Free estimates",
     "trustBilingual": "English & Spanish",
-    "valuesEyebrow": "WHY AMPARGO",
-    "valuesSectionHeading": "Why homeowners choose Ampargo"
+    "valuesEyebrow": "WHY ANDRADE PARRA",
+    "valuesSectionHeading": "Why homeowners choose Andrade Parra Corporation",
+    "heroHeadlineSuffix": "CORPORATION"
   },
   "Services": {
     "housing": {
@@ -260,7 +261,7 @@
     "eyebrow": "ABOUT",
     "heading": "Built around your vision",
     "storyHeading": "Our story",
-    "teamHeading": "The people behind Ampargo",
+    "teamHeading": "The people behind Andrade Parra Corporation",
     "valuesHeading": "How we work",
     "ctaHeading": "Let's build something great together"
   }

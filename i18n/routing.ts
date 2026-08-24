@@ -62,6 +62,26 @@ export const pathnames = {
   "/terms": { "es-US": "/terminos", "en-US": "/terms" },
 } satisfies Record<string, string | Record<AppLocale, string>>;
 
+/**
+ * Cookie que recuerda el idioma elegido.
+ *
+ * Se renombró con el cambio de marca: el nombre viaja en cada petición y es
+ * visible en las herramientas del navegador, así que dejar ahí la marca
+ * anterior era un residuo real.
+ *
+ * `LEGACY_LOCALE_COOKIE` existe para NO perder la preferencia de quien ya
+ * visitó el sitio: `proxy.ts` la traduce a la cookie nueva en la primera
+ * petición y borra la vieja. Un renombrado seco habría devuelto a esos
+ * visitantes a la detección por Accept-Language, mandando al inglés a quien
+ * había elegido español a propósito.
+ *
+ * La migración puede retirarse pasado un año — la vida de la cookie —, cuando
+ * ya no queden navegadores con la clave antigua.
+ */
+export const LOCALE_COOKIE = "APC_LOCALE";
+export const LEGACY_LOCALE_COOKIE = "AMPARGO_LOCALE";
+export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
 export const routing = defineRouting({
   locales: LOCALES,
   defaultLocale: DEFAULT_LOCALE,
@@ -71,10 +91,10 @@ export const routing = defineRouting({
   },
   pathnames,
   // La cookie propia persiste la elección explícita del visitante y tiene
-  // prioridad sobre Accept-Language en visitas siguientes.
+  // prioridad sobre Accept-Language en visitas siguientes. Ver LOCALE_COOKIE.
   localeCookie: {
-    name: "AMPARGO_LOCALE",
-    maxAge: 60 * 60 * 24 * 365,
+    name: LOCALE_COOKIE,
+    maxAge: LOCALE_COOKIE_MAX_AGE,
   },
   localeDetection: true,
 });

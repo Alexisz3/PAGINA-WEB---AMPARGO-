@@ -32,7 +32,7 @@ export default async function Page({ params }: PageProps<"/[locale]/privacy">) {
           <h1 className="font-display text-3xl font-semibold text-ink">{t("privacy")}</h1>
           <p className="mt-6 border-l-2 border-accent bg-surface p-4 text-sm text-muted">
             Borrador pendiente de revisión legal. Este texto no constituye la
-            política vigente de AMPARGO y no debe publicarse sin aprobación.
+            política vigente de la empresa y no debe publicarse sin aprobación.
           </p>
         </div>
       </main>

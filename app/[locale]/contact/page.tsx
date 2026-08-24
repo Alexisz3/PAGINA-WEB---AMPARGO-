@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, type Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
-import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS } from "@/lib/site";
+import { WHATSAPP_CONTACTS, BUSINESS_EMAIL, BUSINESS, BRAND } from "@/lib/site";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { SERVICE_AREA } from "@/content/company";
 import ServiceArea from "@/components/ServiceArea";
@@ -31,8 +31,8 @@ export async function generateMetadata({
   return {
     title:
       locale === "es-US"
-        ? "Contacte a Ampargo | Houston, TX"
-        : "Contact Ampargo | Houston, TX",
+        ? `Contacte a ${BRAND.name} | Houston, TX`
+        : `Contact ${BRAND.name} | Houston, TX`,
     description: t("intro"),
     alternates: {
       canonical: path(locale as AppLocale),
