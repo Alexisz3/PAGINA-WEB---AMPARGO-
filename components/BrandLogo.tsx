@@ -53,10 +53,11 @@ function Mark({ size, accent = true }: { size: number; accent?: boolean }) {
       focusable="false"
       className="flex-none"
     >
-      <path d="M38 6 L38 26 L18 58 L2 58 Z" fill="currentColor" />
+      {/* Geometría espejo de qa/build-brand.mjs. Si se toca allí, se toca aquí. */}
+      <path d="M38 6 L38 21 L17 58 L2 58 Z" fill="currentColor" />
       <path d="M38 6 H50 V58 H38 Z" fill="currentColor" />
-      <path d="M29 40 H38 V50 H23 Z" fill={accent ? "#B8452F" : "currentColor"} />
-      <path d="M50 6 H76 V34 H50 V25 H64 V15 H50 Z" fill="currentColor" />
+      <path d="M27 40 H38 V52 H20 Z" fill={accent ? "#B8452F" : "currentColor"} />
+      <path d="M50 6 H76 V40 H50 V28 H64 V18 H50 Z" fill="currentColor" />
     </svg>
   );
 }

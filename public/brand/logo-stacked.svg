@@ -2,10 +2,10 @@
   <title id="t">Andrade Parra Corporation — General Remodeling</title>
   <desc id="d">Monograma A P: la pata derecha de la A es el mismo montante del que nace el cuenco de la P; el travesaño de la A actua de tirante. Debajo, el nombre en tres niveles: Andrade Parra, Corporation y el descriptor General Remodeling, centrados.</desc>
   <g transform="translate(121.000 6.000) scale(1.00000)">
-    <path d="M38 6 L38 26 L18 58 L2 58 Z" fill="#1B2A4A"/>
+    <path d="M38 6 L38 21 L17 58 L2 58 Z" fill="#1B2A4A"/>
     <path d="M38 6 H50 V58 H38 Z" fill="#1B2A4A"/>
-    <path d="M29 40 H38 V50 H23 Z" fill="#B8452F"/>
-    <path d="M50 6 H76 V34 H50 V25 H64 V15 H50 Z" fill="#1B2A4A"/>
+    <path d="M27 40 H38 V52 H20 Z" fill="#B8452F"/>
+    <path d="M50 6 H76 V40 H50 V28 H64 V18 H50 Z" fill="#1B2A4A"/>
   </g>
   <text x="160" y="112" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="27" font-weight="700" letter-spacing="0.01em" fill="#1B2A4A" text-anchor="middle">ANDRADE PARRA</text>
   <text x="160" y="136" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="500" letter-spacing="0.16em" fill="#1B2A4A" text-anchor="middle">CORPORATION</text>

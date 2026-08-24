@@ -19,11 +19,26 @@ const IVORY = "#F2EFE8";
 const STEEL = "#5A6472";
 const BLACK = "#000000";
 
-/* ─── Geometría del monograma (rejilla 80 x 64, bbox x 2..76, y 6..58) ── */
-const BRACE = "M38 6 L38 26 L18 58 L2 58 Z";   // riostra izquierda de la A
-const STEM = "M38 6 H50 V58 H38 Z";            // montante compartido A/P
-const BAR = "M29 40 H38 V50 H23 Z";            // travesaño de la A (acento)
-const BOWL = "M50 6 H76 V34 H50 V25 H64 V15 H50 Z"; // cuenco de la P
+/* ─── Geometría del monograma (rejilla 80 x 64, bbox x 2..76, y 6..58) ──
+ *
+ * Todo el trazo se construye sobre UN grosor de 12 unidades. La versión
+ * anterior mezclaba 12, 16, 9, 9 y 10: a tamaño grande se notaba como un
+ * dibujo desigual, sin que fuera evidente por qué.
+ *
+ * La riostra mide 15 en horizontal, no 12, precisamente para que su grosor
+ * PERPENDICULAR sí sea 12: inclinada 34,7° respecto a la vertical, hay que
+ * dividir por el coseno (12 / 0,822 ≈ 15). Medir en horizontal una diagonal
+ * es el error clásico que la deja visualmente más fina que el resto.
+ *
+ * Y hay una alineación que antes no existía: el cuenco de la P termina en
+ * y=40, exactamente donde empieza el travesaño de la A. Esa línea horizontal
+ * compartida es la que ata las dos letras y hace que se lean como una pieza
+ * y no como dos formas vecinas.
+ */
+const BRACE = "M38 6 L38 21 L17 58 L2 58 Z";        // riostra izquierda de la A
+const STEM = "M38 6 H50 V58 H38 Z";                 // montante compartido A/P
+const BAR = "M27 40 H38 V52 H20 Z";                 // travesaño de la A (acento)
+const BOWL = "M50 6 H76 V40 H50 V28 H64 V18 H50 Z"; // cuenco de la P
 
 const MARK_W = 74; // 76 - 2
 const MARK_H = 52; // 58 - 6

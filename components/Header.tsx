@@ -64,19 +64,11 @@ export default function Header() {
             aria-label={`${BRAND.name} — ${BRAND.descriptor}`}
           >
             {/*
-              El interruptor de variante va en un <span> envolvente, NO en el
-              className de BrandLogo: el componente ya trae `inline-flex` en su
-              clase base, y `hidden` tiene la misma especificidad, así que quien
-              gana es el orden en que Tailwind emite las reglas — no el orden en
-              que se escriben. Pasándolas al propio componente se pintaban las
-              DOS variantes a la vez.
+              Solo el isotipo, en todas las anchuras. El nombre completo no se
+              pierde: lo lleva el `aria-label` del enlace para quien navega con
+              lector de pantalla, y aparece en el hero, el pie y el <title>.
             */}
-            <span className="sm:hidden">
-              <BrandLogo variant="compact" size={26} decorative />
-            </span>
-            <span className="hidden min-w-0 sm:block">
-              <BrandLogo variant="horizontal" size={26} decorative />
-            </span>
+            <BrandLogo variant="compact" size={30} decorative />
           </Link>
 
           <nav aria-label={t("menuTitle")} className="hidden items-center gap-1 lg:flex">

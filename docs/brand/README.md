@@ -40,6 +40,22 @@ Se descartaron dos rutas alternativas: una escuadra de carpintero (incumplía la
 prohibición de herramientas) y un umbral con un lateral desplazado (el
 desplazamiento se perdía por completo a tamaño de favicon).
 
+### Construcción
+
+Todo el trazo se levanta sobre **un grosor único de 12 unidades** en una
+rejilla de 80 × 64. La riostra mide 15 en horizontal precisamente para que su
+grosor *perpendicular* sea 12: inclinada 34,7° respecto a la vertical, hay que
+dividir por el coseno. Medir en horizontal el grosor de una diagonal es el
+error clásico que la deja visualmente más fina que el resto de la pieza.
+
+El **cuenco de la P termina en y=40, exactamente donde arranca el travesaño de
+la A**. Esa línea horizontal compartida es la que ata las dos letras y hace que
+se lean como una sola pieza y no como dos formas vecinas.
+
+En la cabecera del sitio se usa el isotipo **solo**, sin texto. El nombre
+completo no se pierde: lo llevan el `aria-label` del enlace, el hero, el pie y
+el `<title>` de cada página.
+
 ---
 
 ## Paleta
@@ -150,32 +166,30 @@ reduzca hasta volverlo ilegible.
 
 ---
 
-## Exportación a PNG
+## PNG con transparencia
 
-Los archivos entregados son **SVG vectoriales**. No se han generado PNG: este
-entorno no tiene un exportador con el que pudiera comprobar el resultado, y
-prefiero no afirmar que existen archivos que no he verificado.
+En `public/brand/png/` hay 14 archivos PNG con canal alfa, listos para usar
+donde no se admita SVG: redes sociales, Google Business Profile, plantillas de
+Word, presentaciones o firmas de correo.
 
-Para generarlos, con Inkscape instalado:
+| Archivo | Tamaños |
+|---|---|
+| `mark-ap-*.png` | 256, 512, 1024, 2048 |
+| `logo-horizontal-*.png` | 1024, 2048 |
+| `logo-stacked-*.png` | 1024, 2048 |
+| `logo-light-*.png` | 1024, 2048 (fondos oscuros) |
+| `logo-monochrome-*.png` | 1024, 2048 |
+| `favicon-*.png` | 180 (iOS), 512 (Android) |
 
-```bash
-for size in 512 1024 2048; do
-  inkscape public/brand/mark-ap.svg \
-    --export-type=png --export-width=$size \
-    --export-background-opacity=0 \
-    --export-filename=mark-ap-$size.png
-done
-```
+Para regenerarlos: `npm run export:brand`.
 
-Con ImageMagick y librsvg:
+Cada PNG se **rasteriza directamente desde el vector al tamaño final**, no se
+obtiene ampliando uno más pequeño: escalar un mapa de bits emborrona los
+bordes, sobre todo en las diagonales de la riostra.
 
-```bash
-magick -background none -density 600 public/brand/mark-ap.svg \
-  -resize 1024x mark-ap-1024.png
-```
-
-También sirve abrir el SVG en Figma o Illustrator y exportar a 1×, 2× y 4×
-con fondo transparente.
+Si necesita otro tamaño, edite la lista de anchos en
+`qa/export-brand-png.mjs`. **Para impresión, use siempre el SVG**: un PNG
+tiene resolución fija y a gran formato se pixela.
 
 ---
 
