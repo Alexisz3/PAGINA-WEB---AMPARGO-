@@ -13,10 +13,10 @@ import { fileURLToPath } from "node:url";
 const OUT = fileURLToPath(new URL("../public/brand", import.meta.url));
 
 /* ─── Paleta ─────────────────────────────────────────────────────────── */
-const NAVY = "#1B2A4A";
-const BRICK = "#B8452F";
+export const NAVY = "#1B2A4A";
+export const BRICK = "#B8452F";
 const IVORY = "#F2EFE8";
-const STEEL = "#5A6472";
+export const STEEL = "#5A6472";
 const BLACK = "#000000";
 
 /* ─── Geometría del monograma (rejilla 80 x 64, bbox x 2..76, y 6..58) ──
@@ -47,7 +47,7 @@ const MARK_H = 52; // 58 - 6
  * Emite el monograma con el color y encuadre pedidos.
  * `accent` a null funde el travesaño con el resto: versiones monocromas.
  */
-function mark({ body, accent, transform = "" }) {
+export function mark({ body, accent, transform = "" }) {
   const t = transform ? ` transform="${transform}"` : "";
   return `<g${t}>
     <path d="${BRACE}" fill="${body}"/>
@@ -58,7 +58,7 @@ function mark({ body, accent, transform = "" }) {
 }
 
 /** Coloca el monograma con una altura dada y su esquina superior izquierda en (x,y). */
-function place(height, x, y) {
+export function place(height, x, y) {
   const s = height / MARK_H;
   return `translate(${(x - 2 * s).toFixed(3)} ${(y - 6 * s).toFixed(3)}) scale(${s.toFixed(5)})`;
 }
@@ -73,6 +73,44 @@ function place(height, x, y) {
  */
 const FONT = "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif";
 
+/*
+ * Alternativas tipográficas para que el cliente elija.
+ *
+ * El símbolo NO cambia entre ellas: solo la voz del nombre. Es la decisión
+ * reversible por excelencia — cambiar una constante y regenerar.
+ *
+ * `weight` varía porque cada familia tiene un peso distinto a igual número:
+ * la serif de referencia necesita 600 donde la grotesca pide 700, o se ve
+ * pesada. Y `tracking` sube en las serifs porque en versalitas necesitan más
+ * aire entre letras que una sans geométrica.
+ */
+export const TYPE_OPTIONS = {
+  grotesque: {
+    label: "Space Grotesk — actual",
+    family: "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif",
+    google: "Space+Grotesk:wght@500;700",
+    nameWeight: 700,
+    nameTracking: "0.01em",
+    corpWeight: 500,
+  },
+  serif: {
+    label: "Source Serif 4 — profesional contemporánea",
+    family: "'Source Serif 4', Georgia, 'Times New Roman', serif",
+    google: "Source+Serif+4:wght@500;600;700",
+    nameWeight: 600,
+    nameTracking: "0.02em",
+    corpWeight: 500,
+  },
+  engraved: {
+    label: "Cinzel — capitular grabada, cercana a la referencia",
+    family: "'Cinzel', 'Trajan Pro', Georgia, serif",
+    google: "Cinzel:wght@500;700",
+    nameWeight: 700,
+    nameTracking: "0.04em",
+    corpWeight: 500,
+  },
+};
+
 function wordmark({ x, nameY, descY, nameSize, descSize, nameColor, corpColor, descColor, anchor = "start" }) {
   return `<text x="${x}" y="${nameY}" font-family="${FONT}" font-size="${nameSize}" font-weight="700" letter-spacing="0.01em" fill="${nameColor}" text-anchor="${anchor}">ANDRADE PARRA <tspan font-weight="500" fill="${corpColor}">CORPORATION</tspan></text>
   <text x="${x}" y="${descY}" font-family="${FONT}" font-size="${descSize}" font-weight="500" letter-spacing="0.24em" fill="${descColor}" text-anchor="${anchor}">GENERAL REMODELING</text>`;
@@ -86,7 +124,7 @@ function wordmark({ x, nameY, descY, nameSize, descSize, nameColor, corpColor, d
  * contratista se lee como acreditación oficial, y esta empresa no tiene
  * licencia ni seguro confirmados por escrito.
  */
-function flagRule(x, y, width, height = 3) {
+export function flagRule(x, y, width, height = 3) {
   const canton = width * 0.38;
   return `<g>
     <rect x="${x}" y="${y}" width="${canton.toFixed(2)}" height="${height}" fill="${NAVY}"/>
