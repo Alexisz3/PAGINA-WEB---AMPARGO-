@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
 import { BRAND } from "@/lib/site";
 import BrandLogo from "./BrandLogo";
+import FlagRule from "./FlagRule";
 import LocaleSwitcher from "./LocaleSwitcher";
 import WhatsAppButton from "./WhatsAppButton";
 import MobileMenu from "./MobileMenu";
@@ -45,6 +46,16 @@ export default function Header() {
           solid ? "bg-carbon/95 backdrop-blur border-b border-bone/10" : "bg-transparent"
         }`}
       >
+        {/*
+          El filete de bandera vive DENTRO de la cabecera fija, no al principio
+          del body: fuera de ella se iría con el scroll en la primera pasada y
+          no volvería a verse nunca.
+
+          Se mantiene sobre el hero transparente a propósito — son dos colores
+          macizos que aguantan cualquier fotografía debajo.
+        */}
+        <FlagRule />
+
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-4 lg:px-10">
           {/*
             El nombre nuevo es mucho más largo que el anterior, así que el

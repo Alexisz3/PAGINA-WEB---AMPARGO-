@@ -78,6 +78,22 @@ function wordmark({ x, nameY, descY, nameSize, descSize, nameColor, corpColor, d
   <text x="${x}" y="${descY}" font-family="${FONT}" font-size="${descSize}" font-weight="500" letter-spacing="0.24em" fill="${descColor}" text-anchor="${anchor}">GENERAL REMODELING</text>`;
 }
 
+/**
+ * Filete de bandera: cantón azul en su proporción real (2/5) y resto en rojo.
+ *
+ * Es el guiño estadounidense reducido a lo mínimo reconocible. Sin estrellas y
+ * sin franjas dibujadas: en EE. UU. ese emblema en la papelería de un
+ * contratista se lee como acreditación oficial, y esta empresa no tiene
+ * licencia ni seguro confirmados por escrito.
+ */
+function flagRule(x, y, width, height = 3) {
+  const canton = width * 0.38;
+  return `<g>
+    <rect x="${x}" y="${y}" width="${canton.toFixed(2)}" height="${height}" fill="${NAVY}"/>
+    <rect x="${(x + canton).toFixed(2)}" y="${y}" width="${(width - canton).toFixed(2)}" height="${height}" fill="${BRICK}"/>
+  </g>`;
+}
+
 function doc({ w, h, title, desc, body, note }) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-labelledby="t d">
   <title id="t">${title}</title>
@@ -157,13 +173,14 @@ writeFileSync(
   `${OUT}/logo-stacked.svg`,
   doc({
     w: 320,
-    h: 176,
+    h: 190,
     title: "Andrade Parra Corporation — General Remodeling",
-    desc: `${DESC_MARK} Debajo, el nombre en tres niveles: Andrade Parra, Corporation y el descriptor General Remodeling, centrados.`,
+    desc: `${DESC_MARK} Debajo, el nombre en tres niveles: Andrade Parra, Corporation y el descriptor General Remodeling, centrados, sobre un filete azul y rojo.`,
     body: `  ${mark({ body: NAVY, accent: BRICK, transform: place(52, 123, 12) })}
   <text x="160" y="112" font-family="${FONT}" font-size="27" font-weight="700" letter-spacing="0.01em" fill="${NAVY}" text-anchor="middle">ANDRADE PARRA</text>
   <text x="160" y="136" font-family="${FONT}" font-size="15" font-weight="500" letter-spacing="0.16em" fill="${NAVY}" text-anchor="middle">CORPORATION</text>
-  <text x="160" y="160" font-family="${FONT}" font-size="11" font-weight="500" letter-spacing="0.24em" fill="${STEEL}" text-anchor="middle">GENERAL REMODELING</text>`,
+${flagRule(80, 148, 160)}
+  <text x="160" y="174" font-family="${FONT}" font-size="11" font-weight="500" letter-spacing="0.24em" fill="${STEEL}" text-anchor="middle">GENERAL REMODELING</text>`,
   })
 );
 
