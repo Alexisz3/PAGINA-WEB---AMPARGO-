@@ -1,0 +1,432 @@
+<title>Checklist de Lanzamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+
+<style>
+  /* Paleta de Andrade Parra Corporation — la misma del sitio y del logotipo. */
+  :root {
+    --ground:   #f2efe8;
+    --surface:  #faf8f3;
+    --ink:      #1b2a4a;
+    --body:     #26303f;
+    --muted:    #5a6472;
+    --line:     rgb(27 42 74 / 15%);
+    --accent:   #b8452f;
+    --accent-soft: rgb(184 69 47 / 8%);
+    --navy:     #1b2a4a;
+    --carbon:   #121412;
+    --bone:     #f8f6f0;
+
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #12161f;
+      --surface:  #1a1f2b;
+      --ink:      #e8eaf0;
+      --body:     #c9cedb;
+      --muted:    #99a1b3;
+      --line:     rgb(232 234 240 / 15%);
+      --accent:   #e08a6e;
+      --accent-soft: rgb(224 138 110 / 12%);
+      --navy:     #8fa4cc;
+      --carbon:   #e8eaf0;
+      --bone:     #12161f;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:   #12161f;
+    --surface:  #1a1f2b;
+    --ink:      #e8eaf0;
+    --body:     #c9cedb;
+    --muted:    #99a1b3;
+    --line:     rgb(232 234 240 / 15%);
+    --accent:   #e08a6e;
+    --accent-soft: rgb(224 138 110 / 12%);
+    --navy:     #8fa4cc;
+    --carbon:   #e8eaf0;
+    --bone:     #12161f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--body);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 54rem; margin: 0 auto; padding: 0 clamp(1.15rem, 4vw, 2.5rem) 4rem; }
+
+  h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+
+  /* Filete de bandera: el mismo recurso de marca del sitio. */
+  .flag { display: flex; height: 4px; width: 100%; }
+  .flag span:first-child { width: 38%; background: var(--navy); }
+  .flag span:last-child { flex: 1; background: var(--accent); }
+
+  header { padding: clamp(1.75rem, 5vw, 3rem) 0 1.75rem; border-bottom: 2px solid var(--ink); }
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.75rem;
+  }
+  header h1 {
+    font-size: clamp(1.9rem, 5vw, 2.9rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+  header p { margin: 1rem 0 0; max-width: 46ch; color: var(--muted); }
+
+  /* ─── Bandas de prioridad ─────────────────────────────────────────── */
+  section { margin-top: clamp(2.25rem, 5vw, 3.25rem); }
+
+  .band {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .band h2 { font-size: 1.2rem; font-weight: 600; color: var(--ink); }
+  .band .tag {
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid currentColor;
+  }
+  .tag.stop { color: var(--accent); }
+  .tag.high { color: var(--navy); }
+  .tag.later { color: var(--muted); }
+
+  /* ─── Elementos ───────────────────────────────────────────────────── */
+  ol.items { list-style: none; margin: 1.5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  ol.items > li { background: var(--surface); padding: 1.15rem 1.25rem; display: grid; grid-template-columns: 2rem 1fr; gap: 0.5rem 0.9rem; }
+
+  .num {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+  .item-title { font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; color: var(--ink); line-height: 1.35; }
+  .item-body { grid-column: 2; margin: 0.4rem 0 0; font-size: 0.94rem; color: var(--body); }
+  .how {
+    grid-column: 2;
+    margin: 0.7rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--accent-soft);
+    font-size: 0.86rem;
+    color: var(--body);
+  }
+  .how b { font-family: var(--font-display); font-weight: 600; color: var(--accent); }
+
+  /* ─── Aviso destacado ─────────────────────────────────────────────── */
+  .notice {
+    margin-top: 1.5rem;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    background: var(--surface);
+    padding: 1.15rem 1.35rem;
+  }
+  .notice h3 { font-size: 0.95rem; font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; }
+  .notice p { margin: 0 0 0.6rem; font-size: 0.92rem; }
+  .notice p:last-child { margin-bottom: 0; }
+
+  /* ─── Bloque de cierre ────────────────────────────────────────────── */
+  .closing {
+    margin-top: clamp(2.5rem, 6vw, 3.5rem);
+    background: var(--carbon);
+    color: var(--bone);
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+  .closing h2 { color: var(--bone); font-size: 1.2rem; font-weight: 600; }
+  .closing p { color: var(--bone); opacity: 0.82; margin: 0.75rem 0 0; max-width: 52ch; font-size: 0.95rem; }
+  .closing ul { margin: 1.1rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+  .closing li { display: flex; gap: 0.65rem; font-size: 0.95rem; color: var(--bone); opacity: 0.9; }
+  .closing li::before { content: ""; flex: none; width: 7px; height: 1px; background: var(--accent); margin-top: 0.78em; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  strong { color: var(--ink); font-weight: 600; }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    section, ol.items > li, .notice, .closing { break-inside: avoid; }
+  }
+</style>
+
+<div class="flag"><span></span><span></span></div>
+
+<div class="sheet">
+
+  <header>
+    <p class="eyebrow">Andrade Parra Corporation · Sitio web</p>
+    <h1>Lo que necesitamos de ustedes</h1>
+    <p>
+      El sitio ya está construido y funcionando. Lo que queda no es
+      programación: es material que solo ustedes tienen. Está ordenado por
+      impacto, no por esfuerzo.
+    </p>
+  </header>
+
+  <!-- ══ Bloquea el lanzamiento ══════════════════════════════════════ -->
+  <section>
+    <div class="band">
+      <span class="tag stop">Bloquea el lanzamiento</span>
+      <h2>Sin esto no se puede publicar</h2>
+    </div>
+
+    <ol class="items">
+      <li>
+        <span class="num">01</span>
+        <span class="item-title">Licencia y seguro</span>
+        <p class="item-body">
+          El sitio ofrece hoy trabajos <strong>eléctricos y de plomería</strong>.
+          En Texas ambos oficios exigen licencia estatal, a diferencia de la
+          remodelación general, que no la exige. Necesito ver los documentos
+          para dejar esas menciones o retirarlas.
+          <br><br>
+          Aparte, la póliza de responsabilidad civil es la primera pregunta que
+          hace un propietario antes de dejar entrar a alguien en su casa. Si la
+          tienen, conviene decirlo; si no, mejor no mencionarla.
+        </p>
+        <p class="how"><b>Cómo enviarlo:</b> foto o PDF de la licencia y del certificado de seguro.</p>
+      </li>
+
+      <li>
+        <span class="num">02</span>
+        <span class="item-title">Nombre de dominio</span>
+        <p class="item-body">
+          Hoy el sitio vive en una dirección provisional. Sin dominio propio no
+          aparece en Google y no se puede crear el correo de la empresa.
+          Cuesta unos <strong>15 dólares al año</strong> y se registra a nombre
+          de Andrade Parra, no al mío.
+        </p>
+        <p class="how"><b>Qué decidir:</b> el nombre que prefieren. Yo verifico si está libre.</p>
+      </li>
+
+      <li>
+        <span class="num">03</span>
+        <span class="item-title">Textos legales</span>
+        <p class="item-body">
+          La política de privacidad y los términos del servicio los tiene que
+          revisar un abogado en Texas. No los redacto yo ni los copio de una
+          plantilla: describen lo que la empresa hace realmente con los datos de
+          sus clientes, y eso solo lo saben ustedes.
+        </p>
+        <p class="how"><b>Mientras tanto:</b> esas páginas no existen en el sitio. Es preferible a publicar un borrador.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══ Alto impacto ════════════════════════════════════════════════ -->
+  <section>
+    <div class="band">
+      <span class="tag high">Alto impacto</span>
+      <h2>Lo que más cambia el resultado</h2>
+    </div>
+
+    <ol class="items">
+      <li>
+        <span class="num">04</span>
+        <span class="item-title">Las fotos en su tamaño original</span>
+        <p class="item-body">
+          Las 29 fotos que tengo llegaron por WhatsApp, que las reduce a 960
+          píxeles de ancho. Un propietario juzga a un remodelador por el remate
+          del azulejo y la junta del gabinete — y la compresión borra
+          exactamente ese detalle. Ahora mismo el trabajo parece menos bueno de
+          lo que es.
+          <br><br>
+          <strong>Los originales siguen en sus teléfonos.</strong> No hay que
+          volver a fotografiar nada.
+        </p>
+        <p class="how"><b>Cómo enviarlo:</b> por Google Drive, o en WhatsApp adjuntando como <b>«documento»</b> en vez de como foto. Así no se comprimen.</p>
+      </li>
+
+      <li>
+        <span class="num">05</span>
+        <span class="item-title">Reseñas de sus clientes anteriores</span>
+        <p class="item-body">
+          Es lo primero que busca alguien que va a gastarse decenas de miles de
+          dólares: escribe el nombre de la empresa y la palabra
+          <em>reviews</em>. Si no sale nada, cierra la pestaña antes de ver el
+          sitio.
+          <br><br>
+          Ya tienen siete obras terminadas. Son siete personas con teléfono.
+        </p>
+        <p class="how"><b>Qué hacer:</b> llamarlos y pedirles una reseña en Google. Con cinco reales ya cambia la conversación.</p>
+      </li>
+
+      <li>
+        <span class="num">06</span>
+        <span class="item-title">Ficha de Google Business</span>
+        <p class="item-body">
+          Para un contratista en Houston, esta ficha trae más llamadas que el
+          sitio web entero. Es gratis. <strong>Solo la puede reclamar el
+          dueño</strong>: pide verificar identidad y dirección, así que no puedo
+          hacerlo yo.
+        </p>
+        <p class="how"><b>Qué hacer:</b> entrar en google.com/business con la dirección de la oficina. La verificación tarda unos días, conviene empezar ya.</p>
+      </li>
+
+      <li>
+        <span class="num">07</span>
+        <span class="item-title">Qué se hizo en cada obra</span>
+        <p class="item-body">
+          Hoy cada proyecto es una foto y un título. Sin contexto, podría ser
+          una imagen sacada de internet. Con dos o tres frases sobre qué pedía
+          el cliente, qué se hizo y cuánto duró, deja de ser una foto y pasa a
+          ser una prueba de trabajo.
+        </p>
+        <p class="how"><b>Cómo hacerlo:</b> una llamada de veinte minutos conmigo. Yo pregunto, ustedes cuentan, yo lo redacto.</p>
+      </li>
+
+      <li>
+        <span class="num">08</span>
+        <span class="item-title">Municipios a los que se desplazan</span>
+        <p class="item-body">
+          El sitio dice «Houston y alrededores», que no le responde a nadie. Un
+          propietario en Katy o en Sugar Land quiere ver el nombre de su ciudad.
+          No los escribí yo porque no sé hasta dónde van de verdad, y prometer
+          cobertura que no dan genera llamadas que hay que rechazar.
+        </p>
+        <p class="how"><b>Qué enviar:</b> la lista de ciudades donde sí trabajan.</p>
+      </li>
+
+      <li>
+        <span class="num">09</span>
+        <span class="item-title">Correo de la empresa</span>
+        <p class="item-body">
+          Hoy no existe, así que el sitio no muestra ninguno. Dos números de
+          WhatsApp sin un correo con dominio propio transmite «cuadrilla
+          informal» a alguien que va a firmar por una obra grande.
+        </p>
+        <p class="how"><b>Costo:</b> unos 7 dólares al mes por buzón, una vez exista el dominio.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══ Cuando puedan ═══════════════════════════════════════════════ -->
+  <section>
+    <div class="band">
+      <span class="tag later">Cuando puedan</span>
+      <h2>Mejora el sitio, no lo detiene</h2>
+    </div>
+
+    <ol class="items">
+      <li>
+        <span class="num">10</span>
+        <span class="item-title">Historia de la empresa</span>
+        <p class="item-body">
+          Cuándo empezaron, cómo, qué tipo de obra hacen mejor. La sección
+          existe en el sitio y aparece sola en cuanto haya texto. No la inventé:
+          sería ficción sobre su propia empresa.
+        </p>
+      </li>
+
+      <li>
+        <span class="num">11</span>
+        <span class="item-title">Quiénes son</span>
+        <p class="item-body">
+          Nombre, cargo y foto de cada socio. Sé sus nombres, pero no sus cargos
+          ni tengo permiso para publicar sus caras. Poner un cargo supuesto
+          junto a un nombre real no es una opción.
+        </p>
+      </li>
+
+      <li>
+        <span class="num">12</span>
+        <span class="item-title">Fotos de antes y después</span>
+        <p class="item-body">
+          Es lo que más convence en remodelación. El comparador ya está
+          programado. Solo entran pares que ustedes confirmen que son el mismo
+          espacio — emparejar dos fotos porque «parecen» del mismo sitio sería
+          engañar.
+        </p>
+      </li>
+
+      <li>
+        <span class="num">13</span>
+        <span class="item-title">Permiso del trabajador</span>
+        <p class="item-body">
+          Dos fotos mostraban el rostro de un trabajador de forma reconocible.
+          Las retiré por precaución. Si él firma una autorización, vuelven; si
+          no, se quedan fuera.
+        </p>
+      </li>
+
+      <li>
+        <span class="num">14</span>
+        <span class="item-title">Horario de atención</span>
+        <p class="item-body">
+          Para la oficina y para la ficha de Google. Hoy el sitio pide llamar
+          antes de pasar, que es una suposición mía y conviene confirmar.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══ Lo que NO hace falta ════════════════════════════════════════ -->
+  <div class="notice">
+    <h3>Lo que no necesitan preparar</h3>
+    <p>
+      No hace falta que escriban textos, ni que preparen documentos, ni que
+      aprendan a usar nada. Lo único que realmente hay que reservar es
+      <strong>una llamada de veinte minutos</strong> para los puntos 07 y 08.
+    </p>
+    <p>
+      El resto son archivos que ya tienen en el teléfono, o decisiones de una
+      sola frase.
+    </p>
+  </div>
+
+  <!-- ══ Cierre ══════════════════════════════════════════════════════ -->
+  <div class="closing">
+    <h2>Si solo pueden hacer tres cosas esta semana</h2>
+    <p>
+      Estas tres desbloquean casi todo lo demás y no cuestan dinero:
+    </p>
+    <ul>
+      <li>Reclamar la ficha de Google Business — la verificación tarda días, empieza el reloj hoy</li>
+      <li>Mandarme las fotos originales por Drive o como documento</li>
+      <li>Agendar la llamada de veinte minutos sobre las obras</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>Andrade Parra Corporation · General Remodeling</span>
+    <span>Houston, TX</span>
+  </footer>
+
+</div>
