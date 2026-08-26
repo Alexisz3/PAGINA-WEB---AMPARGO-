@@ -7,7 +7,7 @@ import { getPublishedServices } from "@/content/services";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuoteShell from "@/components/quote/QuoteShell";
-import { BRAND } from "@/lib/site";
+import { BRAND, WHATSAPP_CONTACTS, BUSINESS_EMAIL } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -85,7 +85,15 @@ export default async function QuotePage({ params, searchParams }: PageProps<"/[l
         </section>
 
         <NextIntlClientProvider messages={quoteMessages}>
-          <QuoteShell services={serviceOptions} initialServiceId={initialServiceId} />
+          {/* Los contactos viajan como props: `lib/site` lee variables de
+              entorno que no existen en el navegador, así que importarlo desde
+              un componente de cliente arrastraría valores indefinidos. */}
+          <QuoteShell
+            services={serviceOptions}
+            initialServiceId={initialServiceId}
+            whatsappTargets={WHATSAPP_CONTACTS.map((c) => ({ phone: c.phone, name: c.name }))}
+            businessEmail={BUSINESS_EMAIL}
+          />
         </NextIntlClientProvider>
       </main>
       <Footer />

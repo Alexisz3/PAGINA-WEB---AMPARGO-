@@ -128,7 +128,7 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
           </div>
         </section>
 
-        {/* ── Fotografía principal: es el LCP, va con priority ── */}
+        {/* ── Fotografía principal: es el LCP, va con preload ── */}
         <section className="bg-carbon">
           <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
             <figure
@@ -142,7 +142,8 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
                 src={`/images/proyectos/${project.coverPhoto.file}`}
                 alt={project.title[loc]}
                 fill
-                priority
+                preload
+                loading="eager"
                 sizes="(min-width: 1400px) 1340px, 100vw"
                 className="object-cover"
               />

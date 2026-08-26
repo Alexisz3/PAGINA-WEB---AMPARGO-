@@ -74,7 +74,7 @@ export default async function ProjectsPage({ params, searchParams }: PageProps<"
                 <ProjectCard
                   key={project.id}
                   project={project}
-                  priority={i < 2}
+                  eager={i < 2}
                   compact
                   // Aquí las tarjetas cuelgan del H1 de la página, sin sección
                   // intermedia: con h3 se producía un salto H1→H3.

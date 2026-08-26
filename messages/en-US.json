@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Andrade Parra Corporation | General Remodeling in Houston, TX",
-    "description": "Andrade Parra Corporation builds and remodels homes and commercial spaces in Houston, TX. 30 years of experience in construction, remodeling, finishes, and architectural design."
+    "description": "Construction and remodeling for homes and commercial spaces in Houston, TX. Kitchens, bathrooms, outdoor living and custom builds. Free estimates."
   },
   "Nav": {
     "home": "Home",
@@ -191,7 +191,8 @@
     "officeLabel": "Our office",
     "directions": "Get directions",
     "visitNote": "Please call ahead so we can make time for you.",
-    "areaAsk": "Do not see your area? Ask us — we may still be able to help."
+    "areaAsk": "Do not see your area? Ask us — we may still be able to help.",
+    "metaDescription": "Call us, message us on WhatsApp or send your project details. Andrade Parra Corporation serves Houston and surrounding areas."
   },
   "Footer": {
     "tagline": "Construction & remodeling in Houston, TX.",
@@ -249,9 +250,31 @@
     "back": "Back",
     "next": "Continue",
     "submit": "Send request",
-    "devNotice": "Development mode: this request is not sent to anyone yet. Real persistence and delivery channels are pending the client contracting the services.",
     "heading": "Request a free estimate",
-    "intro": "Tell us about your project and we will review the details before we get in touch."
+    "intro": "Tell us about your project and we will review the details before we get in touch.",
+    "errDescription": "Tell us briefly what you want to do — even one line helps.",
+    "errName": "We need a name to know who we are talking to.",
+    "errContact": "Leave a phone number or an email so we can reply.",
+    "errPhone": "That phone number looks incomplete.",
+    "errEmail": "That email address looks incomplete.",
+    "errChannel": "Choose how you would like us to reply.",
+    "errConsent": "We need your permission before we can contact you.",
+    "errSummary": "Check the highlighted fields.",
+    "optional": "optional",
+    "sendWhatsapp": "Send by WhatsApp",
+    "handoffHeading": "WhatsApp is open with your request",
+    "handoffBody": "Press send in WhatsApp to deliver it. Nothing has been sent until you do.",
+    "handoffReopen": "Open WhatsApp again",
+    "handoffEdit": "Change something first",
+    "msgIntro": "Quote request from the website",
+    "msgService": "Service",
+    "msgLocation": "Location",
+    "msgDescription": "Project",
+    "msgName": "Name",
+    "msgPhone": "Phone",
+    "msgEmail": "Email",
+    "msgPhotos": "Reference photos ready to send",
+    "emailUnavailable": "Email is not available yet, so requests go through WhatsApp."
   },
   "Testimonials": {
     "heading": "What our clients say",
@@ -263,6 +286,7 @@
     "storyHeading": "Our story",
     "teamHeading": "The people behind Andrade Parra Corporation",
     "valuesHeading": "How we work",
-    "ctaHeading": "Let's build something great together"
+    "ctaHeading": "Let's build something great together",
+    "metaDescription": "Who we are, how we work and the standards behind every Andrade Parra Corporation project in Houston, TX."
   }
 }

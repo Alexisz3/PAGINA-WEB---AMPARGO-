@@ -33,11 +33,14 @@ export default function PageHero({
 }: PageHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-carbon">
+      {/* Es el elemento LCP de esta página. `priority` quedó obsoleto en
+          Next 16 y dejó de emitir el preload; ver HomeHero. */}
       <Image
         src={imageSrc}
         alt={imageAlt}
         fill
-        priority
+        preload
+        loading="eager"
         sizes="100vw"
         className="object-cover object-center"
       />

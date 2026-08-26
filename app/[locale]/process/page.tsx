@@ -27,7 +27,7 @@ export async function generateMetadata({
     title:
       locale === "es-US"
         ? `Cómo trabajamos | ${BRAND.name}`
-        : `How We Work | Construction Process Houston | ${BRAND.name}`,
+        : `How We Work in Houston | ${BRAND.name}`,
     description: t("intro"),
     alternates: {
       canonical: path(locale as AppLocale),

@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Andrade Parra Corporation | Construcción y remodelación en Houston, TX",
-    "description": "Andrade Parra Corporation construye y remodela viviendas y espacios comerciales en Houston, TX. 30 años de experiencia en construcción, remodelación, acabados y diseño arquitectónico."
+    "title": "Andrade Parra Corporation | Remodelación en Houston, TX",
+    "description": "Construcción y remodelación de viviendas y espacios comerciales en Houston, TX. Cocinas, baños, exteriores y obra nueva. Presupuestos sin costo."
   },
   "Nav": {
     "home": "Inicio",
@@ -191,7 +191,8 @@
     "officeLabel": "Nuestra oficina",
     "directions": "Cómo llegar",
     "visitNote": "Llame antes para que podamos atenderle con calma.",
-    "areaAsk": "¿No ve su zona? Pregúntenos, es posible que igual podamos ayudarle."
+    "areaAsk": "¿No ve su zona? Pregúntenos, es posible que igual podamos ayudarle.",
+    "metaDescription": "Llámenos, escríbanos por WhatsApp o envíe los detalles de su proyecto. Andrade Parra Corporation trabaja en Houston y alrededores."
   },
   "Footer": {
     "tagline": "Construcción y remodelación en Houston, TX.",
@@ -249,9 +250,31 @@
     "back": "Volver",
     "next": "Continuar",
     "submit": "Enviar solicitud",
-    "devNotice": "Modo de desarrollo: esta solicitud no se envía a nadie todavía. El registro y los canales reales están pendientes de que el cliente contrate los servicios.",
     "heading": "Solicite su cotización sin costo",
-    "intro": "Cuéntenos sobre su proyecto y revisamos los detalles antes de ponernos en contacto."
+    "intro": "Cuéntenos sobre su proyecto y revisamos los detalles antes de ponernos en contacto.",
+    "errDescription": "Cuéntenos brevemente qué quiere hacer; con una línea basta.",
+    "errName": "Necesitamos un nombre para saber con quién hablamos.",
+    "errContact": "Déjenos un teléfono o un correo para poder responderle.",
+    "errPhone": "Ese teléfono parece incompleto.",
+    "errEmail": "Ese correo parece incompleto.",
+    "errChannel": "Elija cómo prefiere que le respondamos.",
+    "errConsent": "Necesitamos su permiso para poder contactarle.",
+    "errSummary": "Revise los campos marcados.",
+    "optional": "opcional",
+    "sendWhatsapp": "Enviar por WhatsApp",
+    "handoffHeading": "WhatsApp está abierto con su solicitud",
+    "handoffBody": "Pulse enviar en WhatsApp para entregarla. Hasta que lo haga, no se ha enviado nada.",
+    "handoffReopen": "Abrir WhatsApp de nuevo",
+    "handoffEdit": "Corregir algo antes",
+    "msgIntro": "Solicitud de cotización desde la web",
+    "msgService": "Servicio",
+    "msgLocation": "Ubicación",
+    "msgDescription": "Proyecto",
+    "msgName": "Nombre",
+    "msgPhone": "Teléfono",
+    "msgEmail": "Correo",
+    "msgPhotos": "Fotos de referencia listas para enviar",
+    "emailUnavailable": "El correo aún no está disponible, así que las solicitudes van por WhatsApp."
   },
   "Testimonials": {
     "heading": "Lo que dicen nuestros clientes",
@@ -263,6 +286,7 @@
     "storyHeading": "Nuestra historia",
     "teamHeading": "Las personas detrás de Andrade Parra Corporation",
     "valuesHeading": "Cómo trabajamos",
-    "ctaHeading": "Construyamos algo bueno juntos"
+    "ctaHeading": "Construyamos algo bueno juntos",
+    "metaDescription": "Quiénes somos, cómo trabajamos y los criterios detrás de cada obra de Andrade Parra Corporation en Houston, TX."
   }
 }

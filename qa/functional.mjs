@@ -195,6 +195,21 @@ console.log(`--- motor: ${ENGINE} ---`);
   check("Cotización: 3 etapas visibles", (await p.locator("ol button").count()) === 3);
   check("Cotización: arranca en la etapa 1", await p.locator('[aria-current="step"]').isVisible());
 
+  /*
+   * La descripción es obligatoria desde que se añadió validación por etapa:
+   * antes se podía recorrer las tres etapas y llegar al resumen con todo
+   * vacío, produciendo solicitudes que el contratista no podía responder.
+   */
+  check(
+    "Cotización: bloquea avanzar sin describir el proyecto",
+    await (async () => {
+      await p.locator("button", { hasText: "Continuar" }).click();
+      await p.waitForTimeout(400);
+      return p.locator('[role="alert"]').first().isVisible();
+    })()
+  );
+
+  await p.locator("#description").fill("Remodelación de cocina de 20 m2");
   await p.locator("button", { hasText: "Continuar" }).click();
   await p.waitForTimeout(600);
   check("Cotización: avanza a Referencias", await p.locator("text=/Agregue imágenes|Add reference/").isVisible());
@@ -213,8 +228,30 @@ console.log(`--- motor: ${ENGINE} ---`);
   const text = (await p.locator("main").innerText()).toLowerCase();
   check("Cotización: NO afirma envío que no ocurrió",
     !/solicitud enviada|mensaje enviado|hemos recibido|request sent|we received/.test(text));
-  check("Cotización: declara el modo desarrollo",
-    /modo de desarrollo|development mode/.test(text));
+  /*
+   * Ya no hay aviso de "modo desarrollo": el formulario entrega de verdad por
+   * WhatsApp. Lo que se vigila ahora es que ese aviso NO reaparezca en
+   * producción —un sitio publicado no le cuenta al visitante que no funciona—
+   * y que exista el botón de envío, que antes no existía: se rellenaban las
+   * tres etapas y no había forma de mandar nada.
+   */
+  check("Cotización: sin aviso de modo desarrollo en producción",
+    !/modo de desarrollo|development mode/.test(text));
+
+  check("Cotización: existe acción de envío",
+    (await p.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).count()) === 1);
+
+  /*
+   * La entrega es un enlace `wa.me`: abre WhatsApp con el texto redactado y es
+   * la persona quien pulsa enviar. La confirmación debe decir exactamente eso
+   * y nunca dar por recibida una solicitud que quizá nunca se mandó.
+   */
+  check("Cotización: bloquea el envío sin datos de contacto",
+    await (async () => {
+      await p.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).click();
+      await p.waitForTimeout(400);
+      return (await p.locator('[role="alert"]').count()) >= 3;
+    })());
 
   await ctx.close();
 }

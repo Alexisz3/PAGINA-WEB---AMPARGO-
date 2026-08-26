@@ -22,7 +22,17 @@ export default async function HomeHero() {
         src="/images/proyectos/exterior-lujo-01.jpeg"
         alt={t("heroImageAlt")}
         fill
-        priority
+        /*
+         * Next 16 dejó OBSOLETO `priority` en favor de `preload`. Con el prop
+         * antiguo el navegador no recibía ni el <link rel="preload"> en la
+         * cabecera ni prioridad alta de descarga: la imagen del hero, que es
+         * el elemento LCP, competía con el resto de recursos.
+         *
+         * `loading="eager"` va aparte porque `loading` sigue por defecto en
+         * `lazy`, y precargar algo que luego se difiere no tiene sentido.
+         */
+        preload
+        loading="eager"
         sizes="100vw"
         // Dirección de arte por breakpoint. En un recorte vertical de móvil la
         // escena se pierde si se centra por defecto: se sesga hacia arriba

@@ -115,12 +115,13 @@ export default function ProjectCarousel({ projects }: { projects: Project[] }) {
                 className="block"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-carbon">
+                  {/* Solo la primera diapositiva se carga de inmediato; sin
+                      `preload`, que competiría con el LCP de la página. */}
                   <Image
                     src={`/images/proyectos/${project.coverPhoto.file}`}
                     alt={project.title[locale]}
                     fill
-                    priority={i === 0}
-                    loading={i === 0 ? undefined : "lazy"}
+                    loading={i === 0 ? "eager" : "lazy"}
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 60vw, 88vw"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                   />

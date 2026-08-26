@@ -7,8 +7,17 @@ import type { AppLocale } from "@/i18n/routing";
 
 interface ProjectCardProps {
   project: Project;
-  /** `eager` solo para las primeras tarjetas visibles. */
-  priority?: boolean;
+  /**
+   * Carga inmediata para las primeras tarjetas visibles.
+   *
+   * Deliberadamente NO usa `preload`: en estas páginas el elemento LCP es la
+   * fotografía del hero, y precargar además las tarjetas haría que tres
+   * imágenes compitiesen por el ancho de banda inicial, retrasando justo la
+   * que decide la métrica. Basta con no diferirlas.
+   *
+   * Antes se llamaba `priority`, el prop que Next 16 dejó obsoleto.
+   */
+  eager?: boolean;
   sizes?: string;
   /**
    * Oculta el extracto. En el índice de proyectos, repetir una descripción
@@ -31,7 +40,7 @@ interface ProjectCardProps {
 
 export default async function ProjectCard({
   project,
-  priority = false,
+  eager = false,
   sizes,
   compact = false,
   headingLevel: Heading = "h3",
@@ -54,8 +63,7 @@ export default async function ProjectCard({
             src={`/images/proyectos/${project.coverPhoto.file}`}
             alt={project.title[locale]}
             fill
-            priority={priority}
-            loading={priority ? undefined : "lazy"}
+            loading={eager ? "eager" : "lazy"}
             sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 90vw"}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
           />

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/lib/analytics";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 import QuoteStepper from "./QuoteStepper";
 import ReferenceUploader from "./ReferenceUploader";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
@@ -55,6 +56,27 @@ export interface QuoteDraft {
 const FIELD =
   "w-full border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent";
 
+/** Borde de error, para que el fallo no se comunique solo con texto. */
+const fieldClass = (error?: string) =>
+  error ? `${FIELD} border-error focus:border-error` : FIELD;
+
+/**
+ * Mensaje de error de un campo.
+ *
+ * `role="alert"` hace que el lector de pantalla lo anuncie al aparecer, sin
+ * necesidad de que la persona vuelva a recorrer el formulario buscándolo.
+ * El color NO es el único indicador: el texto explica qué corregir, porque
+ * un borde rojo no dice nada a quien no distingue el rojo.
+ */
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} role="alert" className="mt-2 text-sm text-error">
+      {message}
+    </p>
+  );
+}
+
 /**
  * Shell del flujo de cotización en 3 etapas.
  *
@@ -65,23 +87,163 @@ const FIELD =
  * muestra un aviso explícito de modo desarrollo en lugar de afirmar que la
  * solicitud se envió. Ver AUDITORIA_Y_PLAN_AMPARGO.md §11.
  */
+export interface WhatsAppTarget {
+  /** E.164 sin signos, como lo espera wa.me. */
+  phone: string;
+  name: string;
+}
+
 export default function QuoteShell({
   services,
   initialServiceId,
+  whatsappTargets,
+  businessEmail,
 }: {
   services: ServiceOption[];
   initialServiceId?: string;
+  /** Llegan por props y no por import: `lib/site` lee variables de entorno
+   *  que no existen en el navegador. */
+  whatsappTargets: WhatsAppTarget[];
+  businessEmail: string | null;
 }) {
   const t = useTranslations("Quote");
   const [step, setStep] = useState(1);
+  /** URL de wa.me ya abierta, para poder reabrirla sin recomponer nada. */
+  const [handoffUrl, setHandoffUrl] = useState<string | null>(null);
   const [draft, setDraft] = useState<QuoteDraft>({
     service: "", location: "", description: "",
     photoCount: 0, name: "", phone: "", email: "",
     channel: null, consent: false,
   });
 
-  const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) =>
+  /*
+   * Validación por etapa.
+   *
+   * Antes no existía: se podía recorrer las tres etapas y llegar al resumen
+   * con absolutamente todo vacío. Para el contratista eso produce una
+   * solicitud sin nombre, sin teléfono y sin descripción — un aviso que no se
+   * puede responder, que es peor que no recibir nada porque hace perder tiempo.
+   *
+   * Qué se exige y qué no:
+   *  · Descripción — sin ella no hay nada que cotizar.
+   *  · Nombre — hace falta para dirigirse a alguien.
+   *  · Teléfono O correo, indistintamente. Exigir ambos es la forma más común
+   *    de perder solicitudes: mucha gente da uno y no el otro a propósito.
+   *  · Canal y consentimiento — sin permiso no se puede contactar.
+   *
+   * Servicio, ubicación y fotos quedan OPCIONALES: son útiles, no
+   * imprescindibles, y cada campo obligatorio de más cuesta conversiones.
+   */
+  const [errors, setErrors] = useState<Partial<Record<keyof QuoteDraft, string>>>({});
+
+  const validateStep = (n: number): Partial<Record<keyof QuoteDraft, string>> => {
+    const e: Partial<Record<keyof QuoteDraft, string>> = {};
+    if (n === 1 && draft.description.trim().length < 4) e.description = t("errDescription");
+    if (n === 3) {
+      if (!draft.name.trim()) e.name = t("errName");
+
+      const phone = draft.phone.replace(/\D/g, "");
+      const email = draft.email.trim();
+      if (!phone && !email) {
+        // El mensaje se ancla al teléfono, que es el primero de los dos.
+        e.phone = t("errContact");
+      } else {
+        // Solo se valida el formato de lo que la persona SÍ escribió.
+        if (phone && phone.length < 10) e.phone = t("errPhone");
+        if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) e.email = t("errEmail");
+      }
+
+      if (!draft.channel) e.channel = t("errChannel");
+      if (!draft.consent) e.consent = t("errConsent");
+    }
+    return e;
+  };
+
+  /**
+   * Compone el mensaje que se abre en WhatsApp.
+   *
+   * Solo se incluyen los campos que la persona rellenó: un mensaje con
+   * "Ubicación: —" delata un formulario, y lo que debe llegarle al contratista
+   * parece —y es— un mensaje escrito por un cliente.
+   *
+   * Las fotos NO viajan en el enlace: wa.me solo admite texto. Se anuncia que
+   * están listas para que la persona las adjunte en la misma conversación,
+   * que es exactamente lo que ya haría de forma natural.
+   */
+  const buildMessage = (): string => {
+    const serviceLabel = services.find((s) => s.id === draft.service)?.label;
+    const lines = [t("msgIntro"), ""];
+    const add = (label: string, value: string) => value && lines.push(`${label}: ${value}`);
+
+    if (serviceLabel) add(t("msgService"), serviceLabel);
+    add(t("msgLocation"), draft.location.trim());
+    add(t("msgDescription"), draft.description.trim());
+    lines.push("");
+    add(t("msgName"), draft.name.trim());
+    add(t("msgPhone"), draft.phone.trim());
+    add(t("msgEmail"), draft.email.trim());
+    if (draft.photoCount > 0) lines.push("", t("msgPhotos"));
+
+    return lines.join("\n");
+  };
+
+  /**
+   * Entrega por WhatsApp.
+   *
+   * `wa.me` NO envía nada: abre la conversación con el texto redactado y es la
+   * persona quien pulsa enviar. Por eso la pantalla siguiente dice que
+   * WhatsApp está abierto, nunca que la solicitud se recibió — afirmarlo sería
+   * mentir sobre algo que el sitio no puede comprobar.
+   */
+  const submitViaWhatsApp = () => {
+    const e = validateStep(3);
+    setErrors(e);
+    if (Object.keys(e).length > 0) {
+      document.getElementById(Object.keys(e)[0])?.focus();
+      return;
+    }
+    const target = whatsappTargets[0];
+    const url = buildWhatsAppLink(target.phone, buildMessage());
+    if (!url) return;
+
+    track("quote_submitted", { channel: draft.channel ?? "whatsapp", service: draft.service || "none" });
+    setHandoffUrl(url);
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const goNext = () => {
+    const e = validateStep(step);
+    setErrors(e);
+    if (Object.keys(e).length > 0) {
+      // El foco va al primer campo con problema: sin esto, quien navega con
+      // teclado o lector de pantalla no sabe que algo falló.
+      const first = Object.keys(e)[0];
+      document.getElementById(first)?.focus();
+      return;
+    }
+    track("quote_step_completed", { step });
+    setStep((s) => Math.min(3, s + 1));
+  };
+
+  const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) => {
     setDraft((d) => ({ ...d, [key]: value }));
+    /*
+     * El error se retira en cuanto la persona toca el campo, no al reintentar
+     * enviar. Dejar un mensaje en rojo bajo un campo que ya se corrigió es
+     * desconcertante y hace dudar de si el formulario funciona.
+     */
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      // Teléfono y correo se validan como pareja: corregir uno limpia al otro.
+      if (key === "phone" || key === "email") {
+        delete next.phone;
+        delete next.email;
+      }
+      return next;
+    });
+  };
 
   const restored = useRef(false);
 
@@ -211,11 +373,14 @@ export default function QuoteShell({
                     id="description"
                     rows={5}
                     maxLength={2000}
-                    className={FIELD}
+                    className={fieldClass(errors.description)}
                     placeholder={t("descriptionPlaceholder")}
                     value={draft.description}
+                    aria-invalid={errors.description ? true : undefined}
+                    aria-describedby={errors.description ? "description-error" : undefined}
                     onChange={(e) => update("description", e.target.value)}
                   />
+                  <FieldError id="description-error" message={errors.description} />
                 </div>
               </fieldset>
             ) : null}
@@ -234,12 +399,15 @@ export default function QuoteShell({
                   </label>
                   <input
                     id="name"
-                    className={FIELD}
+                    className={fieldClass(errors.name)}
                     placeholder={t("namePlaceholder")}
                     autoComplete="name"
                     value={draft.name}
+                    aria-invalid={errors.name ? true : undefined}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                     onChange={(e) => update("name", e.target.value)}
                   />
+                  <FieldError id="name-error" message={errors.name} />
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -252,10 +420,13 @@ export default function QuoteShell({
                       type="tel"
                       inputMode="tel"
                       autoComplete="tel"
-                      className={FIELD}
+                      className={fieldClass(errors.phone)}
                       value={draft.phone}
+                      aria-invalid={errors.phone ? true : undefined}
+                      aria-describedby={errors.phone ? "phone-error" : undefined}
                       onChange={(e) => update("phone", e.target.value)}
                     />
+                    <FieldError id="phone-error" message={errors.phone} />
                   </div>
                   <div>
                     <label htmlFor="email" className="mb-2 block text-sm font-medium text-ink">
@@ -266,31 +437,88 @@ export default function QuoteShell({
                       type="email"
                       inputMode="email"
                       autoComplete="email"
-                      className={FIELD}
+                      className={fieldClass(errors.email)}
                       value={draft.email}
+                      aria-invalid={errors.email ? true : undefined}
+                      aria-describedby={errors.email ? "email-error" : undefined}
                       onChange={(e) => update("email", e.target.value)}
                     />
+                    <FieldError id="email-error" message={errors.email} />
                   </div>
                 </div>
 
-                <DeliveryChannelSelector
-                  value={draft.channel}
-                  onChange={(c) => update("channel", c)}
-                />
-
-                <label className="flex items-start gap-3 text-sm text-muted">
-                  <input
-                    type="checkbox"
-                    checked={draft.consent}
-                    onChange={(e) => update("consent", e.target.checked)}
-                    className="mt-1 h-5 w-5 accent-accent"
+                <div id="channel">
+                  <DeliveryChannelSelector
+                    value={draft.channel}
+                    onChange={(c) => update("channel", c)}
                   />
-                  {t("consent")}
-                </label>
+                  <FieldError id="channel-error" message={errors.channel} />
+                </div>
 
-                <p className="border-l-2 border-accent bg-surface p-4 text-sm text-muted">
-                  {t("devNotice")}
-                </p>
+                <div>
+                  <label className="flex items-start gap-3 text-sm text-muted">
+                    <input
+                      id="consent"
+                      type="checkbox"
+                      checked={draft.consent}
+                      aria-invalid={errors.consent ? true : undefined}
+                      aria-describedby={errors.consent ? "consent-error" : undefined}
+                      onChange={(e) => update("consent", e.target.checked)}
+                      className="mt-1 h-5 w-5 accent-accent"
+                    />
+                    {t("consent")}
+                  </label>
+                  <FieldError id="consent-error" message={errors.consent} />
+                </div>
+
+                {/* Sin correo empresarial configurado, el canal de correo no
+                    puede entregar nada; se dice en vez de ofrecerlo roto. */}
+                {!businessEmail ? (
+                  <p className="border-l-2 border-line bg-surface p-4 text-sm text-muted">
+                    {t("emailUnavailable")}
+                  </p>
+                ) : null}
+
+                {/*
+                  Confirmación deliberadamente literal. `wa.me` abre WhatsApp
+                  con el texto redactado; el envío lo hace la persona. Decir
+                  "hemos recibido su solicitud" sería afirmar algo que el sitio
+                  no puede comprobar, y dejaría a alguien esperando respuesta a
+                  un mensaje que nunca llegó a enviar.
+                */}
+                {handoffUrl ? (
+                  <div role="status" className="border-l-2 border-success bg-surface p-4">
+                    <p className="font-display text-base font-semibold text-ink">
+                      {t("handoffHeading")}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{t("handoffBody")}</p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <a
+                        href={handoffUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[44px] items-center border border-ink px-4 text-sm text-ink transition-colors hover:bg-ink hover:text-paper"
+                      >
+                        {t("handoffReopen")}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setHandoffUrl(null)}
+                        className="inline-flex min-h-[44px] items-center px-2 text-sm text-muted underline-offset-4 hover:text-accent hover:underline"
+                      >
+                        {t("handoffEdit")}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={submitViaWhatsApp}
+                    className="inline-flex min-h-[52px] w-full items-center justify-center bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover"
+                  >
+                    {t("sendWhatsapp")}
+                  </button>
+                )}
               </fieldset>
             ) : null}
           </div>
@@ -306,11 +534,8 @@ export default function QuoteShell({
             </button>
             <button
               type="button"
-              onClick={() => {
-                // Se registra la etapa que se DEJA, que es la que se completó.
-                track("quote_step_completed", { step });
-                setStep((s) => Math.min(3, s + 1));
-              }}
+              // Valida antes de avanzar y registra la etapa que se deja.
+              onClick={goNext}
               disabled={step === 3}
               className="inline-flex min-h-[48px] items-center gap-2 bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover disabled:opacity-40"
             >
