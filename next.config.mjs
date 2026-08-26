@@ -39,6 +39,53 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
           },
+          /*
+           * Política de seguridad de contenido.
+           *
+           * Faltaba por completo: sin ella, cualquier script inyectado —por
+           * una dependencia comprometida o una extensión— puede exfiltrar lo
+           * que el visitante escriba en el formulario de cotización, que es
+           * justo donde deja su nombre y su teléfono.
+           *
+           * `'unsafe-inline'` en script-src es obligado mientras GA4 se
+           * inicialice con un <script> en línea, y Next inyecta además su
+           * propio bootstrap. Sustituirlo por nonces exige mover la analítica
+           * a un archivo aparte; queda anotado, no fingido.
+           *
+           * `frame-ancestors 'none'` es la versión moderna de X-Frame-Options
+           * y protege contra clickjacking sobre el formulario.
+           */
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              // Google Analytics y Tag Manager, solo si se configura el ID.
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              // `data:` y `blob:` los necesita next/image y la previsualización
+              // de las fotos de referencia antes de enviarlas.
+              "img-src 'self' data: blob: https://www.google-analytics.com",
+              "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "object-src 'none'",
+              /*
+               * SIN `upgrade-insecure-requests`.
+               *
+               * La directiva reescribe TODA petición http:// a https://,
+               * incluido `http://127.0.0.1`. WebKit no exime localhost, así
+               * que la hoja de estilos no cargaba en pruebas locales: sin CSS
+               * la cabecera perdía `position: fixed` y las tarjetas quedaban
+               * por encima del selector de idioma. Lo delató la suite en
+               * WebKit; Chromium y Firefox lo toleraban en silencio.
+               *
+               * En Vercel es además redundante: sirve solo HTTPS con HSTS y
+               * no hay ningún recurso en http:// que reescribir.
+               */
+            ].join("; "),
+          },
         ],
       },
     ];
