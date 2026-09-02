@@ -5,12 +5,11 @@
     El travesano conserva el rojo: sobre carbon mantiene 4,6:1 y es la unica
     nota de color que sobrevive a la inversion sin ensuciar el conjunto.
   -->
-  <g transform="translate(6.231 6.692) scale(0.88462)">
-    <path d="M38 6 L38 21 L17 58 L2 58 Z" fill="#F2EFE8"/>
-    <path d="M38 6 H50 V58 H38 Z" fill="#F2EFE8"/>
-    <path d="M27 40 H38 V52 H20 Z" fill="#B8452F"/>
-    <path d="M50 6 H76 V40 H50 V28 H64 V18 H50 Z" fill="#F2EFE8"/>
+  <g transform="translate(4.076 7.385) scale(0.83906)" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 42.5 H41.5" stroke="#B8452F"/>
+    <path d="M11 54 L46 10 V54" stroke="#F2EFE8"/>
+    <path d="M46 15 H56 A11.5 11.5 0 0 1 56 38 H46" stroke="#F2EFE8"/>
   </g>
-  <text x="95.46153846153847" y="40" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="0.01em" fill="#F2EFE8" text-anchor="start">ANDRADE PARRA <tspan font-weight="500" fill="#F2EFE8">CORPORATION</tspan></text>
-  <text x="95.46153846153847" y="60" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="0.24em" fill="#A9B0BC" text-anchor="start">GENERAL REMODELING</text>
+  <text x="86.48828707690498" y="40" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="0.01em" fill="#F2EFE8" text-anchor="start">ANDRADE PARRA <tspan font-weight="500" fill="#F2EFE8">CORPORATION</tspan></text>
+  <text x="86.48828707690498" y="60" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="0.24em" fill="#A9B0BC" text-anchor="start">GENERAL REMODELING</text>
 </svg>

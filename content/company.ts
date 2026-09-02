@@ -51,13 +51,26 @@ export const TEAM: TeamMember[] = [];
 
 /* ─── Zona de servicio y sede ────────────────────────────────────────────
  * `hasPublicOffice` gobierna si se publica la dirección, si aparece el enlace
- * "cómo llegar" y si el JSON-LD incluye `address`. Confirmado por el cliente
- * (2026-08-23): 8027 Burning Hills Dr es una oficina comercial donde reciben
- * clientes, no un domicilio particular.
+ * "cómo llegar" y si el JSON-LD incluye `address`.
  *
- * Esto importa más de lo que parece: una dirección verificable es uno de los
- * factores más fuertes del SEO local, y es requisito para reclamar la ficha de
- * Google Business Profile.
+ * PENDIENTE DEL CLIENTE (revisar cuando confirme la oficina). Estuvo en `true`
+ * a partir de una confirmación verbal del 2026-08-23, y con ello el sitio
+ * publicaba 8027 Burning Hills Dr en el pie, en /contacto y en el JSON-LD.
+ * Esa confirmación no distingue entre un local que recibe visitas y la
+ * dirección administrativa del negocio, y `address` en JSON-LD le dice a
+ * Google "aquí se puede venir": si resulta ser un domicilio particular, el
+ * sitio estaría dirigiendo desconocidos a la casa de alguien y el error sería
+ * difícil de retirar del panel de conocimiento.
+ *
+ * Hasta que el cliente confirme por escrito que hay local de cara al público,
+ * el sitio afirma solo ZONA DE SERVICIO — "Houston y alrededores", que sí es
+ * un dato verdadero — y omite la dirección en los tres sitios a la vez.
+ *
+ * Es el punto 06 del checklist de docs/MATERIAL_PENDIENTE_CLIENTE.html, que
+ * necesita esa misma dirección para la ficha de Google Business Profile. Al
+ * confirmarse, se pone `true` aquí y la dirección vuelve sola a los tres
+ * sitios: una dirección verificable es uno de los factores más fuertes del
+ * SEO local.
  */
 export const SERVICE_AREA = {
   city: "Houston",
@@ -76,8 +89,8 @@ export const SERVICE_AREA = {
    * invita a preguntar. Al añadir municipios, la lista aparece sola.
    */
   nearbyAreas: [] as string[],
-  /** Confirmado por el cliente: hay local comercial que recibe clientes. */
-  hasPublicOffice: true,
+  /** Sin confirmación por escrito de local de cara al público. Ver arriba. */
+  hasPublicOffice: false,
 } as const;
 
 /* ─── Señales de confianza ───────────────────────────────────────────────

@@ -7,10 +7,9 @@
     desaparece contra uno de los dos.
   -->
   <rect width="64" height="64" rx="10" fill="#1B2A4A"/>
-  <g transform="translate(4.615 9.846) scale(0.69231)">
-    <path d="M38 6 L38 21 L17 58 L2 58 Z" fill="#F2EFE8"/>
-    <path d="M38 6 H50 V58 H38 Z" fill="#F2EFE8"/>
-    <path d="M27 40 H38 V52 H20 Z" fill="#B8452F"/>
-    <path d="M50 6 H76 V40 H50 V28 H64 V18 H50 Z" fill="#F2EFE8"/>
+  <g transform="translate(6.825 10.388) scale(0.65666)" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 42.5 H41.5" stroke="#B8452F"/>
+    <path d="M11 54 L46 10 V54" stroke="#F2EFE8"/>
+    <path d="M46 15 H56 A11.5 11.5 0 0 1 56 38 H46" stroke="#F2EFE8"/>
   </g>
 </svg>

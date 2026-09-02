@@ -41,6 +41,12 @@ public/images/proyectos/plomeria-02-descartada.jpeg
 # Salidas de QA: capturas pesadas, se regeneran con `node qa/capture.mjs`.
 qa/shots/
 qa/tmp/
+
+# Exploración de diseño (lienzos .dc.html y su canvas.json). Es material de
+# trabajo para decidir, no una entrada de la aplicación: nada de `app/`,
+# `components/` ni `qa/` lo importa. Lo aprobado vive ya en el código —
+# la geometría del logotipo en qa/build-brand.mjs, el manual en docs/brand/.
+design/
 test-results/
 playwright-report/
 

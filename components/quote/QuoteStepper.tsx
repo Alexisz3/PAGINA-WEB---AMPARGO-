@@ -2,17 +2,32 @@
 
 import { useTranslations } from "next-intl";
 
-const STEPS = [1, 2, 3] as const;
+/**
+ * Etapas del formulario: Proyecto y Contacto.
+ *
+ * Eran tres. La intermedia era una subida de fotos que no subía nada —el
+ * enlace `wa.me` solo admite texto— así que se retiró en la fase 4. Menos
+ * etapas también significa más formularios terminados, que es la métrica que
+ * importa aquí.
+ *
+ * La constante se exporta para que `QuoteShell` no tenga su propio número
+ * suelto: dos fuentes de verdad sobre cuántas etapas hay es exactamente cómo
+ * se llega a un stepper que señala una etapa que ya no existe.
+ */
+const STEPS = [1, 2] as const;
+export const TOTAL_STEPS = STEPS.length;
 
 export default function QuoteStepper({
   current,
   onStepChange,
 }: {
   current: number;
+  /** Recibe la etapa pedida. Quien decide si el salto se permite es el
+   *  formulario: avanzar exige que lo anterior esté válido, retroceder no. */
   onStepChange: (n: number) => void;
 }) {
   const t = useTranslations("Quote");
-  const labels = [t("step1"), t("step2"), t("step3")];
+  const labels = [t("step1"), t("step2")];
 
   return (
     <>

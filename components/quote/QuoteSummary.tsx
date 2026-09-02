@@ -27,10 +27,8 @@ export default function QuoteSummary({
   const rows = [
     { label: t("summaryService"), value: serviceLabel },
     { label: t("summaryLocation"), value: draft.location },
-    {
-      label: t("summaryPhotos"),
-      value: draft.photoCount > 0 ? t("photosCount", { n: draft.photoCount }) : "",
-    },
+    /* No hay fila de imágenes de referencia: el paso que las pedía se retiró
+       en la fase 4 porque no llegaba a enviarlas. Ver QuoteShell.tsx. */
     {
       label: t("summaryChannel"),
       value: draft.channel

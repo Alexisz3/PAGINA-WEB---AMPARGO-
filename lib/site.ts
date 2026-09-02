@@ -101,6 +101,14 @@ export const BRAND = {
 
 export const BUSINESS = {
   name: BRAND.name,
+  /**
+   * Dirección del formulario de levantamiento. HOY NO SE PUBLICA en ninguna
+   * vista: `SERVICE_AREA.hasPublicOffice` está en `false` mientras el cliente
+   * no confirme por escrito que hay local de cara al público, y el sitio
+   * afirma solo zona de servicio. Se conserva aquí porque hará falta para la
+   * ficha de Google Business Profile — punto 06 de
+   * docs/MATERIAL_PENDIENTE_CLIENTE.html. Ver content/company.ts.
+   */
   streetAddress: "8027 Burning Hills Dr",
   city: "Houston",
   region: "TX",
@@ -125,6 +133,20 @@ export const WHATSAPP_CONTACTS = [
   { id: "jose-andrade", name: "Jose Andrade", phone: "18327940720", phoneDisplay: "(832) 794-0720" },
   { id: "mario-parra", name: "Mario Parra", phone: "18326524660", phoneDisplay: "(832) 652-4660" },
 ] as const;
+
+/**
+ * Tarjetas Open Graph, 1200 × 630.
+ *
+ * Se generan con `npm run build:og` a partir de fotografías reales del
+ * portafolio; ver qa/build-og.mjs. Las rutas van RELATIVAS: `metadataBase` en
+ * app/[locale]/layout.tsx las resuelve contra `SITE_URL`, de modo que al
+ * conectar el dominio definitivo se vuelven absolutas solas. Escribirlas
+ * absolutas aquí las dejaría clavadas en el dominio provisional de Hostinger.
+ */
+export const OG_IMAGE = {
+  home: "/og/home.jpg",
+  quote: "/og/quote.jpg",
+} as const;
 
 /** Correo empresarial: todavía no definido por el cliente. No inventar uno. */
 export const BUSINESS_EMAIL: string | null = null;

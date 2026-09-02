@@ -38,9 +38,14 @@ interface BrandLogoProps {
  * Isotipo. Sin `width`/`height` fijos: la altura la fija el contenedor y el
  * `viewBox` mantiene la proporción, así el símbolo nunca se deforma.
  *
- * El montante y el cuenco heredan `currentColor`; solo el travesaño conserva
- * el rojo de marca, que es la única nota de color que sobrevive a la
- * inversión sobre fondo oscuro.
+ * La A y el cuenco heredan `currentColor`; solo el travesaño conserva el rojo
+ * de marca, que es la única nota de color que sobrevive a la inversión sobre
+ * fondo oscuro.
+ *
+ * Es TRAZO, no relleno: `fill="none"` con `strokeWidth` y remates redondos.
+ * Quitar cualquiera de esos tres atributos no rompe nada visiblemente en el
+ * navegador —el trazado sigue estando— pero devuelve el símbolo a la versión
+ * anterior de esquinas vivas, que es un cambio de marca disfrazado de detalle.
  */
 function Mark({ size, accent = true }: { size: number; accent?: boolean }) {
   return (
@@ -49,15 +54,24 @@ function Mark({ size, accent = true }: { size: number; accent?: boolean }) {
       height={size}
       width={(size * 80) / 64}
       fill="none"
+      stroke="currentColor"
+      strokeWidth={9}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
       className="flex-none"
     >
-      {/* Geometría espejo de qa/build-brand.mjs. Si se toca allí, se toca aquí. */}
-      <path d="M38 6 L38 21 L17 58 L2 58 Z" fill="currentColor" />
-      <path d="M38 6 H50 V58 H38 Z" fill="currentColor" />
-      <path d="M27 40 H38 V52 H20 Z" fill={accent ? "#B8452F" : "currentColor"} />
-      <path d="M50 6 H76 V40 H50 V28 H64 V18 H50 Z" fill="currentColor" />
+      {/*
+        Geometría espejo de qa/build-brand.mjs, que es la fuente. Si se toca
+        allí, se toca aquí — y al revés, esto no se toca sin tocar allí.
+
+        El travesaño va PRIMERO: la riostra de la A pasa por encima y deja la
+        diagonal continua, con el rojo visible solo en el vano.
+      */}
+      <path d="M20 42.5 H41.5" stroke={accent ? "#B8452F" : "currentColor"} />
+      <path d="M11 54 L46 10 V54" />
+      <path d="M46 15 H56 A11.5 11.5 0 0 1 56 38 H46" />
     </svg>
   );
 }

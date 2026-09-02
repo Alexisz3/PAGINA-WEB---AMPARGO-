@@ -185,20 +185,46 @@ console.log(`--- motor: ${ENGINE} ---`);
   await ctx.close();
 }
 
-// ─── 6. Cotización: etapas y canal excluyente ───────────────────────────
+// ─── 6. Cotización: dos etapas, validación completa y reparto ───────────
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const p = await ctx.newPage();
+
+  /** Rellena la etapa de contacto. `phone`/`email` a "" para omitirlos. */
+  const fillContact = async (page, { name = "Kevin Prueba", phone = "8325551234", email = "" } = {}) => {
+    await page.locator("#name").fill(name);
+    await page.locator("#phone").fill(phone);
+    await page.locator("#email").fill(email);
+    await page.locator('input[name="channel"]').last().check();
+    await page.locator("#consent").setChecked(true);
+  };
+
+  /** Intercepta window.open y devuelve la URL de wa.me, o null si se bloqueó. */
+  const submit = async (page) => {
+    await page.evaluate(() => {
+      window.__opened = null;
+      window.open = (u) => { window.__opened = u; return null; };
+    });
+    await page.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).click();
+    await page.waitForTimeout(500);
+    return page.evaluate(() => window.__opened);
+  };
+
   await p.goto(URL + "/es/cotizacion", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1500);
 
-  check("Cotización: 3 etapas visibles", (await p.locator("ol button").count()) === 3);
+  check("Cotización: 2 etapas visibles", (await p.locator("ol button").count()) === 2);
   check("Cotización: arranca en la etapa 1", await p.locator('[aria-current="step"]').isVisible());
+  check(
+    "Cotización: ya no existe el paso de fotos",
+    !/agregue imágenes|reference images|arrastre sus archivos/i.test(await p.locator("main").innerText())
+  );
 
   /*
-   * La descripción es obligatoria desde que se añadió validación por etapa:
-   * antes se podía recorrer las tres etapas y llegar al resumen con todo
-   * vacío, produciendo solicitudes que el contratista no podía responder.
+   * La descripción es obligatoria. Se comprueba por los DOS caminos, porque
+   * el botón "Continuar" sí la exigía y el stepper no: pulsando el círculo de
+   * la última etapa se llegaba al envío y salía una solicitud sin proyecto,
+   * que el contratista no puede responder.
    */
   check(
     "Cotización: bloquea avanzar sin describir el proyecto",
@@ -209,49 +235,185 @@ console.log(`--- motor: ${ENGINE} ---`);
     })()
   );
 
+  check(
+    "Cotización: el stepper NO deja saltar a la última etapa con la primera vacía",
+    await (async () => {
+      await p.locator("ol button").nth(1).click();
+      await p.waitForTimeout(400);
+      const stillFirst = (await p.locator("#description").count()) === 1;
+      const announced = await p.locator('[role="alert"]').first().isVisible();
+      const focused = await p.evaluate(() => document.activeElement?.id);
+      return stillFirst && announced && focused === "description";
+    })(),
+    "etapa 1 + alerta + foco en el campo que falta"
+  );
+
   await p.locator("#description").fill("Remodelación de cocina de 20 m2");
   await p.locator("button", { hasText: "Continuar" }).click();
   await p.waitForTimeout(600);
-  check("Cotización: avanza a Referencias", await p.locator("text=/Agregue imágenes|Add reference/").isVisible());
+  check("Cotización: avanza a Contacto", (await p.locator("#name").count()) === 1);
 
-  await p.locator("button", { hasText: "Continuar" }).click();
-  await p.waitForTimeout(600);
   const radios = p.locator('input[name="channel"]');
   check("Cotización: canal con 2 radios excluyentes", (await radios.count()) === 2);
   await radios.first().check();
-  await p.waitForTimeout(300);
+  await p.waitForTimeout(200);
   await radios.last().check();
-  await p.waitForTimeout(300);
-  const checkedCount = await p.locator('input[name="channel"]:checked').count();
-  check("Cotización: solo un canal puede estar activo", checkedCount === 1);
+  await p.waitForTimeout(200);
+  check("Cotización: solo un canal puede estar activo",
+    (await p.locator('input[name="channel"]:checked').count()) === 1);
 
   const text = (await p.locator("main").innerText()).toLowerCase();
   check("Cotización: NO afirma envío que no ocurrió",
     !/solicitud enviada|mensaje enviado|hemos recibido|request sent|we received/.test(text));
-  /*
-   * Ya no hay aviso de "modo desarrollo": el formulario entrega de verdad por
-   * WhatsApp. Lo que se vigila ahora es que ese aviso NO reaparezca en
-   * producción —un sitio publicado no le cuenta al visitante que no funciona—
-   * y que exista el botón de envío, que antes no existía: se rellenaban las
-   * tres etapas y no había forma de mandar nada.
-   */
   check("Cotización: sin aviso de modo desarrollo en producción",
     !/modo de desarrollo|development mode/.test(text));
-
   check("Cotización: existe acción de envío",
     (await p.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).count()) === 1);
 
-  /*
-   * La entrega es un enlace `wa.me`: abre WhatsApp con el texto redactado y es
-   * la persona quien pulsa enviar. La confirmación debe decir exactamente eso
-   * y nunca dar por recibida una solicitud que quizá nunca se mandó.
-   */
   check("Cotización: bloquea el envío sin datos de contacto",
     await (async () => {
-      await p.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).click();
-      await p.waitForTimeout(400);
-      return (await p.locator('[role="alert"]').count()) >= 3;
+      const opened = await submit(p);
+      return opened === null && (await p.locator('[role="alert"]').count()) >= 3;
     })());
+
+  // Teléfono O correo, indistintamente: exigir ambos pierde solicitudes.
+  await fillContact(p, { phone: "8325551234", email: "" });
+  check("Cotización: teléfono sin correo se admite", (await submit(p)) !== null);
+
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1200);
+  await fillContact(p, { phone: "", email: "cliente@example.com" });
+  check("Cotización: correo sin teléfono se admite", (await submit(p)) !== null);
+
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1200);
+  await fillContact(p, { phone: "", email: "" });
+  check("Cotización: sin teléfono NI correo se bloquea", (await submit(p)) === null);
+
+  await ctx.close();
+}
+
+// ─── 6b. El mensaje que le llega al contratista, y a quién le llega ─────
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+
+  /** Recorrido completo desde cero. Devuelve la URL de wa.me abierta. */
+  const sendOne = async (page, { name, phone, description, locale = "es" }) => {
+    await page.goto(`${URL}/${locale}/${locale === "es" ? "cotizacion" : "quote"}`, {
+      waitUntil: "domcontentloaded",
+    });
+    /*
+     * Partir de cero en cada solicitud. El formulario guarda el borrador en
+     * `sessionStorage` a propósito —quien vuelve no pierde lo escrito— así que
+     * sin limpiar, la segunda vuelta arranca en la etapa de contacto y no hay
+     * ningún #description que rellenar.
+     */
+    await page.evaluate(() => window.sessionStorage.clear());
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(1200);
+    await page.locator("#description").fill(description);
+    await page.locator("button", { hasText: /Continuar|Continue/ }).click();
+    await page.waitForTimeout(500);
+    await page.locator("#name").fill(name);
+    await page.locator("#phone").fill(phone);
+    await page.locator('input[name="channel"]').last().check();
+    await page.locator("#consent").setChecked(true);
+    await page.evaluate(() => {
+      window.__opened = null;
+      window.open = (u) => { window.__opened = u; return null; };
+    });
+    await page.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).click();
+    await page.waitForTimeout(500);
+    return page.evaluate(() => window.__opened);
+  };
+
+  const first = { name: "María Fernández", phone: "8325550101", description: "Remodelación de cocina con isla" };
+  const url = await sendOne(p, first);
+  const message = decodeURIComponent((url ?? "").split("?text=")[1] ?? "");
+
+  check("Mensaje: lleva proyecto, nombre y teléfono",
+    /Proyecto: Remodelación de cocina con isla/.test(message) &&
+    /Nombre: María Fernández/.test(message) &&
+    /Teléfono: 8325550101/.test(message), message.replace(/\n/g, " | "));
+  check("Mensaje: acentos y eñes bien codificados",
+    (url ?? "").includes("%C3%B3") && !/Ã/.test(message));
+
+  /*
+   * Ninguna mención a fotos. El mensaje prometía "fotos de referencia listas
+   * para enviar" y no llegaba ninguna: `wa.me` solo admite texto. El
+   * contratista leía que había fotos y no las había.
+   */
+  check("Mensaje: NO promete fotos que no viajan",
+    !/foto|photo/i.test(message), message.replace(/\n/g, " | "));
+
+  check("Confirmación: invita a adjuntar las fotos en el chat (ES)",
+    /adjúntelas en esa misma conversación/i.test(await p.locator("main").innerText()));
+
+  /*
+   * Reparto entre los dos contactos. `lib/assignment.ts` existía y no lo
+   * llamaba nadie: el formulario mandaba siempre al primer número y el
+   * segundo contacto no recibía ninguna solicitud. Se comprueba de punta a
+   * punta —no solo la función— porque el defecto estaba justo en el cable.
+   */
+  const targets = new Set();
+  const lote = [
+    first,
+    { name: "John Smith", phone: "7135550102", description: "Bathroom remodel, master suite" },
+    { name: "Luis Peña", phone: "2815550103", description: "Ampliación de cochera" },
+    { name: "Sarah Johnson", phone: "8325550104", description: "Kitchen countertops and backsplash" },
+    { name: "Ramón Ortiz", phone: "8325550105", description: "Techo y estructura de patio" },
+    { name: "Emily Davis", phone: "9365550106", description: "Full interior repaint and floors" },
+  ];
+  targets.add((url ?? "").match(/wa\.me\/(\d+)/)?.[1]);
+  for (const req of lote.slice(1)) {
+    const u = await sendOne(p, req);
+    targets.add((u ?? "").match(/wa\.me\/(\d+)/)?.[1]);
+  }
+  check("Reparto: un lote variado llega a AMBOS contactos", targets.size === 2,
+    [...targets].join(" y "));
+
+  const repeat = await sendOne(p, first);
+  check("Reparto: la misma solicitud abre siempre el mismo contacto",
+    repeat?.match(/wa\.me\/(\d+)/)?.[1] === url?.match(/wa\.me\/(\d+)/)?.[1]);
+
+  await sendOne(p, { name: "John Smith", phone: "7135550102", description: "Bathroom remodel", locale: "en" });
+  check("Confirmación: invita a adjuntar las fotos en el chat (EN)",
+    /attach them in that same chat/i.test(await p.locator("main").innerText()));
+
+  await ctx.close();
+}
+
+// ─── 6c. Borrador antiguo de tres etapas ────────────────────────────────
+{
+  /*
+   * Alguien con la pestaña abierta durante el despliegue trae en
+   * `sessionStorage` un borrador con `step: 3`, etapa que ya no existe. Sin
+   * acotar el valor, el formulario no pintaba NINGUNA etapa: un hueco en
+   * blanco entre los botones, con el stepper señalando un círculo inexistente.
+   */
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+  await p.goto(URL + "/es/cotizacion", { waitUntil: "domcontentloaded" });
+  await p.evaluate(() => {
+    window.sessionStorage.setItem("apc-quote-draft", JSON.stringify({
+      service: "", location: "Houston, TX 77002", description: "Baño completo",
+      photoCount: 4, name: "Ana", phone: "8325550001", email: "",
+      channel: "whatsapp", consent: true, step: 3,
+    }));
+  });
+  await p.reload({ waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1500);
+
+  check("Borrador antiguo (step 3): cae a la última etapa real, no a un hueco",
+    (await p.locator("#name").count()) === 1 &&
+    // El botón activo lleva el número y, en pantalla ancha, también la
+    // etiqueta: basta con que empiece por el número de la última etapa real.
+    (await p.locator('[aria-current="step"]').innerText()).trim().startsWith("2"),
+    (await p.locator('[aria-current="step"]').innerText()).replace(/\s+/g, " "));
+  check("Borrador antiguo: conserva lo escrito", (await p.locator("#name").inputValue()) === "Ana");
+  check("Borrador antiguo: el conteo de fotos no reaparece",
+    !/imágenes de referencia|reference images/i.test(await p.locator("main").innerText()));
 
   await ctx.close();
 }
@@ -384,12 +546,181 @@ console.log(`--- motor: ${ENGINE} ---`);
   await ctx.close();
 }
 
-// ─── 11. 404 localizado ─────────────────────────────────────────────────
+// ─── 11. 404 con marca en cualquier ruta no reconocida ──────────────────
 {
+  /*
+   * `app/[locale]/not-found.tsx` existía y estaba bien hecho, pero solo se
+   * pintaba cuando una ruta EXISTENTE llamaba a `notFound()`. Una dirección
+   * que no coincidía con ninguna ruta caía en la pantalla por defecto de
+   * Next: 7.200 bytes, fondo negro, en inglés, sin cabecera ni marca. El
+   * comodín de `app/[locale]/[...rest]` es lo que cierra ese hueco.
+   */
   const ctx = await browser.newContext();
   const p = await ctx.newPage();
-  const r = await p.request.get(URL + "/es/ruta-que-no-existe");
-  check("404: ruta desconocida devuelve 404", r.status() === 404, String(r.status()));
+
+  const branded = async (path, expect) => {
+    const r = await p.request.get(URL + path);
+    const html = await r.text();
+    check(
+      `404: ${path} → 404 con marca en ${expect.lang}`,
+      r.status() === 404 && html.includes("ANDRADE PARRA") && expect.needle.test(html),
+      `${r.status()} · ${html.length} bytes`
+    );
+  };
+
+  const ES = { lang: "español", needle: /Página no encontrada/ };
+  const EN = { lang: "inglés", needle: /Page not found/ };
+
+  await branded("/es/ruta-inventada", ES);
+  await branded("/en/made-up-route", EN);
+  // Sin prefijo: `proxy.ts` antepone el idioma detectado y el comodín hace el
+  // resto. Una sola redirección, sin bucle.
+  {
+    const r = await p.request.get(URL + "/ruta-sin-prefijo", { maxRedirects: 0 });
+    check("404: /ruta-sin-prefijo redirige UNA vez al idioma por defecto",
+      r.status() === 307 && (r.headers()["location"] ?? "").startsWith("/en/"),
+      `${r.status()} → ${r.headers()["location"]}`);
+  }
+  await branded("/ruta-sin-prefijo", EN);
+
+  /*
+   * Los 404 deliberados siguen intactos. `/privacidad` y `/terminos` devuelven
+   * 404 a propósito mientras el texto legal siga sin revisar por el cliente:
+   * un texto legal a medias es peor que ninguno. Ver
+   * app/[locale]/privacy/page.tsx.
+   */
+  await branded("/es/privacidad", ES);
+  await branded("/es/terminos", ES);
+  await branded("/en/privacy", EN);
+  await branded("/en/terms", EN);
+
+  await ctx.close();
+}
+
+// ─── 12. Tarjeta social ─────────────────────────────────────────────────
+{
+  /*
+   * El sitio declaraba `summary_large_image` sin `og:image`: prometía tarjeta
+   * con imagen grande y salía vacía. Importa porque TODO el embudo pasa por
+   * WhatsApp y la portada es la URL que se comparte.
+   */
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+
+  for (const path of ["/es", "/en", "/es/cotizacion", "/en/quote"]) {
+    const html = await (await p.request.get(URL + path)).text();
+    const og = html.match(/property="og:image"\s+content="([^"]+)"/)?.[1];
+    check(`og:image en ${path}, con URL absoluta`,
+      Boolean(og) && /^https?:\/\//.test(og ?? ""), og ?? "ausente");
+  }
+
+  const img = await p.request.get(URL + "/og/home.jpg");
+  check("og:image: el archivo existe y se sirve", img.status() === 200,
+    `${img.status()} · ${img.headers()["content-type"]}`);
+
+  await ctx.close();
+}
+
+// ─── 13. Visor de imagen ampliada ───────────────────────────────────────
+{
+  /*
+   * El propietario juzga el trabajo por el remate del azulejo y en la
+   * cuadrícula no podía acercarse. El visor reutiliza el patrón de foco de
+   * `MobileMenu.tsx`: se abre con teclado, atrapa el foco, cierra con Escape
+   * y lo devuelve al origen.
+   */
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+  await p.goto(URL + "/es/proyectos/renovacion-de-cocina", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1500);
+
+  const trigger = p.locator('button[aria-label^="Ver la fotografía ampliada"]').first();
+  check("Visor: la foto es un disparador con nombre accesible",
+    (await trigger.count()) === 1);
+
+  const overflowBefore = await p.evaluate(() => getComputedStyle(document.body).overflow);
+
+  // Se abre con teclado: es un <button> nativo, así que Enter basta.
+  await trigger.focus();
+  await p.keyboard.press("Enter");
+  await p.waitForTimeout(500);
+
+  const dialog = p.locator('[role="dialog"][aria-modal="true"]');
+  check("Visor: abre un diálogo modal", (await dialog.count()) === 1);
+  check("Visor: el foco entra en el visor",
+    await p.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null));
+  check("Visor: bloquea el scroll del fondo",
+    (await p.evaluate(() => document.body.style.overflow)) === "hidden");
+  check("Visor: el objetivo de cierre llega a 44 px",
+    await (async () => {
+      const box = await p.locator('[role="dialog"] button[aria-label]').last().boundingBox();
+      return Boolean(box) && box.width >= 44 && box.height >= 44;
+    })());
+  check("Visor: no amplía la foto por encima de su resolución real",
+    await (async () => {
+      const box = await p.locator('[role="dialog"] img').first().boundingBox();
+      return Boolean(box) && box.width <= 960 + 1;
+    })(),
+    "las fotos actuales topan en 960 px de ancho");
+
+  // Trampa de foco: tabular en círculo no debe salir del diálogo.
+  for (let i = 0; i < 6; i++) await p.keyboard.press("Tab");
+  check("Visor: el foco queda atrapado dentro",
+    await p.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null));
+
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(400);
+  check("Visor: Escape cierra", (await dialog.count()) === 0);
+  check("Visor: el foco vuelve a la imagen de origen",
+    await p.evaluate(() =>
+      document.activeElement?.getAttribute("aria-label")?.startsWith("Ver la fotografía ampliada") === true
+    ));
+  check("Visor: el scroll del fondo se restaura",
+    (await p.evaluate(() => getComputedStyle(document.body).overflow)) === overflowBefore);
+
+  // En la cuadrícula la lupa va aparte del enlace: pulsar la tarjeta navega.
+  await p.goto(URL + "/es/proyectos", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1200);
+  check("Visor: la cuadrícula ofrece la lupa sin robar la navegación",
+    (await p.locator('button[aria-label^="Ver la fotografía ampliada"]').count()) > 0);
+  await p.locator("article a").first().click();
+  await p.waitForTimeout(900);
+  check("Visor: pulsar la tarjeta sigue abriendo el proyecto",
+    /\/es\/proyectos\/.+/.test(p.url()), p.url());
+
+  await ctx.close();
+}
+
+// ─── 14. Ninguna vista publica dirección postal ─────────────────────────
+{
+  /*
+   * Mientras el cliente no confirme por escrito que hay local de cara al
+   * público, el sitio afirma ZONA DE SERVICIO y no dirección: `address` en
+   * JSON-LD le dice a Google "aquí se puede venir", y sobre un domicilio
+   * particular eso dirige desconocidos a la casa de alguien.
+   * Ver content/company.ts.
+   */
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+
+  for (const path of ["/es", "/es/contacto", "/en/contact"]) {
+    const html = await (await p.request.get(URL + path)).text();
+    check(`Zona de servicio: ${path} no publica calle ni código postal`,
+      !/Burning Hills|77075|PostalAddress/.test(html));
+  }
+
+  const home = await (await p.request.get(URL + "/es")).text();
+  check("Zona de servicio: el JSON-LD declara areaServed",
+    /"areaServed"/.test(home) && /"name":"Houston"/.test(home));
+
+  for (const [path, needle] of [
+    ["/es/contacto", "Houston y alrededores, TX"],
+    ["/en/contact", "Houston and surrounding areas, TX"],
+  ]) {
+    const html = await (await p.request.get(URL + path)).text();
+    check(`Zona de servicio coherente en ${path}`, html.includes(needle), needle);
+  }
+
   await ctx.close();
 }
 
