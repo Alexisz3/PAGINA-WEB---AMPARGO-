@@ -42,15 +42,93 @@ desplazamiento se perdía por completo a tamaño de favicon).
 
 ### Construcción
 
-Todo el trazo se levanta sobre **un grosor único de 12 unidades** en una
-rejilla de 80 × 64. La riostra mide 15 en horizontal precisamente para que su
-grosor *perpendicular* sea 12: inclinada 34,7° respecto a la vertical, hay que
-dividir por el coseno. Medir en horizontal el grosor de una diagonal es el
-error clásico que la deja visualmente más fina que el resto de la pieza.
+La versión actual es «**ensamble redondeado**»: el mismo concepto, ejecutado
+con **trazo** de uniones y remates redondos en lugar de polígonos macizos de
+esquina viva. Suaviza el gesto sin tocar la idea.
 
-El **cuenco de la P termina en y=40, exactamente donde arranca el travesaño de
-la A**. Esa línea horizontal compartida es la que ata las dos letras y hace que
-se lean como una sola pieza y no como dos formas vecinas.
+Ese cambio de relleno a trazo cambia lo que significan las coordenadas. Antes
+describían el **contorno** de la pieza; ahora describen su **eje**. El borde
+visible cae siempre a la mitad del grosor a cada lado del eje, y cada remate
+redondo añade otra mitad de grosor **más allá** del extremo, en la dirección
+del trazo.
+
+De ahí se sigue algo que conviene decir explícitamente porque estuvo
+documentado al revés: **ya no hay corrección por coseno**. La versión maciza
+dibujaba la riostra 15 unidades de ancho en horizontal para que su grosor
+perpendicular fuese 12, porque en un polígono medir en horizontal una diagonal
+la deja más fina que el resto. Un trazo no tiene ese problema: su grosor es
+perpendicular por definición, esté inclinado o no. Aquella cuenta resolvía un
+problema que ha dejado de existir; si aparece de nuevo en el archivo, sobra.
+
+Todos los valores están en la rejilla de **80 × 64**:
+
+| Constante | Valor | Qué es |
+|---|---|---|
+| `W` | 9 | Grosor único de todo el trazo |
+| `TOP` / `BASE` | 10 / 54 | Altura de mayúscula y línea de base (44 de alto) |
+| `STEM_X` | 46 | Eje del montante compartido A/P |
+| `FOOT_X` | 11 | Pie de la riostra |
+| `BOWL_TOP` / `BOWL_BOT` | 15 / 38 | Ejes de los tramos recto superior e inferior del cuenco |
+| `BOWL_X` | 56 | Eje del tramo recto antes del arco |
+| `BOWL_R` | 11,5 | Radio del arco |
+| `BAR_Y` | 42,5 | Eje del travesaño |
+| `BAR_X` | 20 | Extremo libre del travesaño |
+
+Tres decisiones que no son arbitrarias:
+
+1. **La A va en un solo subtrazado** (`M11 54 L46 10 V54`). Riostra y montante
+   comparten el vértice y se resuelven con una *unión* redondeada. Dibujarlos
+   como dos trazos independientes deja dos remates superpuestos en el ápice y
+   un pico doble que a tamaño grande se lee como un error de dibujo.
+
+2. **El arco del cuenco es un semicírculo exacto**: `BOWL_R` es justo la mitad
+   de `BOWL_BOT − BOWL_TOP`. Cualquier otro radio obliga a un arco elíptico,
+   que se deforma al escalar y delata el dibujo. El cuenco mide 23 sobre una
+   altura de mayúscula de 44 —algo más de la mitad—, que es la proporción en
+   la que una P se lee como P; más grande empieza a leerse como D.
+
+3. **El borde superior del travesaño cae exactamente en `BOWL_BOT`**, el eje
+   donde el cuenco de la P cierra (`BAR_Y = BOWL_BOT + W/2`). Esa línea
+   horizontal compartida es la que ata las dos letras y hace que se lean como
+   una pieza y no como dos formas vecinas. Es la misma alineación que tenía la
+   versión maciza —allí era `y = 40`— traducida a ejes.
+
+El travesaño se dibuja **antes** que la A, de modo que la riostra pasa por
+encima: la diagonal queda continua y el rojo se ve solo en el vano, que es
+donde el tirante realmente trabaja. Su extremo derecho muere en el borde
+izquierdo del montante en vez de cruzarlo; metido dentro, dejaría una mancha
+roja en medio del azul.
+
+#### El tamaño favicon manda
+
+Los valores de arriba **no se eligieron a ojo**: se fijaron midiendo las
+contraformas sobre el píxel real. El símbolo se rasteriza al tamaño de
+destino y se cuentan los huecos de fondo encerrados por trazo — si un ojal
+desaparece, el dibujo está mal por bien que se vea grande.
+
+Medido sobre fondo claro, isotipo suelto:
+
+| Tamaño | Ojal del cuenco (P) | Ojal de la A |
+|---|---|---|
+| 64 px | 12 × 13 px | 11 × 13 px |
+| 32 px | 5 × 6 px | 4 × 5 px |
+| 24 px | 4 × 4 px | 3 × 4 px |
+| 20 px | 3 × 4 px | 3 × 4 px |
+| 16 px | 2 × 3 px | 1 × 2 px |
+
+Ese es el motivo del mínimo de 24 px para el isotipo suelto y de que el
+favicon vaya sobre tesela: a 16 px sueltos el ojal de la A baja a 1 px y deja
+de leerse.
+
+La primera versión de esta geometría llevaba `W = 10`, `STEM_X = 43` y
+`BOWL_X = 54`, y a 20 px el ojal de la A se quedaba en 2 × 3 px. Abrir el
+ángulo de la riostra (montante más a la derecha) y adelgazar el trazo un punto
+lo llevó a 3 × 4 sin tocar el concepto. Se deja anotado para que nadie
+«redondee» esos tres números a valores más bonitos.
+
+Para reproducir la medición: `npm run check:brand`. Falla si a 20 px queda
+alguna contraforma por debajo de 3 px en su lado corto, de modo que un retoque
+que cierre un ojal no llega a producción sin que salte.
 
 En la cabecera del sitio se usa el isotipo **solo**, sin texto. El nombre
 completo no se pierde: lo llevan el `aria-label` del enlace, el hero, el pie y
@@ -135,7 +213,7 @@ texto, ni filetes, ni el borde de la pieza.
 |---|---|---|
 | Logotipo horizontal | 150 px / 40 mm de ancho | Por debajo, el descriptor deja de leerse |
 | Logotipo apilado | 110 px / 30 mm de ancho | Ídem |
-| Isotipo | 24 px | Por debajo se cierra el ojal de la A |
+| Isotipo | 24 px | Por debajo el ojal de la A baja de 3 px y se cierra |
 | Favicon | 16 px | Va sobre tesela azul maciza |
 
 Si el descriptor no se lee, **use el isotipo suelto**. Nunca lo comprima ni lo
@@ -195,7 +273,14 @@ tiene resolución fija y a gran formato se pixela.
 
 ## Ficheros fuente
 
-La geometría está declarada una sola vez en `qa/_build-brand.mjs`, que emite
-las seis variantes. Si hay que retocar el símbolo, **modifique ese archivo y
-vuelva a generarlas**: editar los SVG uno a uno acaba con variantes
-desalineadas entre sí.
+La geometría está declarada una sola vez en `qa/build-brand.mjs`, que emite
+las seis variantes **y además reescribe `app/icon.svg`**, que es de donde Next
+saca el icono del sitio. Si hay que retocar el símbolo, **modifique ese
+archivo y ejecute `npm run build:brand`**: editar los SVG uno a uno acaba con
+variantes desalineadas entre sí.
+
+Hay una única copia consciente de la geometría fuera de ese archivo:
+`components/BrandLogo.tsx`, que pinta el símbolo en línea en la web. Ambos
+llevan un comentario que remite al otro. **Se tocan juntos o no se tocan.**
+Tras cambiar el símbolo hay que ejecutar también `npm run export:brand` para
+rehacer los PNG.

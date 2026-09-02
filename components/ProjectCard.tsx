@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import ZoomButton from "./ZoomButton";
 import { getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { Project } from "@/content/projects";
@@ -49,7 +50,11 @@ export default async function ProjectCard({
   const t = await getTranslations("Projects");
 
   return (
-    <article className="group">
+    /*
+      `relative` no es decorativo: es lo que permite superponer la lupa a la
+      foto SIN meterla dentro del enlace. Ver components/ZoomButton.tsx.
+    */
+    <article className="group relative">
       <Link href={{ pathname: "/projects/[slug]", params: { slug: project.slugs[locale] } }} className="block">
         {/*
           Proporción uniforme en rejilla, a propósito.
@@ -89,6 +94,18 @@ export default async function ProjectCard({
           <p className="mt-2 font-mono text-xs text-muted">{project.location}</p>
         </div>
       </Link>
+
+      {/*
+        Ampliar la foto sin salir del listado. Va fuera del <Link> —un botón
+        dentro de un enlace no es HTML válido— y por encima de él, de modo que
+        pulsar la tarjeta sigue llevando a la ficha del proyecto.
+      */}
+      <ZoomButton
+        src={`/images/proyectos/${project.coverPhoto.file}`}
+        alt={project.title[locale]}
+        orientation={project.coverPhoto.orientation}
+        className="absolute right-3 top-3 z-10"
+      />
     </article>
   );
 }

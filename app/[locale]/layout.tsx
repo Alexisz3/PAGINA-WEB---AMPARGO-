@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale, getMessages } from "next-intl/server";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
-import { SITE_URL, INDEXABLE, BRAND } from "@/lib/site";
+import { SITE_URL, INDEXABLE, BRAND, OG_IMAGE } from "@/lib/site";
 import SkipLink from "@/components/SkipLink";
 import Analytics from "@/components/Analytics";
 import "../globals.css";
@@ -72,6 +72,28 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       url: prefix,
       title: t("title"),
       description: t("description"),
+      /*
+       * Tarjeta social. El sitio ya declaraba `summary_large_image` —es decir,
+       * prometía tarjeta con imagen grande— y no daba ninguna imagen: el
+       * enlace salía vacío en WhatsApp, que es por donde pasa TODO el embudo
+       * de este negocio y donde la portada es la URL que se comparte.
+       *
+       * La ruta va relativa a propósito: `metadataBase`, unas líneas más
+       * arriba, la convierte en absoluta con `SITE_URL`. Escribirla absoluta a
+       * mano la congelaría en el dominio de hoy, que es provisional.
+       *
+       * Se hereda en las páginas que no declaran su propio `openGraph`. Las
+       * fichas de proyecto y la cotización sí declaran el suyo, con su imagen.
+       * Se genera con `npm run build:og`.
+       */
+      images: [
+        {
+          url: OG_IMAGE.home,
+          width: 1200,
+          height: 630,
+          alt: `${BRAND.name} — ${BRAND.descriptor}`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",

@@ -31,3 +31,23 @@ export function pickContactIndex(seed: string, contactCount: number): number {
   if (contactCount <= 0) return 0;
   return fnv1a32(seed) % contactCount;
 }
+
+/**
+ * Semilla de reparto a partir de los datos de la solicitud.
+ *
+ * Se normaliza (recorte, minúsculas, espacios colapsados) para que la MISMA
+ * solicitud produzca la misma semilla aunque la persona haya escrito un
+ * espacio de más al reintentar: si la semilla cambiara, el reintento abriría
+ * el otro contacto y la solicitud llegaría duplicada a los dos teléfonos.
+ *
+ * El teléfono entra solo con sus dígitos por el mismo motivo: "(832) 555-1234"
+ * y "8325551234" son la misma persona.
+ *
+ * Cuando exista backend, esta función desaparece: la semilla pasará a ser el
+ * identificador de la cotización. Ver la nota de alcance de la cabecera.
+ */
+export function quoteSeed(parts: readonly (string | null | undefined)[]): string {
+  return parts
+    .map((p) => (p ?? "").trim().toLowerCase().replace(/\s+/g, " "))
+    .join("|");
+}

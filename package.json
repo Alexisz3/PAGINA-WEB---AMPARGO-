@@ -14,8 +14,12 @@
     "qa:axe": "node qa/axe.mjs",
     "qa:lighthouse": "node qa/lighthouse.mjs",
     "check:env": "node --experimental-strip-types qa/check-env.mjs",
+    "check:assignment": "node --experimental-strip-types qa/check-assignment.mjs",
     "build:brand": "node qa/build-brand.mjs",
+    "check:brand": "node qa/measure-counters.mjs",
+    "sheet:brand": "node qa/brand-sheet.mjs",
     "export:brand": "node qa/export-brand-png.mjs",
+    "build:og": "node qa/build-og.mjs",
     "brand:options": "node qa/brand-type-options.mjs"
   },
   "dependencies": {

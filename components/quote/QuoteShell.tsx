@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/lib/analytics";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import QuoteStepper from "./QuoteStepper";
-import ReferenceUploader from "./ReferenceUploader";
+import { pickContactIndex, quoteSeed } from "@/lib/assignment";
+import QuoteStepper, { TOTAL_STEPS } from "./QuoteStepper";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
 import QuoteSummary from "./QuoteSummary";
 
@@ -36,22 +36,38 @@ const DRAFT_KEY = "apc-quote-draft";
  */
 const LEGACY_DRAFT_KEY = "ampargo-quote-draft";
 
-/** Campos que se persisten. `photoCount` queda fuera a propósito: los
- *  archivos no sobreviven a una recarga y anunciar un número que ya no
- *  corresponde a nada sería engañoso. */
-type PersistedDraft = Omit<QuoteDraft, "photoCount"> & { step?: number };
+/** Lo que se persiste: el borrador entero más la etapa en curso. */
+type PersistedDraft = QuoteDraft & { step?: number };
 
 export interface QuoteDraft {
   service: string;
   location: string;
   description: string;
-  photoCount: number;
   name: string;
   phone: string;
   email: string;
   channel: Channel | null;
   consent: boolean;
 }
+
+/**
+ * Etapa a la que pertenece cada campo.
+ *
+ * Existe para que un error SIEMPRE se pueda mostrar: si la validación de
+ * envío encuentra un fallo en una etapa que no está en pantalla, hay que
+ * viajar a esa etapa antes de enfocar el campo. Sin este mapa, el formulario
+ * podía quedarse bloqueado señalando un error invisible.
+ */
+const FIELD_STEP: Record<keyof QuoteDraft, number> = {
+  service: 1,
+  location: 1,
+  description: 1,
+  name: 2,
+  phone: 2,
+  email: 2,
+  channel: 2,
+  consent: 2,
+};
 
 const FIELD =
   "w-full border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-accent";
@@ -78,14 +94,18 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 }
 
 /**
- * Shell del flujo de cotización en 3 etapas.
+ * Shell del flujo de cotización en 2 etapas: Proyecto y Contacto.
  *
  * IMPORTANTE — alcance honesto: esta es la capa de interfaz. La persistencia
- * real, la subida a almacenamiento privado y los canales de entrega están
- * DISEÑADOS pero no conectados, porque el cliente aún no ha contratado base
- * de datos, almacenamiento ni proveedor de correo. Por eso el envío final
- * muestra un aviso explícito de modo desarrollo en lugar de afirmar que la
- * solicitud se envió. Ver AUDITORIA_Y_PLAN_AMPARGO.md §11.
+ * real y el canal de correo están DISEÑADOS pero no conectados, porque el
+ * cliente aún no ha contratado base de datos ni proveedor de correo. La
+ * entrega ocurre por WhatsApp y la confirmación lo dice literalmente.
+ *
+ * Hubo una tercera etapa de subida de fotos y se retiró en la fase 4. Subía
+ * archivos que no salían nunca del navegador —`wa.me` solo admite texto— y el
+ * mensaje anunciaba al contratista unas fotos que no existían. Ahora la
+ * confirmación invita a adjuntarlas en el propio chat, que es donde WhatsApp
+ * las maneja mejor que cualquier enlace. Ver AUDITORIA_Y_PLAN_AMPARGO.md §11.
  */
 export interface WhatsAppTarget {
   /** E.164 sin signos, como lo espera wa.me. */
@@ -112,17 +132,17 @@ export default function QuoteShell({
   const [handoffUrl, setHandoffUrl] = useState<string | null>(null);
   const [draft, setDraft] = useState<QuoteDraft>({
     service: "", location: "", description: "",
-    photoCount: 0, name: "", phone: "", email: "",
+    name: "", phone: "", email: "",
     channel: null, consent: false,
   });
 
   /*
    * Validación por etapa.
    *
-   * Antes no existía: se podía recorrer las tres etapas y llegar al resumen
-   * con absolutamente todo vacío. Para el contratista eso produce una
-   * solicitud sin nombre, sin teléfono y sin descripción — un aviso que no se
-   * puede responder, que es peor que no recibir nada porque hace perder tiempo.
+   * Antes no existía: se podía recorrer las etapas y llegar al resumen con
+   * absolutamente todo vacío. Para el contratista eso produce una solicitud
+   * sin nombre, sin teléfono y sin descripción — un aviso que no se puede
+   * responder, que es peor que no recibir nada porque hace perder tiempo.
    *
    * Qué se exige y qué no:
    *  · Descripción — sin ella no hay nada que cotizar.
@@ -131,15 +151,15 @@ export default function QuoteShell({
    *    de perder solicitudes: mucha gente da uno y no el otro a propósito.
    *  · Canal y consentimiento — sin permiso no se puede contactar.
    *
-   * Servicio, ubicación y fotos quedan OPCIONALES: son útiles, no
-   * imprescindibles, y cada campo obligatorio de más cuesta conversiones.
+   * Servicio y ubicación quedan OPCIONALES: son útiles, no imprescindibles,
+   * y cada campo obligatorio de más cuesta conversiones.
    */
   const [errors, setErrors] = useState<Partial<Record<keyof QuoteDraft, string>>>({});
 
   const validateStep = (n: number): Partial<Record<keyof QuoteDraft, string>> => {
     const e: Partial<Record<keyof QuoteDraft, string>> = {};
     if (n === 1 && draft.description.trim().length < 4) e.description = t("errDescription");
-    if (n === 3) {
+    if (n === 2) {
       if (!draft.name.trim()) e.name = t("errName");
 
       const phone = draft.phone.replace(/\D/g, "");
@@ -160,15 +180,53 @@ export default function QuoteShell({
   };
 
   /**
+   * Errores acumulados de las etapas 1..n.
+   *
+   * Este es el arreglo del defecto que reabría el agujero que la validación
+   * por etapa decía haber cerrado: `validateStep(3)` solo miraba los campos de
+   * contacto, así que pulsando directamente el círculo de la última etapa se
+   * podía enviar una solicitud SIN descripción del proyecto. El envío ahora
+   * valida todas las etapas, no solo aquella en la que uno esté parado.
+   *
+   * El orden de las claves importa: se recorre de la etapa 1 hacia adelante,
+   * de modo que el primer error siempre es el más temprano del formulario y
+   * es el que recibe el foco.
+   */
+  const validateThrough = (n: number): Partial<Record<keyof QuoteDraft, string>> => {
+    let all: Partial<Record<keyof QuoteDraft, string>> = {};
+    for (let i = 1; i <= n; i++) all = { ...all, ...validateStep(i) };
+    return all;
+  };
+
+  /**
+   * Lleva el foco al primer campo que falta, viajando antes a su etapa.
+   *
+   * El anuncio lo hace el propio `role="alert"` de `FieldError`: el mensaje
+   * aparece en el DOM al pintarse los errores y el lector de pantalla lo lee
+   * sin que haga falta una región extra. Por eso el foco se aplaza un frame:
+   * si se enfocara antes de que React pinte la etapa de destino, el campo
+   * todavía no existe y el foco se quedaría en el círculo del stepper.
+   */
+  const focusFirstError = (e: Partial<Record<keyof QuoteDraft, string>>) => {
+    const first = Object.keys(e)[0] as keyof QuoteDraft | undefined;
+    if (!first) return;
+    setStep(FIELD_STEP[first]);
+    requestAnimationFrame(() => {
+      document.getElementById(first)?.focus();
+    });
+  };
+
+  /**
    * Compone el mensaje que se abre en WhatsApp.
    *
    * Solo se incluyen los campos que la persona rellenó: un mensaje con
    * "Ubicación: —" delata un formulario, y lo que debe llegarle al contratista
    * parece —y es— un mensaje escrito por un cliente.
    *
-   * Las fotos NO viajan en el enlace: wa.me solo admite texto. Se anuncia que
-   * están listas para que la persona las adjunte en la misma conversación,
-   * que es exactamente lo que ya haría de forma natural.
+   * No se menciona ninguna foto. Se mencionaba, y era falso: `wa.me` solo
+   * admite texto, así que el contratista leía "fotos listas para enviar" y no
+   * recibía ninguna. La invitación a adjuntarlas está ahora en la pantalla de
+   * confirmación, dirigida a quien sí puede hacerlo: el propio visitante.
    */
   const buildMessage = (): string => {
     const serviceLabel = services.find((s) => s.id === draft.service)?.label;
@@ -182,7 +240,6 @@ export default function QuoteShell({
     add(t("msgName"), draft.name.trim());
     add(t("msgPhone"), draft.phone.trim());
     add(t("msgEmail"), draft.email.trim());
-    if (draft.photoCount > 0) lines.push("", t("msgPhotos"));
 
     return lines.join("\n");
   };
@@ -194,15 +251,29 @@ export default function QuoteShell({
    * persona quien pulsa enviar. Por eso la pantalla siguiente dice que
    * WhatsApp está abierto, nunca que la solicitud se recibió — afirmarlo sería
    * mentir sobre algo que el sitio no puede comprobar.
+   *
+   * El destinatario NO es siempre el primero de la lista. Lo era, y el efecto
+   * medido fue que el 100 % de las cotizaciones llegaba a un solo contacto
+   * mientras el otro no recibía ninguna, pese a que el reparto determinista ya
+   * estaba escrito en `lib/assignment.ts` y no lo llamaba nadie.
    */
   const submitViaWhatsApp = () => {
-    const e = validateStep(3);
+    const e = validateThrough(TOTAL_STEPS);
     setErrors(e);
     if (Object.keys(e).length > 0) {
-      document.getElementById(Object.keys(e)[0])?.focus();
+      focusFirstError(e);
       return;
     }
-    const target = whatsappTargets[0];
+
+    /*
+     * Semilla determinista compuesta por los datos de la propia solicitud:
+     * el mismo formulario abre siempre el mismo contacto, de modo que
+     * reintentar no manda la solicitud a dos teléfonos distintos.
+     */
+    const seed = quoteSeed([draft.name, draft.phone.replace(/\D/g, ""), draft.description]);
+    const target = whatsappTargets[pickContactIndex(seed, whatsappTargets.length)];
+    if (!target) return;
+
     const url = buildWhatsAppLink(target.phone, buildMessage());
     if (!url) return;
 
@@ -217,12 +288,33 @@ export default function QuoteShell({
     if (Object.keys(e).length > 0) {
       // El foco va al primer campo con problema: sin esto, quien navega con
       // teclado o lector de pantalla no sabe que algo falló.
-      const first = Object.keys(e)[0];
-      document.getElementById(first)?.focus();
+      focusFirstError(e);
       return;
     }
     track("quote_step_completed", { step });
-    setStep((s) => Math.min(3, s + 1));
+    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
+  };
+
+  /**
+   * Salto directo desde el stepper.
+   *
+   * Retroceder es SIEMPRE libre: nadie debe quedar atrapado en una etapa por
+   * un campo que aún no ha rellenado. Avanzar exige que las etapas anteriores
+   * estén válidas — antes no lo exigía, y pulsar el último círculo permitía
+   * enviar una solicitud sin descripción del proyecto.
+   */
+  const goToStep = (n: number) => {
+    if (n <= step) {
+      setStep(n);
+      return;
+    }
+    const e = validateThrough(n - 1);
+    setErrors(e);
+    if (Object.keys(e).length > 0) {
+      focusFirstError(e);
+      return;
+    }
+    setStep(n);
   };
 
   const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) => {
@@ -271,13 +363,30 @@ export default function QuoteShell({
       /* almacenamiento no disponible o JSON corrupto: se sigue sin borrador */
     }
 
+    // Residuo de la etapa de fotos: un borrador guardado antes de la fase 4
+    // puede traer `photoCount`. Se descarta aquí para que no se cuele en el
+    // estado ni vuelva a persistirse.
+    delete (saved as Record<string, unknown>).photoCount;
+
     // El ID de la URL solo se acepta si corresponde a un servicio real.
     const validInitial =
       initialServiceId && services.some((s) => s.id === initialServiceId)
         ? initialServiceId
         : "";
 
+    /*
+     * La etapa restaurada se ACOTA al rango válido.
+     *
+     * Un borrador guardado antes de la fase 4 puede traer `step: 3`, que ya no
+     * existe: sin el acotado el formulario se quedaba sin ninguna etapa que
+     * pintar —pantalla en blanco entre los botones— y con el stepper señalando
+     * un círculo inexistente. Se cae a la última etapa real, que es donde esa
+     * persona estaba de verdad: a punto de enviar.
+     */
     const savedStep = Number(saved.step ?? 0);
+    const restoredStep = Number.isFinite(savedStep)
+      ? Math.min(TOTAL_STEPS, Math.max(1, Math.trunc(savedStep)))
+      : 1;
 
     /*
      * setState dentro de un efecto, a propósito y una sola vez.
@@ -289,9 +398,9 @@ export default function QuoteShell({
      * `restored` garantiza que ocurre una única vez y no encadena renders.
      */
     setDraft((d) => ({ ...d, ...saved, service: saved.service || validInitial || d.service }));
-    if (savedStep >= 1 && savedStep <= 3) {
+    if (savedStep >= 1) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- ver comentario arriba
-      setStep(savedStep);
+      setStep(restoredStep);
     }
   }, [initialServiceId, services]);
 
@@ -307,13 +416,11 @@ export default function QuoteShell({
     track("quote_started", { service: initialServiceId || "none" });
   }, [initialServiceId]);
 
-  // Persiste en cada cambio, excepto el conteo de fotos.
+  // Persiste en cada cambio. Solo texto: no hay nada más que guardar.
   useEffect(() => {
     if (!restored.current) return;
     try {
-      const { photoCount: _omit, ...rest } = draft;
-      void _omit;
-      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...rest, step }));
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, step }));
     } catch {
       /* almacenamiento lleno o bloqueado: el formulario sigue funcionando */
     }
@@ -323,7 +430,7 @@ export default function QuoteShell({
     <section className="bg-paper py-12 lg:py-16">
       <div className="mx-auto grid max-w-[1400px] gap-10 px-6 lg:grid-cols-[1fr_380px] lg:px-10">
         <div>
-          <QuoteStepper current={step} onStepChange={setStep} />
+          <QuoteStepper current={step} onStepChange={goToStep} />
 
           <div className="mt-10">
             {step === 1 ? (
@@ -386,12 +493,8 @@ export default function QuoteShell({
             ) : null}
 
             {step === 2 ? (
-              <ReferenceUploader onCountChange={(n) => update("photoCount", n)} />
-            ) : null}
-
-            {step === 3 ? (
               <fieldset className="space-y-6">
-                <legend className="sr-only">{t("step3")}</legend>
+                <legend className="sr-only">{t("step2")}</legend>
 
                 <div>
                   <label htmlFor="name" className="mb-2 block text-sm font-medium text-ink">
@@ -485,6 +588,11 @@ export default function QuoteShell({
                   "hemos recibido su solicitud" sería afirmar algo que el sitio
                   no puede comprobar, y dejaría a alguien esperando respuesta a
                   un mensaje que nunca llegó a enviar.
+
+                  La invitación a adjuntar fotos vive aquí y no en el mensaje:
+                  quien puede adjuntarlas es el visitante, dentro del chat que
+                  acaba de abrirse. El mensaje anterior se las prometía al
+                  contratista y no llegaba ninguna.
                 */}
                 {handoffUrl ? (
                   <div role="status" className="border-l-2 border-success bg-surface p-4">
@@ -492,6 +600,7 @@ export default function QuoteShell({
                       {t("handoffHeading")}
                     </p>
                     <p className="mt-2 text-sm leading-relaxed text-muted">{t("handoffBody")}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{t("handoffPhotos")}</p>
                     <div className="mt-4 flex flex-wrap gap-3">
                       <a
                         href={handoffUrl}
@@ -536,7 +645,7 @@ export default function QuoteShell({
               type="button"
               // Valida antes de avanzar y registra la etapa que se deja.
               onClick={goNext}
-              disabled={step === 3}
+              disabled={step === TOTAL_STEPS}
               className="inline-flex min-h-[48px] items-center gap-2 bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover disabled:opacity-40"
             >
               {t("next")}

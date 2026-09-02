@@ -7,7 +7,7 @@ import { getPublishedServices } from "@/content/services";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import QuoteShell from "@/components/quote/QuoteShell";
-import { BRAND, WHATSAPP_CONTACTS, BUSINESS_EMAIL } from "@/lib/site";
+import { BRAND, WHATSAPP_CONTACTS, BUSINESS_EMAIL, OG_IMAGE } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -33,7 +33,15 @@ export async function generateMetadata({
       canonical: path(locale as AppLocale),
       languages: { "es-US": path("es-US"), "en-US": path("en-US") },
     },
-    openGraph: { type: "website", title: t("heading"), url: path(locale as AppLocale) },
+    openGraph: {
+      type: "website",
+      title: t("heading"),
+      url: path(locale as AppLocale),
+      /* Declarar `summary_large_image` sin imagen deja la tarjeta vacía; ver
+         la nota de app/[locale]/layout.tsx. Relativa: la resuelve
+         `metadataBase` contra SITE_URL. */
+      images: [{ url: OG_IMAGE.quote, width: 1200, height: 630, alt: t("heading") }],
+    },
   };
 }
 

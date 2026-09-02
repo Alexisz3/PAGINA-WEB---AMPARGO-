@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { hasLocale, type Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -12,6 +11,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
 import BeforeAfter from "@/components/BeforeAfter";
+import ZoomableImage from "@/components/ZoomableImage";
 import CtaBand from "@/components/CtaBand";
 import { Link } from "@/i18n/navigation";
 import ArrowRight from "@/components/icons/ArrowRight";
@@ -131,23 +131,22 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
         {/* ── Fotografía principal: es el LCP, va con preload ── */}
         <section className="bg-carbon">
           <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-            <figure
-              className={`relative overflow-hidden bg-carbon-raised ${
+            {/* Ampliable: es la foto por la que se juzga la obra. El recorte
+                del encuadre se conserva aquí; el visor muestra la foto
+                completa, sin recortar. */}
+            <ZoomableImage
+              src={`/images/proyectos/${project.coverPhoto.file}`}
+              alt={project.title[loc]}
+              orientation={project.coverPhoto.orientation}
+              eager
+              preload
+              sizes="(min-width: 1400px) 1340px, 100vw"
+              className={`bg-carbon-raised ${
                 project.coverPhoto.orientation === "vertical"
                   ? "aspect-[4/5] sm:aspect-[3/2]"
                   : "aspect-[4/3] sm:aspect-[16/9]"
               }`}
-            >
-              <Image
-                src={`/images/proyectos/${project.coverPhoto.file}`}
-                alt={project.title[loc]}
-                fill
-                preload
-                loading="eager"
-                sizes="(min-width: 1400px) 1340px, 100vw"
-                className="object-cover"
-              />
-            </figure>
+            />
           </div>
         </section>
 
@@ -281,23 +280,18 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
               */}
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {galleryPhotos.map((photo, i) => (
-                  <figure
+                  <ZoomableImage
                     key={photo.file}
-                    className={`relative overflow-hidden bg-carbon ${
+                    src={`/images/proyectos/${photo.file}`}
+                    alt={`${project.title[loc]} — ${i + 2}`}
+                    orientation={photo.orientation}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className={`bg-carbon ${
                       photo.orientation === "vertical"
                         ? "aspect-[3/4]"
                         : "aspect-[4/3] lg:col-span-2"
                     }`}
-                  >
-                    <Image
-                      src={`/images/proyectos/${photo.file}`}
-                      alt={`${project.title[loc]} — ${i + 2}`}
-                      fill
-                      loading="lazy"
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-500 hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
-                    />
-                  </figure>
+                  />
                 ))}
               </div>
             </div>
