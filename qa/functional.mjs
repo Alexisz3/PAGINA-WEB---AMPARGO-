@@ -295,41 +295,120 @@ console.log(`--- motor: ${ENGINE} ---`);
 
 // ─── 6b. El mensaje que le llega al contratista, y a quién le llega ─────
 {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  const p = await ctx.newPage();
+  /**
+   * Recorrido completo de una solicitud, en un contexto RECIÉN CREADO.
+   *
+   * Un contexto nuevo trae `sessionStorage` vacío por construcción, y eso es
+   * justo lo que hace falta aquí. La versión anterior reutilizaba una pestaña
+   * y limpiaba el almacenamiento antes de recargar; parecía equivalente y no
+   * lo era. El formulario restaura el borrador al montar y lo vuelve a
+   * guardar en cuanto cambia el estado, así que entre el `clear()` y la
+   * recarga hay una ventana en la que la aplicación puede reescribirlo. Si
+   * hidrataba dentro de esa ventana, la vuelta siguiente arrancaba en la
+   * etapa de contacto y no existía ningún `#description` que rellenar.
+   *
+   * En local nunca falló y en CI sí: el runner es más lento y la hidratación
+   * caía dentro de la ventana. Una prueba que depende de quién gana una
+   * carrera no está midiendo lo que dice medir, así que se retira la carrera
+   * en vez de ensancharle los tiempos de espera.
+   *
+   * Devuelve la URL de wa.me y el texto de la confirmación, porque el
+   * contexto se cierra aquí dentro y después ya no hay página que leer.
+   */
+  /**
+   * Escribe en un campo y comprueba que el valor SE QUEDA.
+   *
+   * Los campos existen en el HTML del servidor antes de que React hidrate, y
+   * son componentes controlados: al hidratar, React impone el valor de su
+   * estado —vacío— y borra lo que se hubiera escrito antes. El síntoma es
+   * desconcertante, porque no falla al escribir: falla después, al pulsar
+   * "Continuar", con un error de validación sobre un campo que en la captura
+   * se ve relleno. Reintentar el clic no arregla nada, porque el problema no
+   * está en el clic.
+   *
+   * Se ve en WebKit, que hidrata bastante más despacio que Chromium.
+   */
+  /**
+   * Pulsa y comprueba que el clic SURTIÓ EFECTO; si no, vuelve a pulsar.
+   *
+   * Hace falta porque el botón existe en el HTML del servidor antes de que
+   * React le ate el manejador: un clic en esa ventana no hace nada y no falla
+   * —simplemente se pierde—. WebKit hidrata bastante más despacio que
+   * Chromium y es donde se ve; el mismo archivo ya lo sufrió en el selector
+   * de idioma, ver la sección 3.
+   *
+   * Esperar un tiempo fijo "suficiente" es lo que se hacía antes y es
+   * precisamente lo que convierte una prueba en una apuesta: en una máquina
+   * más lenta el margen deja de bastar. Aquí se espera a la CONSECUENCIA.
+   */
+  const fillSticky = async (page, campo, valor, intentos = 5) => {
+    for (let i = 0; i < intentos; i++) {
+      await campo.fill(valor);
+      // Si el valor sobrevive un instante, React ya está al mando del campo.
+      await page.waitForTimeout(150);
+      if ((await campo.inputValue()) === valor) return;
+    }
+    throw new Error(`El campo no retuvo el valor tras ${intentos} intentos: ${valor}`);
+  };
 
-  /** Recorrido completo desde cero. Devuelve la URL de wa.me abierta. */
-  const sendOne = async (page, { name, phone, description, locale = "es" }) => {
-    await page.goto(`${URL}/${locale}/${locale === "es" ? "cotizacion" : "quote"}`, {
-      waitUntil: "domcontentloaded",
-    });
-    /*
-     * Partir de cero en cada solicitud. El formulario guarda el borrador en
-     * `sessionStorage` a propósito —quien vuelve no pierde lo escrito— así que
-     * sin limpiar, la segunda vuelta arranca en la etapa de contacto y no hay
-     * ningún #description que rellenar.
-     */
-    await page.evaluate(() => window.sessionStorage.clear());
-    await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1200);
-    await page.locator("#description").fill(description);
-    await page.locator("button", { hasText: /Continuar|Continue/ }).click();
-    await page.waitForTimeout(500);
-    await page.locator("#name").fill(name);
-    await page.locator("#phone").fill(phone);
-    await page.locator('input[name="channel"]').last().check();
-    await page.locator("#consent").setChecked(true);
-    await page.evaluate(() => {
-      window.__opened = null;
-      window.open = (u) => { window.__opened = u; return null; };
-    });
-    await page.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }).click();
-    await page.waitForTimeout(500);
-    return page.evaluate(() => window.__opened);
+  const clickUntil = async (page, button, expected, intentos = 4) => {
+    for (let i = 0; i < intentos; i++) {
+      await button.click();
+      try {
+        await expected.waitFor({ state: "visible", timeout: 4000 });
+        return;
+      } catch {
+        /* la hidratación aún no había llegado: se reintenta */
+      }
+    }
+    // Último intento sin capturar, para que el error diga qué se esperaba.
+    await expected.waitFor({ state: "visible", timeout: 10000 });
+  };
+
+  const sendOne = async ({ name, phone, description, locale = "es" }) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    try {
+      await page.goto(`${URL}/${locale}/${locale === "es" ? "cotizacion" : "quote"}`, {
+        waitUntil: "domcontentloaded",
+      });
+      // Se espera al campo, no a un tiempo fijo: el runner de CI hidrata más
+      // despacio que una máquina de desarrollo.
+      await page.locator("#description").waitFor({ state: "visible" });
+      await fillSticky(page, page.locator("#description"), description);
+      await clickUntil(
+        page,
+        page.locator("button", { hasText: /Continuar|Continue/ }),
+        page.locator("#name")
+      );
+
+      await fillSticky(page, page.locator("#name"), name);
+      await fillSticky(page, page.locator("#phone"), phone);
+      await page.locator('input[name="channel"]').last().check();
+      await page.locator("#consent").setChecked(true);
+
+      await page.evaluate(() => {
+        window.__opened = null;
+        window.open = (u) => { window.__opened = u; return null; };
+      });
+      // La confirmación aparece cuando el enlace ya está compuesto.
+      await clickUntil(
+        page,
+        page.locator("button", { hasText: /Enviar por WhatsApp|Send by WhatsApp/ }),
+        page.locator('[role="status"]')
+      );
+      return {
+        url: await page.evaluate(() => window.__opened),
+        confirmation: await page.locator('[role="status"]').innerText(),
+      };
+    } finally {
+      await ctx.close();
+    }
   };
 
   const first = { name: "María Fernández", phone: "8325550101", description: "Remodelación de cocina con isla" };
-  const url = await sendOne(p, first);
+  const primera = await sendOne(first);
+  const url = primera.url;
   const message = decodeURIComponent((url ?? "").split("?text=")[1] ?? "");
 
   check("Mensaje: lleva proyecto, nombre y teléfono",
@@ -348,7 +427,7 @@ console.log(`--- motor: ${ENGINE} ---`);
     !/foto|photo/i.test(message), message.replace(/\n/g, " | "));
 
   check("Confirmación: invita a adjuntar las fotos en el chat (ES)",
-    /adjúntelas en esa misma conversación/i.test(await p.locator("main").innerText()));
+    /adjúntelas en esa misma conversación/i.test(primera.confirmation));
 
   /*
    * Reparto entre los dos contactos. `lib/assignment.ts` existía y no lo
@@ -367,21 +446,19 @@ console.log(`--- motor: ${ENGINE} ---`);
   ];
   targets.add((url ?? "").match(/wa\.me\/(\d+)/)?.[1]);
   for (const req of lote.slice(1)) {
-    const u = await sendOne(p, req);
+    const { url: u } = await sendOne(req);
     targets.add((u ?? "").match(/wa\.me\/(\d+)/)?.[1]);
   }
   check("Reparto: un lote variado llega a AMBOS contactos", targets.size === 2,
     [...targets].join(" y "));
 
-  const repeat = await sendOne(p, first);
+  const repeat = await sendOne(first);
   check("Reparto: la misma solicitud abre siempre el mismo contacto",
-    repeat?.match(/wa\.me\/(\d+)/)?.[1] === url?.match(/wa\.me\/(\d+)/)?.[1]);
+    repeat.url?.match(/wa\.me\/(\d+)/)?.[1] === url?.match(/wa\.me\/(\d+)/)?.[1]);
 
-  await sendOne(p, { name: "John Smith", phone: "7135550102", description: "Bathroom remodel", locale: "en" });
+  const en = await sendOne({ name: "John Smith", phone: "7135550102", description: "Bathroom remodel", locale: "en" });
   check("Confirmación: invita a adjuntar las fotos en el chat (EN)",
-    /attach them in that same chat/i.test(await p.locator("main").innerText()));
-
-  await ctx.close();
+    /attach them in that same chat/i.test(en.confirmation));
 }
 
 // ─── 6c. Borrador antiguo de tres etapas ────────────────────────────────
