@@ -6,6 +6,7 @@
  * build ni los tipos: se descubre en producción, con un idioma a medias.
  */
 import { readFileSync, existsSync } from "node:fs";
+import { execSync } from "node:child_process";
 import path from "node:path";
 
 const LOCALES = ["es-US", "en-US"];
@@ -61,11 +62,69 @@ for (const loc of [1, 2]) {
   if (dup.length) errors.push(`Slugs duplicados (${LOCALES[loc - 1]}): ${[...new Set(dup)].join(", ")}`);
 }
 
-const photoFiles = [...projectsSrc.matchAll(/file:\s*"([^"]+\.jpe?g)"/g)].map((m) => m[1]);
-for (const f of new Set(photoFiles)) {
-  if (!existsSync(path.join("public", "images", "proyectos", f))) {
-    errors.push(`Foto referenciada que no existe en disco: ${f}`);
+/*
+ * Fotos referenciadas: deben estar VERSIONADAS, no solo presentes en disco.
+ *
+ * Antes esto se comprobaba con `existsSync` y no bastaba. `.gitignore` excluye
+ * 16 de las 29 fotos de `public/images/proyectos/`: dos por privacidad —rostro
+ * de operario sin consentimiento por escrito— y catorce porque la aplicación
+ * no las usa. Esas dos poblaciones no coinciden: en la máquina de quien
+ * desarrolla están las 29, y en el clon que compila Hostinger solo 13.
+ *
+ * Comprobar contra el disco, por tanto, aprueba una referencia a una foto que
+ * NUNCA llegará al servidor. La página compila, el chequeo pasa, y la imagen
+ * sale rota solo en producción. Se compara contra `git ls-files`, que es la
+ * lista real de lo que viaja.
+ */
+const trackedPhotos = (() => {
+  try {
+    return new Set(
+      execSync("git ls-files public/images/proyectos", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+        .split("\n")
+        .filter(Boolean)
+        .map((p) => p.split("/").pop())
+    );
+  } catch {
+    // Sin git (un tarball, un contenedor sin historia) no se puede saber qué
+    // está versionado. Se avisa y se degrada al chequeo anterior en vez de
+    // fallar: un chequeo que no puede ejecutarse no es un error del código.
+    return null;
   }
+})();
+
+/*
+ * De dónde se leen las referencias. `content/projects.ts` es la fuente
+ * principal, pero no la única: el hero de la portada, la cabecera del índice
+ * de proyectos y el generador de tarjetas sociales nombran archivos por su
+ * cuenta, y son justo los que nadie recuerda revisar.
+ */
+const photoRefs = new Set([
+  ...[...projectsSrc.matchAll(/file:\s*"([^"]+\.jpe?g)"/g)].map((m) => m[1]),
+  ...[...readFileSync(path.join("qa", "build-og.mjs"), "utf8").matchAll(/photo:\s*"([^"]+\.jpe?g)"/g)].map((m) => m[1]),
+]);
+
+for (const file of [
+  path.join("components", "home", "HomeHero.tsx"),
+  path.join("app", "[locale]", "projects", "page.tsx"),
+]) {
+  const src = readFileSync(file, "utf8");
+  for (const m of src.matchAll(/images\/proyectos\/([\w-]+\.jpe?g)/g)) photoRefs.add(m[1]);
+}
+
+for (const f of photoRefs) {
+  const onDisk = existsSync(path.join("public", "images", "proyectos", f));
+  if (!onDisk) {
+    errors.push(`Foto referenciada que no existe: ${f}`);
+  } else if (trackedPhotos && !trackedPhotos.has(f)) {
+    errors.push(
+      `Foto referenciada pero NO versionada: ${f} — existe en este disco y no en el repositorio, ` +
+        `así que el build de Hostinger la servirá rota. Revise .gitignore: puede estar excluida a propósito.`
+    );
+  }
+}
+
+if (!trackedPhotos) {
+  warnings.push("Sin `git ls-files`: solo se pudo comprobar que las fotos existen en disco, no que estén versionadas");
 }
 
 // ─── 4. Registro de rutas: pareja por locale ────────────────────────────
@@ -90,7 +149,10 @@ for (const legal of ["/privacy", "/terms"]) {
 console.log("=== CHEQUEO i18n ===");
 console.log(`Locales: ${LOCALES.join(", ")}`);
 console.log(`Claves por idioma: ${keySets[a].size}`);
-console.log(`Proyectos: ${idMatches.length} · fotos referenciadas: ${new Set(photoFiles).size}`);
+console.log(
+  `Proyectos: ${idMatches.length} · fotos referenciadas: ${photoRefs.size}` +
+    (trackedPhotos ? ` · versionadas en el repositorio: ${trackedPhotos.size}` : " · sin comprobar versionado")
+);
 
 if (warnings.length) {
   console.log("\nAvisos:");
