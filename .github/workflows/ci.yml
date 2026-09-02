@@ -26,6 +26,15 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # `npm run typecheck` ejecuta `next typegen` antes de `tsc`. Hace falta:
+      # `PageProps` y `LayoutProps` son tipos GLOBALES que Next genera en
+      # .next/types a partir del árbol de rutas, y en un checkout limpio esa
+      # carpeta no existe todavía. Sin typegen, tsc no encuentra el nombre y
+      # este paso falla con 20 errores TS2304 en archivos que están bien.
+      #
+      # En la máquina de quien desarrolla el fallo NO se ve, porque .next
+      # quedó de un build anterior. Por eso este paso llevaba fallando desde
+      # el 23 de agosto sin que nadie lo notara.
       - name: Comprobar tipos
         run: npm run typecheck
 
