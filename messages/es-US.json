@@ -38,7 +38,7 @@
     "heroImageAlt": "Terraza y piscina en construcción junto a un lago, con cabaña de techo metálico — proyecto real de Andrade Parra Corporation en Houston, TX.",
     "servicesEyebrow": "SERVICIOS",
     "featuredEyebrow": "PROYECTOS DESTACADOS",
-    "featuredHeading": "Trabajos reales. Resultados que duran.",
+    "featuredHeading": "Obras terminadas y obras en curso.",
     "featuredCta": "Ver todos los proyectos",
     "valuesHeading1": "Consulta y evaluación en el lugar",
     "valuesBody1": "Visitamos el espacio, escuchamos sus objetivos y evaluamos el proyecto antes de presentar un número.",
@@ -91,7 +91,7 @@
     },
     "maintenance": {
       "title": "Mantenimiento",
-      "description": "Seguimiento y mantenimiento de las obras entregadas para que duren en el tiempo."
+      "description": "Seguimiento y mantenimiento de las obras que hemos entregado."
     },
     "electrical": {
       "title": "Instalaciones eléctricas",
@@ -119,7 +119,7 @@
     },
     "outdoor": {
       "title": "Espacios exteriores",
-      "description": "Patios, terrazas, cocinas exteriores y piscinas construidas para durar."
+      "description": "Patios, terrazas, cocinas exteriores y piscinas."
     },
     "repairs": {
       "title": "Reparaciones y mejoras",
@@ -136,7 +136,7 @@
     "step4Title": "Revisión",
     "step4Body": "Recorremos la obra con usted y corregimos lo que no esté bien.",
     "step5Title": "Entrega",
-    "step5Body": "Entregamos su proyecto listo para disfrutar.",
+    "step5Body": "Le entregamos el espacio limpio y terminado.",
     "heading": "Cómo trabajamos",
     "intro": "Una secuencia clara desde la primera conversación hasta la revisión final, para que siempre sepa qué sigue."
   },
