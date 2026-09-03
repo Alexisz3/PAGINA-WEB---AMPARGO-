@@ -8,6 +8,7 @@ import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { SITE_URL, INDEXABLE, BRAND, OG_IMAGE } from "@/lib/site";
 import SkipLink from "@/components/SkipLink";
 import Analytics from "@/components/Analytics";
+import MobileContactBar from "@/components/MobileContactBar";
 import "../globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -135,6 +136,14 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={clientMessages}>
           <SkipLink />
           {children}
+          {/*
+            Barra de contacto fija, solo en móvil. Va dentro del proveedor de
+            i18n —es un componente de cliente y traduce sus etiquetas— y
+            DESPUÉS de `children`, para que quede al final del documento: así
+            un lector de pantalla la encuentra tras el contenido y no antes,
+            que es donde estorba.
+          */}
+          <MobileContactBar />
         </NextIntlClientProvider>
         {/* Devuelve null mientras no exista un ID de GA4 configurado. */}
         <Analytics />

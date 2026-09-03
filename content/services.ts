@@ -21,6 +21,21 @@ export interface Service {
   introduction: Record<AppLocale, string>;
   scopeItems: Record<AppLocale, string[]>;
   processSummary: Record<AppLocale, string[]>;
+  /**
+   * Título de buscador. Distinto del `title` de pantalla a propósito.
+   *
+   * En pantalla, dentro de la página de servicios, «Cocinas y baños» basta y
+   * sobra: el contexto lo pone la página. En un resultado de Google no hay
+   * contexto — compite con otros veinte enlaces— y hace falta decir qué es y
+   * dónde: «Remodelación de cocinas y baños en Houston, TX».
+   *
+   * REGLA DE CONTENIDO: aquí tampoco entran licencias, años, garantías ni
+   * superlativos. Un título de buscador es una promesa que se lee antes de
+   * entrar; falsearlo sale más caro que en cualquier otro sitio del sitio.
+   */
+  seoTitle: Record<AppLocale, string>;
+  /** Descripción de buscador, ~155 caracteres. Se corta a partir de ahí. */
+  seoDescription: Record<AppLocale, string>;
   relatedProjectCategories: ProjectCategory[];
   heroImage: string;
   published: boolean;
@@ -73,6 +88,16 @@ export const SERVICES: Service[] = [
         "We review the result with you before handover.",
       ],
     },
+    seoTitle: {
+      "es-US": "Construcción de casas a medida en Houston, TX",
+      "en-US": "Custom Home Construction in Houston, TX",
+    },
+    seoDescription: {
+      "es-US":
+        "Construimos viviendas nuevas en Houston y alrededores, de la planificación a la entrega. Revisamos el terreno y el proyecto antes de definir el alcance.",
+      "en-US":
+        "We build new homes in Houston and nearby areas, from planning through handover. We review the lot and the project before defining scope.",
+    },
     relatedProjectCategories: ["structures", "exteriors"],
     heroImage: "estructura-04.jpeg",
     published: true,
@@ -123,6 +148,16 @@ export const SERVICES: Service[] = [
         "We execute and document the process with photographs.",
         "We review the result with you.",
       ],
+    },
+    seoTitle: {
+      "es-US": "Remodelación de viviendas en Houston, TX",
+      "en-US": "Home Remodeling in Houston, TX",
+    },
+    seoDescription: {
+      "es-US":
+        "Remodelación de casas en Houston y alrededores: interiores, distribución y acabados. Cuéntenos qué quiere cambiar y revisamos el espacio con usted.",
+      "en-US":
+        "Home remodeling in Houston and nearby areas: interiors, layout and finishes. Tell us what you want to change and we'll look at the space with you.",
     },
     relatedProjectCategories: ["kitchens", "bathrooms", "interiors"],
     heroImage: "interior-01.jpeg",
@@ -175,6 +210,16 @@ export const SERVICES: Service[] = [
         "We review the result before calling the job done.",
       ],
     },
+    seoTitle: {
+      "es-US": "Remodelación de cocinas y baños en Houston, TX",
+      "en-US": "Kitchen & Bathroom Remodeling in Houston, TX",
+    },
+    seoDescription: {
+      "es-US":
+        "Cocinas y baños en Houston y alrededores: encimeras, alacenas, azulejo, plomería y acabados. Vemos el espacio antes de dar un número.",
+      "en-US":
+        "Kitchens and bathrooms in Houston and nearby areas: countertops, cabinets, tile, plumbing and finishes. We see the space before giving you a number.",
+    },
     relatedProjectCategories: ["kitchens", "bathrooms"],
     heroImage: "cocina-granito-01.jpeg",
     published: true,
@@ -226,6 +271,16 @@ export const SERVICES: Service[] = [
         "We review the result with you.",
       ],
     },
+    seoTitle: {
+      "es-US": "Patios y espacios exteriores en Houston, TX",
+      "en-US": "Patio & Outdoor Living Construction in Houston, TX",
+    },
+    seoDescription: {
+      "es-US":
+        "Patios, terrazas, cocinas exteriores y piscinas en Houston y alrededores. Estructura, instalaciones y acabados con el mismo equipo.",
+      "en-US":
+        "Patios, decks, outdoor kitchens and pools in Houston and nearby areas. Structure, systems and finishes with the same crew.",
+    },
     relatedProjectCategories: ["exteriors", "structures"],
     heroImage: "exterior-lujo-01.jpeg",
     published: true,
@@ -276,6 +331,16 @@ export const SERVICES: Service[] = [
         "We repair, documenting the initial state and the result.",
         "We review the work with you.",
       ],
+    },
+    seoTitle: {
+      "es-US": "Reparaciones y mejoras del hogar en Houston, TX",
+      "en-US": "Home Repairs & Improvements in Houston, TX",
+    },
+    seoDescription: {
+      "es-US":
+        "Reparaciones puntuales y mejoras en Houston y alrededores: humedades, muros, instalaciones y acabados. Buscamos el origen antes de reparar.",
+      "en-US":
+        "Targeted repairs and improvements in Houston and nearby areas: water damage, walls, systems and finishes. We find the cause before we repair.",
     },
     relatedProjectCategories: ["exteriors", "bathrooms"],
     heroImage: "exterior-jardin-01.jpeg",

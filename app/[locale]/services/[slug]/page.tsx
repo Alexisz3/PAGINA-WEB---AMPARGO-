@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, type Locale } from "next-intl";
+import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing, LOCALE_PREFIXES, type AppLocale } from "@/i18n/routing";
 import { SERVICES, getServiceBySlug } from "@/content/services";
@@ -33,13 +33,23 @@ export async function generateMetadata({
   const service = getServiceBySlug(locale as AppLocale, slug);
   if (!service) return {};
 
-  const t = await getTranslations({ locale: locale as Locale, namespace: "Nav" });
   const path = (l: AppLocale) =>
     `${LOCALE_PREFIXES[l]}${l === "es-US" ? "/servicios/" : "/services/"}${service.slugs[l]}`;
 
+  const loc = locale as AppLocale;
+
   return {
-    title: `${service.title[locale as AppLocale]} | ${t("services")} | ${BRAND.name}`,
-    description: service.shortDescription[locale as AppLocale],
+    /*
+     * En el buscador manda `seoTitle`, no el título de pantalla.
+     *
+     * «Cocinas y baños | Servicios | Andrade Parra Corporation» describe
+     * dónde está la página dentro del sitio, que es información inútil para
+     * quien todavía no ha entrado. Lo que busca esa persona es
+     * «kitchen remodeling houston», y el título tiene que decir eso y la
+     * ciudad. La marca va al final: identifica, no atrae.
+     */
+    title: `${service.seoTitle[loc]} | ${BRAND.name}`,
+    description: service.seoDescription[loc],
     alternates: {
       canonical: path(locale as AppLocale),
       // Recíprocos y por ENTIDAD: cada idioma apunta al slug equivalente,
@@ -48,8 +58,8 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "article",
-      title: service.title[locale as AppLocale],
-      description: service.shortDescription[locale as AppLocale],
+      title: service.seoTitle[loc],
+      description: service.seoDescription[loc],
       url: path(locale as AppLocale),
     },
   };

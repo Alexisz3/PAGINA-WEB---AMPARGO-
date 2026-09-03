@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Andrade Parra Corporation | Remodelación en Houston, TX",
-    "description": "Construcción y remodelación de viviendas y espacios comerciales en Houston, TX. Cocinas, baños, exteriores y obra nueva. Presupuestos sin costo."
+    "title": "Remodelación y construcción en Houston, TX | Andrade Parra Corporation",
+    "description": "Construcción y remodelación de viviendas y espacios comerciales en Houston y alrededores. Cocinas, baños, exteriores y obra nueva. Cotización sin costo."
   },
   "Nav": {
     "home": "Inicio",
@@ -11,6 +11,9 @@
     "about": "Nosotros",
     "contact": "Contacto",
     "quote": "Solicitar cotización",
+    "callShort": "Llamar",
+    "quoteShort": "Cotización",
+    "contactBar": "Contacto rápido",
     "skipToContent": "Saltar al contenido",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
@@ -97,7 +100,9 @@
     "plumbing": {
       "title": "Instalaciones sanitarias",
       "description": "Plomería completa, desde la estructura hasta el acabado final."
-    }
+    },
+    "metaTitle": "Servicios de construcción y remodelación en Houston, TX | Andrade Parra Corporation",
+    "metaDescription": "Obra nueva, remodelación, cocinas y baños, espacios exteriores y reparaciones en Houston y alrededores. Cada proyecto empieza revisando lo que usted necesita."
   },
   "ServiceCards": {
     "custom": {
@@ -171,7 +176,9 @@
     "backToProjects": "Todos los proyectos",
     "beforeLabel": "Antes",
     "afterLabel": "Después",
-    "compareLabel": "Arrastre para comparar el antes y el después"
+    "compareLabel": "Arrastre para comparar el antes y el después",
+    "metaTitle": "Proyectos de remodelación en Houston, TX | Andrade Parra Corporation",
+    "metaDescription": "Obras de construcción y remodelación terminadas y en curso en Houston y alrededores. Cocinas, baños, exteriores y estructuras, con fotografías de cada trabajo."
   },
   "Contact": {
     "eyebrow": "CONTACTO",
