@@ -47,7 +47,7 @@
     "valuesHeading3": "Gestión transparente",
     "valuesBody3": "Comunicación clara y cronogramas realistas de principio a fin.",
     "valuesHeading4": "Orgullosamente Houston",
-    "valuesBody4": "Conocemos la zona, los códigos locales y lo que importa a nuestra comunidad.",
+    "valuesBody4": "Trabajamos en Houston y conocemos cómo se construye aquí.",
     "processEyebrow": "NUESTRO PROCESO",
     "processHeading": "Un proceso claro para resultados exitosos.",
     "ctaBandEyebrow": "HABLEMOS DE SU PROYECTO",
@@ -78,12 +78,12 @@
       "description": "Pisos, paredes, encimeras y detalles finales que definen la calidad de una obra."
     },
     "design": {
-      "title": "Diseño arquitectónico",
-      "description": "Convertimos ideas y planos en un proyecto claro antes de la primera herramienta."
+      "title": "Planos y anteproyecto",
+      "description": "Convertimos ideas y planos en un proyecto claro antes de la primera herramienta. Coordinamos con el arquitecto o ingeniero cuando el proyecto lo requiere."
     },
     "planning": {
       "title": "Planificación de obras",
-      "description": "Organizamos tiempos, materiales y equipo para que su proyecto avance sin sorpresas."
+      "description": "Organizamos tiempos, materiales y equipo, y le avisamos en cuanto algo cambia."
     },
     "commercial": {
       "title": "Construcción comercial",
@@ -134,7 +134,7 @@
     "step3Title": "Construcción",
     "step3Body": "Ejecutamos con precisión y cuidamos cada detalle.",
     "step4Title": "Revisión",
-    "step4Body": "Verificamos calidad y aseguramos su satisfacción.",
+    "step4Body": "Recorremos la obra con usted y corregimos lo que no esté bien.",
     "step5Title": "Entrega",
     "step5Body": "Entregamos su proyecto listo para disfrutar.",
     "heading": "Cómo trabajamos",
@@ -189,10 +189,10 @@
     "addressLabel": "Área de servicio",
     "address": "Houston y alrededores, TX",
     "intro": "Cuéntenos qué tiene en mente y seguimos desde ahí.",
-    "callHelp": "De lunes a sábado",
+    "callHelp": "Llame o escriba cuando le venga bien",
     "whatsappHelp": "Envíe fotos de su espacio",
     "whatsappAction": "Abrir WhatsApp",
-    "serviceAreaHelp": "Trabajamos en toda el área metropolitana de Houston",
+    "serviceAreaHelp": "Nos desplazamos a la obra en Houston y alrededores",
     "preferLabel": "¿Prefiere escribirlo?",
     "preferBody": "Envíenos los detalles por el formulario de cotización y los revisamos antes de llamarle.",
     "officeLabel": "Nuestra oficina",

@@ -36,8 +36,12 @@ no un texto.
 
 ## Prioridad 1 — Afirman algo que el sitio no puede sostener
 
-Estas seis no son solo genéricas: dicen algo concreto que nadie ha verificado.
-Son las que conviene resolver primero, aunque sea retirándolas.
+**Aplicada el 3 de septiembre de 2026.** Las seis propuestas de esta sección ya
+están en `messages/es-US.json` y `messages/en-US.json`. La tabla se conserva
+como registro de qué decía antes y por qué se cambió.
+
+Estas seis no eran solo genéricas: decían algo concreto que nadie había
+verificado.
 
 | Archivo y clave | Texto actual (ES) | Texto actual (EN) | Por qué suena genérico | Propuesta |
 |---|---|---|---|---|

@@ -47,7 +47,7 @@
     "valuesHeading3": "Transparent management",
     "valuesBody3": "Clear communication and realistic timelines from start to finish.",
     "valuesHeading4": "Proudly Houston",
-    "valuesBody4": "We know the area, the local codes, and what matters to our community.",
+    "valuesBody4": "We work in Houston and we know how building goes here.",
     "processEyebrow": "OUR PROCESS",
     "processHeading": "A clear process for successful results.",
     "ctaBandEyebrow": "LET'S TALK ABOUT YOUR PROJECT",
@@ -78,12 +78,12 @@
       "description": "Flooring, walls, countertops, and final details that define the quality of a build."
     },
     "design": {
-      "title": "Architectural design",
-      "description": "We turn ideas and drawings into a clear plan before the first tool touches the site."
+      "title": "Drawings and pre-design",
+      "description": "We turn ideas and drawings into a clear plan before the first tool touches the site. We coordinate with an architect or engineer when the project calls for it."
     },
     "planning": {
       "title": "Project planning",
-      "description": "We organize schedule, materials, and crew so your project moves forward without surprises."
+      "description": "We organize schedule, materials, and crew — and tell you as soon as something changes."
     },
     "commercial": {
       "title": "Commercial construction",
@@ -134,7 +134,7 @@
     "step3Title": "Construction",
     "step3Body": "We execute with precision and care for every detail.",
     "step4Title": "Review",
-    "step4Body": "We verify quality and make sure you're satisfied.",
+    "step4Body": "We walk the job with you and fix what isn't right.",
     "step5Title": "Handoff",
     "step5Body": "We deliver your project ready to enjoy.",
     "heading": "How we work",
@@ -189,10 +189,10 @@
     "addressLabel": "Service area",
     "address": "Houston and surrounding areas, TX",
     "intro": "Tell us what you have in mind and we'll take it from there.",
-    "callHelp": "Monday through Saturday",
+    "callHelp": "Call or message whenever it suits you",
     "whatsappHelp": "Send photos of your space",
     "whatsappAction": "Open WhatsApp",
-    "serviceAreaHelp": "We travel throughout the Houston metro area",
+    "serviceAreaHelp": "We travel to the job site in Houston and nearby areas",
     "preferLabel": "Prefer to write it out?",
     "preferBody": "Send us your project details through the estimate form and we'll review them before we call.",
     "officeLabel": "Our office",
