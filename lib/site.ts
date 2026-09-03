@@ -148,5 +148,11 @@ export const OG_IMAGE = {
   quote: "/og/quote.jpg",
 } as const;
 
-/** Correo empresarial: todavía no definido por el cliente. No inventar uno. */
-export const BUSINESS_EMAIL: string | null = null;
+/**
+ * Correo empresarial.
+ *
+ * `contacto@ampargo.com`, alojado en Zoho Mail (plan gratuito, hasta 5
+ * buzones). Verificado por dominio con registros MX/SPF/DKIM en Cloudflare
+ * el 3 de septiembre de 2026.
+ */
+export const BUSINESS_EMAIL: string | null = "contacto@ampargo.com";

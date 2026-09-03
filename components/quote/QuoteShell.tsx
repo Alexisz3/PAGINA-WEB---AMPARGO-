@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/lib/analytics";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { buildMailtoLink } from "@/lib/email";
 import { pickContactIndex, quoteSeed } from "@/lib/assignment";
 import QuoteStepper, { TOTAL_STEPS } from "./QuoteStepper";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
@@ -97,9 +98,12 @@ function FieldError({ id, message }: { id: string; message?: string }) {
  * Shell del flujo de cotización en 2 etapas: Proyecto y Contacto.
  *
  * IMPORTANTE — alcance honesto: esta es la capa de interfaz. La persistencia
- * real y el canal de correo están DISEÑADOS pero no conectados, porque el
- * cliente aún no ha contratado base de datos ni proveedor de correo. La
- * entrega ocurre por WhatsApp y la confirmación lo dice literalmente.
+ * real (base de datos, fotos archivadas) sigue DISEÑADA pero no conectada,
+ * porque el cliente aún no la ha contratado. El canal de correo, en cambio,
+ * ya está conectado: `contacto@ampargo.com` existe (Zoho Mail) desde el 3 de
+ * septiembre de 2026, y quien elige "Correo" recibe de verdad un `mailto:`,
+ * no WhatsApp por defecto. La entrega, por cualquiera de los dos canales,
+ * sigue sin acuse de recibo — la confirmación lo dice literalmente.
  *
  * Hubo una tercera etapa de subida de fotos y se retiró en la fase 4. Subía
  * archivos que no salían nunca del navegador —`wa.me` solo admite texto— y el
@@ -128,8 +132,13 @@ export default function QuoteShell({
 }) {
   const t = useTranslations("Quote");
   const [step, setStep] = useState(1);
-  /** URL de wa.me ya abierta, para poder reabrirla sin recomponer nada. */
+  /** URL (wa.me o mailto:) ya abierta, para poder reabrirla sin recomponer nada. */
   const [handoffUrl, setHandoffUrl] = useState<string | null>(null);
+  /** Canal que se usó de verdad en el envío. Se fija al enviar, no se lee de
+   *  `draft.channel` en el render: así un cambio de canal después de enviar
+   *  —antes de pulsar «Corregir algo antes»— no desincroniza el texto de
+   *  confirmación del enlace que en realidad quedó abierto. */
+  const [handoffChannel, setHandoffChannel] = useState<Channel | null>(null);
   const [draft, setDraft] = useState<QuoteDraft>({
     service: "", location: "", description: "",
     name: "", phone: "", email: "",
@@ -245,19 +254,26 @@ export default function QuoteShell({
   };
 
   /**
-   * Entrega por WhatsApp.
+   * Entrega por WhatsApp o por correo, según el canal elegido.
    *
-   * `wa.me` NO envía nada: abre la conversación con el texto redactado y es la
-   * persona quien pulsa enviar. Por eso la pantalla siguiente dice que
-   * WhatsApp está abierto, nunca que la solicitud se recibió — afirmarlo sería
+   * Ninguno de los dos ENVÍA nada: `wa.me` abre la conversación y `mailto:`
+   * abre el programa de correo, ambos con el texto ya redactado, y es la
+   * persona quien pulsa enviar. Por eso la pantalla siguiente dice que el
+   * canal está abierto, nunca que la solicitud se recibió — afirmarlo sería
    * mentir sobre algo que el sitio no puede comprobar.
    *
-   * El destinatario NO es siempre el primero de la lista. Lo era, y el efecto
-   * medido fue que el 100 % de las cotizaciones llegaba a un solo contacto
-   * mientras el otro no recibía ninguna, pese a que el reparto determinista ya
-   * estaba escrito en `lib/assignment.ts` y no lo llamaba nadie.
+   * El canal elegido antes SÍ importaba en la validación y en el tracking,
+   * pero no en la entrega: se abría WhatsApp sin importar qué había marcado
+   * el visitante. Quien elegía «Correo» —antes incluso de que existiera
+   * `BUSINESS_EMAIL`— terminaba con WhatsApp igual.
+   *
+   * Para WhatsApp, el destinatario NO es siempre el primero de la lista. Lo
+   * era, y el efecto medido fue que el 100 % de las cotizaciones llegaba a un
+   * solo contacto mientras el otro no recibía ninguna, pese a que el reparto
+   * determinista ya estaba escrito en `lib/assignment.ts` y no lo llamaba
+   * nadie.
    */
-  const submitViaWhatsApp = () => {
+  const submitQuote = () => {
     const e = validateThrough(TOTAL_STEPS);
     setErrors(e);
     if (Object.keys(e).length > 0) {
@@ -265,21 +281,39 @@ export default function QuoteShell({
       return;
     }
 
-    /*
-     * Semilla determinista compuesta por los datos de la propia solicitud:
-     * el mismo formulario abre siempre el mismo contacto, de modo que
-     * reintentar no manda la solicitud a dos teléfonos distintos.
-     */
-    const seed = quoteSeed([draft.name, draft.phone.replace(/\D/g, ""), draft.description]);
-    const target = whatsappTargets[pickContactIndex(seed, whatsappTargets.length)];
-    if (!target) return;
+    const channel: Channel = draft.channel === "email" && businessEmail ? "email" : "whatsapp";
+    const message = buildMessage();
 
-    const url = buildWhatsAppLink(target.phone, buildMessage());
+    let url: string | null;
+    if (channel === "email" && businessEmail) {
+      url = buildMailtoLink(businessEmail, t("msgIntro"), message);
+    } else {
+      /*
+       * Semilla determinista compuesta por los datos de la propia solicitud:
+       * el mismo formulario abre siempre el mismo contacto, de modo que
+       * reintentar no manda la solicitud a dos teléfonos distintos.
+       */
+      const seed = quoteSeed([draft.name, draft.phone.replace(/\D/g, ""), draft.description]);
+      const target = whatsappTargets[pickContactIndex(seed, whatsappTargets.length)];
+      url = target ? buildWhatsAppLink(target.phone, message) : null;
+    }
     if (!url) return;
 
-    track("quote_submitted", { channel: draft.channel ?? "whatsapp", service: draft.service || "none" });
+    track("quote_submitted", { channel, service: draft.service || "none" });
     setHandoffUrl(url);
-    window.open(url, "_blank", "noopener,noreferrer");
+    setHandoffChannel(channel);
+
+    /*
+     * `mailto:` se navega en la misma pestaña: abrirlo con `window.open` deja
+     * una pestaña en blanco huérfana una vez que el programa de correo toma
+     * el control. `wa.me` sí necesita pestaña nueva porque es una página web
+     * real que debe seguir existiendo detrás.
+     */
+    if (channel === "email") {
+      window.location.href = url;
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   const goNext = () => {
@@ -554,6 +588,7 @@ export default function QuoteShell({
                   <DeliveryChannelSelector
                     value={draft.channel}
                     onChange={(c) => update("channel", c)}
+                    emailAvailable={!!businessEmail}
                   />
                   <FieldError id="channel-error" message={errors.channel} />
                 </div>
@@ -583,23 +618,26 @@ export default function QuoteShell({
                 ) : null}
 
                 {/*
-                  Confirmación deliberadamente literal. `wa.me` abre WhatsApp
-                  con el texto redactado; el envío lo hace la persona. Decir
+                  Confirmación deliberadamente literal, para los dos canales.
+                  `wa.me` abre WhatsApp y `mailto:` abre el correo, ambos con
+                  el texto ya redactado; el envío lo hace la persona. Decir
                   "hemos recibido su solicitud" sería afirmar algo que el sitio
                   no puede comprobar, y dejaría a alguien esperando respuesta a
                   un mensaje que nunca llegó a enviar.
 
                   La invitación a adjuntar fotos vive aquí y no en el mensaje:
-                  quien puede adjuntarlas es el visitante, dentro del chat que
-                  acaba de abrirse. El mensaje anterior se las prometía al
-                  contratista y no llegaba ninguna.
+                  quien puede adjuntarlas es el visitante, dentro de la
+                  conversación o el correo que acaba de abrirse. El mensaje
+                  anterior se las prometía al contratista y no llegaba ninguna.
                 */}
                 {handoffUrl ? (
                   <div role="status" className="border-l-2 border-success bg-surface p-4">
                     <p className="font-display text-base font-semibold text-ink">
-                      {t("handoffHeading")}
+                      {handoffChannel === "email" ? t("handoffHeadingEmail") : t("handoffHeadingWhatsapp")}
                     </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{t("handoffBody")}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">
+                      {handoffChannel === "email" ? t("handoffBodyEmail") : t("handoffBodyWhatsapp")}
+                    </p>
                     <p className="mt-2 text-sm leading-relaxed text-muted">{t("handoffPhotos")}</p>
                     <div className="mt-4 flex flex-wrap gap-3">
                       <a
@@ -608,11 +646,14 @@ export default function QuoteShell({
                         rel="noopener noreferrer"
                         className="inline-flex min-h-[44px] items-center border border-ink px-4 text-sm text-ink transition-colors hover:bg-ink hover:text-paper"
                       >
-                        {t("handoffReopen")}
+                        {handoffChannel === "email" ? t("handoffReopenEmail") : t("handoffReopenWhatsapp")}
                       </a>
                       <button
                         type="button"
-                        onClick={() => setHandoffUrl(null)}
+                        onClick={() => {
+                          setHandoffUrl(null);
+                          setHandoffChannel(null);
+                        }}
                         className="inline-flex min-h-[44px] items-center px-2 text-sm text-muted underline-offset-4 hover:text-accent hover:underline"
                       >
                         {t("handoffEdit")}
@@ -622,10 +663,10 @@ export default function QuoteShell({
                 ) : (
                   <button
                     type="button"
-                    onClick={submitViaWhatsApp}
+                    onClick={submitQuote}
                     className="inline-flex min-h-[52px] w-full items-center justify-center bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover"
                   >
-                    {t("sendWhatsapp")}
+                    {draft.channel === "email" && businessEmail ? t("sendEmail") : t("sendWhatsapp")}
                   </button>
                 )}
               </fieldset>
