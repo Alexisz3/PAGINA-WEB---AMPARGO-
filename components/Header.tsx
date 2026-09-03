@@ -47,6 +47,31 @@ export default function Header() {
         }`}
       >
         {/*
+          Velo degradado sobre el hero transparente.
+
+          Sin él, los enlaces caían directamente sobre la fotografía y el
+          contraste medido era de 1,95:1 en "Contacto" y 1,46:1 en el selector
+          de idioma — muy por debajo del 4,5:1 que exige WCAG AA para texto
+          normal. Y no lo detectaba nada: `qa:axe` da cero violaciones porque
+          axe NO evalúa contraste contra una imagen de fondo, lo marca como
+          "incompleto". El fallo estaba a la vista de todos en la portada.
+
+          Por qué un degradado y no un fondo sólido: la cabecera transparente
+          sobre el hero es un invariante de las referencias aprobadas. Un
+          rectángulo opaco lo rompería; un velo que se desvanece hacia abajo
+          mantiene la fotografía visible y el gesto intacto, y solo oscurece la
+          banda donde de verdad hay texto.
+
+          Va detrás del contenido (`-z-10`) y no intercepta el puntero, para no
+          robarle el clic a ningún enlace.
+        */}
+        {solid ? null : (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[180%] bg-gradient-to-b from-carbon/90 via-carbon/70 to-transparent"
+          />
+        )}
+        {/*
           El filete de bandera vive DENTRO de la cabecera fija, no al principio
           del body: fuera de ella se iría con el scroll en la primera pasada y
           no volvería a verse nunca.
@@ -87,7 +112,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex min-h-[44px] items-center px-3 text-sm text-bone/85 transition-colors hover:text-bone"
+                /* Sin `/85`: rebajar la opacidad del texto sobre una foto es
+                   restar contraste justo donde ya faltaba. El matiz de "no
+                   activo" lo da ahora el velo, no un texto más apagado. */
+                className="flex min-h-[44px] items-center px-3 text-sm text-bone transition-colors hover:text-accent-ink"
               >
                 {t(link.key)}
               </Link>
