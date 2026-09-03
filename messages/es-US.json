@@ -40,19 +40,19 @@
     "featuredEyebrow": "PROYECTOS DESTACADOS",
     "featuredHeading": "Trabajos reales. Resultados que duran.",
     "featuredCta": "Ver todos los proyectos",
-    "valuesHeading1": "Enfoque personalizado",
-    "valuesBody1": "Escuchamos sus objetivos y diseñamos soluciones a su medida.",
-    "valuesHeading2": "Calidad en cada detalle",
-    "valuesBody2": "Materiales seleccionados y trabajo ejecutado con altos estándares.",
-    "valuesHeading3": "Gestión transparente",
-    "valuesBody3": "Comunicación clara y cronogramas realistas de principio a fin.",
+    "valuesHeading1": "Consulta y evaluación en el lugar",
+    "valuesBody1": "Visitamos el espacio, escuchamos sus objetivos y evaluamos el proyecto antes de presentar un número.",
+    "valuesHeading2": "El resultado habla por sí solo",
+    "valuesBody2": "Puede verlo en las fotos de cada proyecto — así es como trabajamos.",
+    "valuesHeading3": "Comunicación directa durante todo el proyecto",
+    "valuesBody3": "Le mantenemos informado en cada etapa del proyecto.",
     "valuesHeading4": "Orgullosamente Houston",
     "valuesBody4": "Trabajamos en Houston y conocemos cómo se construye aquí.",
     "processEyebrow": "NUESTRO PROCESO",
-    "processHeading": "Un proceso claro para resultados exitosos.",
+    "processHeading": "Nuestro proceso, en cinco pasos",
     "ctaBandEyebrow": "HABLEMOS DE SU PROYECTO",
-    "ctaBandHeading": "Construyamos algo extraordinario juntos.",
-    "ctaBandBody": "Solicite una cotización sin compromiso y dé el primer paso hacia su nuevo espacio.",
+    "ctaBandHeading": "Hablemos sobre su proyecto",
+    "ctaBandBody": "Solicite una cotización sin compromiso y le contactaremos con los próximos pasos.",
     "servicesIntro": "Construcción, remodelación y mantenimiento en Houston. Cada proyecto empieza revisando lo que usted necesita.",
     "serviceCtaHeading": "¿Tiene un proyecto así?",
     "serviceCtaBody": "Cuéntenos qué necesita y revisamos su caso. La cotización llega ya con este servicio seleccionado.",
@@ -61,7 +61,7 @@
     "trustFreeEstimates": "Presupuestos sin costo",
     "trustBilingual": "Atención en inglés y español",
     "valuesEyebrow": "POR QUÉ ANDRADE PARRA",
-    "valuesSectionHeading": "Por qué los propietarios eligen Andrade Parra Corporation",
+    "valuesSectionHeading": "Cómo trabajamos",
     "heroHeadlineSuffix": "CORPORATION"
   },
   "Services": {
@@ -87,7 +87,7 @@
     },
     "commercial": {
       "title": "Construcción comercial",
-      "description": "Levantamos y adecuamos espacios comerciales con los mismos estándares de calidad."
+      "description": "Levantamos y adecuamos locales comerciales: obra, instalaciones y acabados."
     },
     "maintenance": {
       "title": "Mantenimiento",
@@ -143,7 +143,7 @@
   "Projects": {
     "eyebrow": "PROYECTOS",
     "heading": "Trabajo real. Proceso visible.",
-    "intro": "Explore una selección de proyectos de construcción y remodelación en Houston. Cada uno refleja nuestro compromiso con la calidad, la funcionalidad y la atención al detalle.",
+    "intro": "Proyectos de construcción y remodelación en Houston.",
     "filterAll": "Todos",
     "filterKitchens": "Cocinas",
     "filterBathrooms": "Baños",
@@ -153,7 +153,6 @@
     "statusCompleted": "Completado",
     "statusInProgress": "En proceso",
     "viewProject": "Ver proyecto",
-    "resultsNote": "Mostrando trabajos reales de nuestro portafolio.",
     "openLightbox": "Ver la fotografía ampliada",
     "closeLightbox": "Cerrar",
     "previous": "Proyecto anterior",
@@ -281,11 +280,11 @@
   },
   "About": {
     "eyebrow": "NOSOTROS",
-    "heading": "Construido en torno a su visión",
+    "heading": "Dos apellidos, una manera de trabajar",
     "storyHeading": "Nuestra historia",
     "teamHeading": "Las personas detrás de Andrade Parra Corporation",
     "valuesHeading": "Cómo trabajamos",
-    "ctaHeading": "Construyamos algo bueno juntos",
+    "ctaHeading": "Conversemos sobre su proyecto",
     "metaDescription": "Quiénes somos, cómo trabajamos y los criterios detrás de cada obra de Andrade Parra Corporation en Houston, TX."
   }
 }
