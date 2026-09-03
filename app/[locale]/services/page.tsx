@@ -10,7 +10,6 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import CtaBand from "@/components/CtaBand";
 import ArrowRight from "@/components/icons/ArrowRight";
-import { BRAND } from "@/lib/site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -20,14 +19,14 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/services
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
-  const t = await getTranslations({ locale: locale as Locale, namespace: "Nav" });
-  const th = await getTranslations({ locale: locale as Locale, namespace: "Home" });
+  const ts = await getTranslations({ locale: locale as Locale, namespace: "Services" });
   const prefix = LOCALE_PREFIXES[locale as AppLocale];
   const path = locale === "es-US" ? "/servicios" : "/services";
 
   return {
-    title: `${t("services")} | ${BRAND.name}`,
-    description: th("servicesIntro"),
+    /* Título de buscador, no de pantalla. Ver content/services.ts, `seoTitle`. */
+    title: ts("metaTitle"),
+    description: ts("metaDescription"),
     alternates: {
       canonical: `${prefix}${path}`,
       languages: { "es-US": "/es/servicios", "en-US": "/en/services" },

@@ -1,7 +1,7 @@
 {
   "Metadata": {
-    "title": "Andrade Parra Corporation | General Remodeling in Houston, TX",
-    "description": "Construction and remodeling for homes and commercial spaces in Houston, TX. Kitchens, bathrooms, outdoor living and custom builds. Free estimates."
+    "title": "Home Remodeling & Construction in Houston, TX | Andrade Parra Corporation",
+    "description": "Construction and remodeling for homes and commercial spaces in Houston and nearby areas. Kitchens, bathrooms, outdoor living and custom builds. Free estimates."
   },
   "Nav": {
     "home": "Home",
@@ -11,6 +11,9 @@
     "about": "About",
     "contact": "Contact",
     "quote": "Request a quote",
+    "callShort": "Call",
+    "quoteShort": "Estimate",
+    "contactBar": "Quick contact",
     "skipToContent": "Skip to content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -97,7 +100,9 @@
     "plumbing": {
       "title": "Plumbing",
       "description": "Complete plumbing work, from rough-in to final fixtures."
-    }
+    },
+    "metaTitle": "Construction & Remodeling Services in Houston, TX | Andrade Parra Corporation",
+    "metaDescription": "New builds, remodeling, kitchens and baths, outdoor spaces and repairs in Houston and nearby areas. Every project starts by reviewing what you need."
   },
   "ServiceCards": {
     "custom": {
@@ -171,7 +176,9 @@
     "backToProjects": "All projects",
     "beforeLabel": "Before",
     "afterLabel": "After",
-    "compareLabel": "Drag to compare before and after"
+    "compareLabel": "Drag to compare before and after",
+    "metaTitle": "Remodeling Projects in Houston, TX | Andrade Parra Corporation",
+    "metaDescription": "Finished and in-progress construction and remodeling work in Houston and nearby areas. Kitchens, bathrooms, outdoor spaces and structures, with photos of each job."
   },
   "Contact": {
     "eyebrow": "CONTACT",
