@@ -46,7 +46,7 @@
     "valuesBody2": "See it in the photos from each project — that's how we work.",
     "valuesHeading3": "Direct communication throughout the project",
     "valuesBody3": "We keep you informed at every stage of the project.",
-    "valuesHeading4": "Proudly Houston",
+    "valuesHeading4": "Houston-based",
     "valuesBody4": "We work in Houston and we know how building goes here.",
     "processEyebrow": "OUR PROCESS",
     "processHeading": "Our process, in five steps",
@@ -115,7 +115,7 @@
     },
     "kitchensBaths": {
       "title": "Kitchens & baths",
-      "description": "Design and renovation with quality finishes and function."
+      "description": "Full kitchen and bath renovations, down to the finishes."
     },
     "outdoor": {
       "title": "Outdoor spaces",
@@ -132,7 +132,7 @@
     "step2Title": "Planning",
     "step2Body": "We define scope, materials, and schedule.",
     "step3Title": "Construction",
-    "step3Body": "We execute with precision and care for every detail.",
+    "step3Body": "We do the work, and keep you posted along the way.",
     "step4Title": "Review",
     "step4Body": "We walk the job with you and fix what isn't right.",
     "step5Title": "Handoff",
@@ -142,7 +142,7 @@
   },
   "Projects": {
     "eyebrow": "PROJECTS",
-    "heading": "Real work. Visible process.",
+    "heading": "Real work. You see how it's done.",
     "intro": "Construction and remodeling projects in Houston.",
     "filterAll": "All",
     "filterKitchens": "Kitchens",
@@ -285,6 +285,6 @@
     "teamHeading": "The people behind Andrade Parra Corporation",
     "valuesHeading": "How we work",
     "ctaHeading": "Want to talk about your project?",
-    "metaDescription": "Who we are, how we work and the standards behind every Andrade Parra Corporation project in Houston, TX."
+    "metaDescription": "Who we are and how we work, on every Andrade Parra Corporation project in Houston, TX."
   }
 }
