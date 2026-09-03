@@ -89,9 +89,14 @@ completo de ambos idiomas. No se usaba en ningún componente.
 
 ## Prioridad 3 — Durabilidad afirmada sin respaldo
 
-Van juntas porque comparten el mismo problema: prometen que la obra durará.
-Sin garantía escrita, «para durar» es una afirmación que la empresa no puede
-sostener si algo falla.
+**Aplicada el 3 de septiembre de 2026**, tal como estaba propuesta. El
+periodo de seguimiento de `Services.maintenance.description` queda sin
+confirmar — depende de la misma respuesta del cliente que el punto de
+reparaciones (Prioridad 2, fila 10).
+
+Van juntas porque comparten el mismo problema: prometían que la obra
+duraría. Sin garantía escrita, «para durar» es una afirmación que la empresa
+no puede sostener si algo falla.
 
 | Archivo y clave | Texto actual (ES) | Texto actual (EN) | Por qué suena genérico | Propuesta |
 |---|---|---|---|---|

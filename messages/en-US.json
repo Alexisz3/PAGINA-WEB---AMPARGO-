@@ -38,7 +38,7 @@
     "heroImageAlt": "Patio and pool under construction next to a lake, with a metal-roof pavilion — a real Andrade Parra Corporation project in Houston, TX.",
     "servicesEyebrow": "SERVICES",
     "featuredEyebrow": "FEATURED PROJECTS",
-    "featuredHeading": "Real work. Results that last.",
+    "featuredHeading": "Finished jobs and jobs in progress.",
     "featuredCta": "View all projects",
     "valuesHeading1": "On-site consultation and assessment",
     "valuesBody1": "We visit the space, listen to your goals, and assess the project before presenting a number.",
@@ -91,7 +91,7 @@
     },
     "maintenance": {
       "title": "Maintenance",
-      "description": "We follow up and maintain completed work so it holds up over time."
+      "description": "Follow-up and maintenance on work we've delivered."
     },
     "electrical": {
       "title": "Electrical work",
@@ -119,7 +119,7 @@
     },
     "outdoor": {
       "title": "Outdoor spaces",
-      "description": "Patios, decks, outdoor kitchens, and pools built to last."
+      "description": "Patios, decks, outdoor kitchens, and pools."
     },
     "repairs": {
       "title": "Repairs & upgrades",
@@ -136,7 +136,7 @@
     "step4Title": "Review",
     "step4Body": "We walk the job with you and fix what isn't right.",
     "step5Title": "Handoff",
-    "step5Body": "We deliver your project ready to enjoy.",
+    "step5Body": "We hand over the space clean and finished.",
     "heading": "How we work",
     "intro": "A clear sequence from first conversation to final walkthrough, so you always know what comes next."
   },
