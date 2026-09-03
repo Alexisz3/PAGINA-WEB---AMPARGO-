@@ -426,8 +426,14 @@ console.log(`--- motor: ${ENGINE} ---`);
   check("Mensaje: NO promete fotos que no viajan",
     !/foto|photo/i.test(message), message.replace(/\n/g, " | "));
 
-  check("Confirmación: invita a adjuntar las fotos en el chat (ES)",
-    /adjúntelas en esa misma conversación/i.test(primera.confirmation));
+  /*
+   * El texto es genérico a propósito desde que existen dos canales de
+   * entrega (WhatsApp y correo): "este mismo mensaje" sirve para una
+   * conversación de WhatsApp y para un correo por igual, sin mencionar
+   * ninguno de los dos por nombre. Ver lib/email.ts y QuoteShell.tsx.
+   */
+  check("Confirmación: invita a adjuntar las fotos en el mensaje (ES)",
+    /adjúntelas a este mismo mensaje/i.test(primera.confirmation));
 
   /*
    * Reparto entre los dos contactos. `lib/assignment.ts` existía y no lo
@@ -457,8 +463,56 @@ console.log(`--- motor: ${ENGINE} ---`);
     repeat.url?.match(/wa\.me\/(\d+)/)?.[1] === url?.match(/wa\.me\/(\d+)/)?.[1]);
 
   const en = await sendOne({ name: "John Smith", phone: "7135550102", description: "Bathroom remodel", locale: "en" });
-  check("Confirmación: invita a adjuntar las fotos en el chat (EN)",
-    /attach them in that same chat/i.test(en.confirmation));
+  check("Confirmación: invita a adjuntar las fotos en el mensaje (EN)",
+    /attach them to this same message/i.test(en.confirmation));
+
+  /*
+   * Canal de correo. Existía la opción, el visitante podía elegirla, y se le
+   * abría WhatsApp igual — el canal solo se usaba para validar y para
+   * tracking, nunca para la entrega real. Se prueba de punta a punta, como
+   * el reparto de arriba, porque el defecto estaba en el cable, no en una
+   * función aislada.
+   *
+   * `mailto:` no pasa por `window.open` —se navega con `window.location.href`
+   * para no dejar una pestaña en blanco huérfana—, así que aquí no se
+   * intercepta `window.open` como en `sendOne`: se lee directamente el
+   * `href` del enlace "abrir de nuevo" que la propia confirmación deja en el
+   * DOM.
+   */
+  const ctxEmail = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const pageEmail = await ctxEmail.newPage();
+  try {
+    await pageEmail.goto(`${URL}/es/cotizacion`, { waitUntil: "domcontentloaded" });
+    await pageEmail.locator("#description").waitFor({ state: "visible" });
+    await fillSticky(pageEmail, pageEmail.locator("#description"), "Prueba de canal de correo");
+    await clickUntil(
+      pageEmail,
+      pageEmail.locator("button", { hasText: /Continuar|Continue/ }),
+      pageEmail.locator("#name")
+    );
+    await fillSticky(pageEmail, pageEmail.locator("#name"), "Prueba Correo");
+    await fillSticky(pageEmail, pageEmail.locator("#phone"), "8325550199");
+    await pageEmail.locator('input[name="channel"]').first().check(); // "email" es la primera opción
+    await pageEmail.locator("#consent").setChecked(true);
+
+    const sendButton = pageEmail.locator("button", { hasText: /Enviar por correo|Send by email/ });
+    check("Botón de envío dice \"correo\" cuando el canal elegido es correo",
+      await sendButton.count() === 1);
+
+    await clickUntil(pageEmail, sendButton, pageEmail.locator('[role="status"]'));
+
+    const mailtoHref = await pageEmail.locator('[role="status"] a').getAttribute("href");
+    check("Correo: el enlace es un mailto: al buzón correcto",
+      mailtoHref?.startsWith("mailto:contacto@ampargo.com?") ?? false, mailtoHref ?? "(sin enlace)");
+    check("Correo: el asunto y el cuerpo van codificados, no en blanco",
+      /subject=\S+&body=\S+/.test(mailtoHref ?? ""));
+
+    const statusText = await pageEmail.locator('[role="status"]').innerText();
+    check("Correo: la confirmación es la de correo, no la de WhatsApp",
+      /correo/i.test(statusText) && !/WhatsApp/i.test(statusText), statusText.replace(/\n/g, " | "));
+  } finally {
+    await ctxEmail.close();
+  }
 }
 
 // ─── 6c. Borrador antiguo de tres etapas ────────────────────────────────
