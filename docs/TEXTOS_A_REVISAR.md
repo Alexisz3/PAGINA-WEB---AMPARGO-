@@ -109,9 +109,13 @@ no puede sostener si algo falla.
 
 ## Prioridad 4 — El inglés suena a traducción
 
+**Aplicada el 3 de septiembre de 2026.** Una propuesta se ajustó al aplicar
+(`Process.step3Body`, gramática más natural que la fila original) — el resto,
+tal como estaba.
+
 El inglés es el idioma mayoritario de Houston y es probablemente el que más
-visitas reciba. Estas frases son correctas pero se leen como versión de otra
-cosa, no como original.
+visitas reciba. Estas frases eran correctas pero se leían como versión de
+otra cosa, no como original.
 
 | Archivo y clave | Texto actual (ES) | Texto actual (EN) | Por qué suena a traducción | Propuesta (solo EN) |
 |---|---|---|---|---|
