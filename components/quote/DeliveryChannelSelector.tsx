@@ -15,13 +15,19 @@ export type Channel = "email" | "whatsapp";
 export default function DeliveryChannelSelector({
   value,
   onChange,
+  emailAvailable,
 }: {
   value: Channel | null;
   onChange: (c: Channel) => void;
+  /** Falso cuando `BUSINESS_EMAIL` es `null`: sin correo empresarial, el
+   *  canal de correo no puede entregar nada y se deshabilita en vez de
+   *  ofrecer una opción rota. Mismo criterio que `emailUnavailable` en
+   *  `QuoteShell`. */
+  emailAvailable: boolean;
 }) {
   const t = useTranslations("Quote");
-  const options: { id: Channel; label: string }[] = [
-    { id: "email", label: t("channelEmail") },
+  const options: { id: Channel; label: string; disabled?: boolean }[] = [
+    { id: "email", label: t("channelEmail"), disabled: !emailAvailable },
     { id: "whatsapp", label: t("channelWhatsapp") },
   ];
 
@@ -35,8 +41,10 @@ export default function DeliveryChannelSelector({
           return (
             <label
               key={opt.id}
-              className={`flex min-h-[56px] cursor-pointer items-center justify-between gap-3 border px-4 transition-colors ${
-                checked ? "border-accent bg-surface" : "border-line hover:border-ink"
+              className={`flex min-h-[56px] items-center justify-between gap-3 border px-4 transition-colors ${
+                opt.disabled
+                  ? "cursor-not-allowed border-line opacity-50"
+                  : "cursor-pointer " + (checked ? "border-accent bg-surface" : "border-line hover:border-ink")
               }`}
             >
               <span className="flex items-center gap-3 text-sm text-ink">
@@ -47,6 +55,7 @@ export default function DeliveryChannelSelector({
                   name="channel"
                   value={opt.id}
                   checked={checked}
+                  disabled={opt.disabled}
                   onChange={() => onChange(opt.id)}
                   className="h-5 w-5 accent-accent"
                 />
