@@ -40,19 +40,19 @@
     "featuredEyebrow": "FEATURED PROJECTS",
     "featuredHeading": "Real work. Results that last.",
     "featuredCta": "View all projects",
-    "valuesHeading1": "A personalized approach",
-    "valuesBody1": "We listen to your goals and design solutions built around you.",
-    "valuesHeading2": "Quality in every detail",
-    "valuesBody2": "Selected materials and work carried out to a high standard.",
-    "valuesHeading3": "Transparent management",
-    "valuesBody3": "Clear communication and realistic timelines from start to finish.",
+    "valuesHeading1": "On-site consultation and assessment",
+    "valuesBody1": "We visit the space, listen to your goals, and assess the project before presenting a number.",
+    "valuesHeading2": "The results speak for themselves",
+    "valuesBody2": "See it in the photos from each project — that's how we work.",
+    "valuesHeading3": "Direct communication throughout the project",
+    "valuesBody3": "We keep you informed at every stage of the project.",
     "valuesHeading4": "Proudly Houston",
     "valuesBody4": "We work in Houston and we know how building goes here.",
     "processEyebrow": "OUR PROCESS",
-    "processHeading": "A clear process for successful results.",
+    "processHeading": "Our process, in five steps",
     "ctaBandEyebrow": "LET'S TALK ABOUT YOUR PROJECT",
-    "ctaBandHeading": "Let's build something extraordinary together.",
-    "ctaBandBody": "Request a no-obligation quote and take the first step toward your new space.",
+    "ctaBandHeading": "Let's talk about your project",
+    "ctaBandBody": "Request a no-obligation quote and we'll follow up with next steps.",
     "servicesIntro": "Construction, remodeling, and maintenance in Houston. Every project starts by reviewing what you need.",
     "serviceCtaHeading": "Have a project like this?",
     "serviceCtaBody": "Tell us what you need and we'll review your case. The quote form opens with this service already selected.",
@@ -61,7 +61,7 @@
     "trustFreeEstimates": "Free estimates",
     "trustBilingual": "English & Spanish",
     "valuesEyebrow": "WHY ANDRADE PARRA",
-    "valuesSectionHeading": "Why homeowners choose Andrade Parra Corporation",
+    "valuesSectionHeading": "How we work",
     "heroHeadlineSuffix": "CORPORATION"
   },
   "Services": {
@@ -87,7 +87,7 @@
     },
     "commercial": {
       "title": "Commercial construction",
-      "description": "We build and fit out commercial spaces to the same quality standards."
+      "description": "We build and fit out commercial spaces: structure, systems, and finishes."
     },
     "maintenance": {
       "title": "Maintenance",
@@ -143,7 +143,7 @@
   "Projects": {
     "eyebrow": "PROJECTS",
     "heading": "Real work. Visible process.",
-    "intro": "Explore a selection of construction and remodeling projects in Houston. Each one reflects our commitment to quality, function, and attention to detail.",
+    "intro": "Construction and remodeling projects in Houston.",
     "filterAll": "All",
     "filterKitchens": "Kitchens",
     "filterBathrooms": "Bathrooms",
@@ -153,7 +153,6 @@
     "statusCompleted": "Completed",
     "statusInProgress": "In progress",
     "viewProject": "View project",
-    "resultsNote": "Showing real work from our portfolio.",
     "openLightbox": "View the photo enlarged",
     "closeLightbox": "Close",
     "previous": "Previous project",
@@ -281,11 +280,11 @@
   },
   "About": {
     "eyebrow": "ABOUT",
-    "heading": "Built around your vision",
+    "heading": "Two names, one way of working",
     "storyHeading": "Our story",
     "teamHeading": "The people behind Andrade Parra Corporation",
     "valuesHeading": "How we work",
-    "ctaHeading": "Let's build something great together",
+    "ctaHeading": "Want to talk about your project?",
     "metaDescription": "Who we are, how we work and the standards behind every Andrade Parra Corporation project in Houston, TX."
   }
 }

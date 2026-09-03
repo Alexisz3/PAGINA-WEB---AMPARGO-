@@ -56,6 +56,20 @@ verificado.
 
 ## Prioridad 2 — Intercambiables: describen a cualquier constructora
 
+**Aplicada el 3 de septiembre de 2026**, con una ronda de revisión sobre las
+propuestas originales: se pidió un registro más profesional (menos coloquial,
+sin nombrar detalles técnicos como "juntas" o "cantos") y menos especificidad
+no verificable en el punto de comunicación. El texto final quedó grabado en
+`messages/es-US.json` y `messages/en-US.json`; la tabla conserva las
+propuestas originales como referencia, no como lo que se aplicó.
+
+**Excepción: `ServiceCards.repairs.description` (fila de reparaciones) queda
+pendiente.** Depende de la respuesta del cliente sobre qué reparaciones acepta
+de verdad — ver la lista de requerimientos enviada.
+
+`Projects.resultsNote` no solo se reescribió: se eliminó la clave por
+completo de ambos idiomas. No se usaba en ningún componente.
+
 | Archivo y clave | Texto actual (ES) | Texto actual (EN) | Por qué suena genérico | Propuesta |
 |---|---|---|---|---|
 | `messages/*.json` · `Home.valuesHeading1` + `valuesBody1` | Enfoque personalizado — Escuchamos sus objetivos y diseñamos soluciones a su medida. | A personalized approach — We listen to your goals and design solutions built around you. | «Soluciones a su medida» es la frase más intercambiable del sitio. Cabe idéntica en la web de cualquier gremio. | ES: `Empezamos preguntando — Antes de dar un número, vemos el espacio y entendemos qué quiere cambiar.` · EN: `We start by asking — Before we give you a number, we look at the space and understand what you want to change.` |
