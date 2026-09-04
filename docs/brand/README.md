@@ -94,10 +94,10 @@ Tres decisiones que no son arbitrarias:
    versión maciza —allí era `y = 40`— traducida a ejes.
 
 El travesaño se dibuja **antes** que la A, de modo que la riostra pasa por
-encima: la diagonal queda continua y el rojo se ve solo en el vano, que es
+encima: la diagonal queda continua y el naranja se ve solo en el vano, que es
 donde el tirante realmente trabaja. Su extremo derecho muere en el borde
 izquierdo del montante en vez de cruzarlo; metido dentro, dejaría una mancha
-roja en medio del azul.
+de color en medio del azul.
 
 #### El tamaño favicon manda
 
@@ -138,10 +138,17 @@ el `<title>` de cada página.
 
 ## Paleta
 
+**Fase 5 (septiembre de 2026):** el acento pasa de rojo ladrillo a naranja.
+Es un cambio de identidad, no un retoque — se actualizó a la vez en el
+sistema de diseño (`app/globals.css`), el generador del logotipo
+(`qa/build-brand.mjs`) y este documento, para que ninguno quede desfasado
+respecto a los otros dos.
+
 | Uso | Nombre | HEX | RGB | CMYK aprox. |
 |---|---|---|---|---|
 | Principal | Azul marino | `#1B2A4A` | 27, 42, 74 | 89 / 74 / 34 / 21 |
-| Acento | Rojo ladrillo | `#B8452F` | 184, 69, 47 | 20 / 84 / 91 / 9 |
+| Acento (fondo sólido) | Naranja quemado | `#BD4109` | 189, 65, 9 | 0 / 66 / 95 / 26 |
+| Acento vivo (texto sobre oscuro) | Naranja | `#F0692A` | 240, 105, 42 | 0 / 56 / 83 / 6 |
 | Fondo claro | Marfil cálido | `#F2EFE8` | 242, 239, 232 | 4 / 4 / 8 / 0 |
 | Neutro | Gris acero | `#5A6472` | 90, 100, 114 | 65 / 52 / 40 / 12 |
 | Fondo oscuro | Carbón | `#121412` | 18, 20, 18 | 74 / 66 / 70 / 84 |
@@ -149,19 +156,35 @@ el `<title>` de cada página.
 Los valores CMYK son **aproximaciones para orientar a imprenta**, no perfiles
 calibrados. Antes de tirar papelería, pida una prueba de color impresa.
 
-**Máximo dos colores principales y un neutro por pieza.** El rojo es acento:
-si ocupa más superficie que el azul, la pieza está mal.
+**Máximo dos colores principales y un neutro por pieza.** El naranja es
+acento: si ocupa más superficie que el azul, la pieza está mal.
+
+**Dos tonos de naranja, no uno, y no son intercambiables.** El acento sólido
+(`#BD4109`) es para fondos de botón con texto claro encima — es demasiado
+oscuro para leerse bien como texto sobre fondo oscuro. El acento vivo
+(`#F0692A`) es para texto de marca sobre superficies oscuras — cifras,
+eyebrows, el travesaño del logotipo — y es demasiado claro para dar
+contraste suficiente como fondo de botón. Usar el vivo como fondo o el
+sólido como texto sobre oscuro es el error más fácil de cometer con esta
+paleta.
 
 ### Contrastes medidos
 
+Valores calculados por fórmula WCAG (luminancia relativa sRGB), no
+estimados a ojo — mismo criterio que exige `app/globals.css`.
+
 | Combinación | Ratio | Uso |
 |---|---|---|
-| Azul marino sobre marfil | 12,4 : 1 | Texto y logotipo |
-| Rojo ladrillo sobre marfil | 4,7 : 1 | Acento, texto normal |
-| Rojo ladrillo sobre carbón | 4,6 : 1 | Acento sobre oscuro |
-| Marfil sobre azul marino | 12,4 : 1 | Logotipo invertido |
+| Azul marino sobre marfil | 12,38 : 1 | Texto y logotipo |
+| Naranja sólido sobre marfil | 4,66 : 1 | Acento, texto normal sobre fondo claro |
+| Naranja vivo sobre carbón | 5,96 : 1 | Acento, texto normal sobre fondo oscuro |
+| Marfil/bone sobre naranja sólido | 4,95 : 1 | Texto claro en botón de fondo naranja |
+| Marfil sobre azul marino | 12,38 : 1 | Logotipo invertido |
 
-**Nunca** rojo ladrillo sobre azul marino: 2,7 : 1, ilegible.
+**Nunca** naranja sólido sobre azul marino: 2,66 : 1, ilegible. El naranja
+vivo sobre azul marino sí pasa (4,58 : 1), pero esa combinación no se usa
+en ningún lugar del sitio — no la introduzca sin volver a medir el contexto
+real donde aparecería.
 
 ---
 

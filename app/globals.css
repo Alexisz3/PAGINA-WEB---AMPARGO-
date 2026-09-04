@@ -17,17 +17,26 @@
   --color-muted: #626963;
   --color-line: rgb(24 26 24 / 16%);
   --color-bone: #f8f6f0;
-  --color-accent: #b8452f;
-  --color-accent-hover: #9d3826;
+  --color-accent: #bd4109;
+  --color-accent-hover: #a13708;
   --color-success: #2f6b50;
   --color-error: #a83232;
 
   /*
-   * accent (#B8452F) sobre paper = 4.65:1 -> vale como texto normal.
-   * accent sobre carbon = 3.46:1 -> NO vale como texto (falla 4.5:1).
-   * accent-ink es la variante segura para texto sobre superficies oscuras.
+   * Fase 5 — rebranding de color (rojo ladrillo #B8452F → naranja).
+   * Valores medidos, no estimados a ojo contra el mockup de referencia:
+   *
+   * accent (#BD4109) sobre paper       = 4.66:1 -> vale como texto normal.
+   * accent (#BD4109) sobre carbon      = 3.61:1 -> NO vale como texto.
+   * bone sobre accent (fondo de botón) = 4.95:1 -> vale, texto claro en botón sólido.
+   * accent-ink sobre carbon            = 5.96:1 -> vale como texto normal.
+   *
+   * accent-ink es la variante viva para texto de acento sobre superficies
+   * oscuras (eyebrows, cifras, subrayados); accent es el tono profundo para
+   * fondos de botón sólido — el mismo naranja no puede cumplir los dos
+   * roles con fondo oscuro persistente, igual que antes con el rojo ladrillo.
    */
-  --color-accent-ink: #d9764f;
+  --color-accent-ink: #f0692a;
 
   --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --font-body: var(--font-plex-sans), "IBM Plex Sans", sans-serif;

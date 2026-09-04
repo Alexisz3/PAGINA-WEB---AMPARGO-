@@ -115,13 +115,21 @@ console.log(`--- motor: ${ENGINE} ---`);
    * `waitForTimeout` la prueba era inestable en WebKit, que hidrata más
    * despacio: el clic llegaba antes de que el manejador estuviera montado.
    */
-  const switchLocale = async (from, expected) => {
+  /*
+   * Fase 5: el selector pasó de dos botones ES|EN en línea (`role="group"`)
+   * a un disparador + desplegable (`aria-haspopup="listbox"` +
+   * `role="option"`). Hay que abrirlo antes de poder elegir una opción.
+   */
+  const switchLocale = async (from, expected, optionLabel = "inglés") => {
     await p.goto(URL + from, { waitUntil: "domcontentloaded" });
-    const toggle = p.locator('[role="group"] button', { hasText: "EN" });
-    await toggle.waitFor({ state: "visible" });
+    const trigger = p.locator('button[aria-haspopup="listbox"]');
+    await trigger.waitFor({ state: "visible" });
     // Enabled + un frame de margen asegura que React ya asoció el onClick.
     await p.waitForFunction(() => document.readyState === "complete");
-    await toggle.click();
+    await trigger.click();
+    const option = p.locator('[role="option"]', { hasText: optionLabel });
+    await option.waitFor({ state: "visible" });
+    await option.click();
     try {
       await p.waitForURL((u) => u.pathname.endsWith(expected), { timeout: 10000 });
     } catch {
@@ -643,20 +651,37 @@ console.log(`--- motor: ${ENGINE} ---`);
    * no hace nada. En vez de subir un sleep a ciegas, se reintenta el clic
    * hasta que surta efecto. Es determinista y se detiene solo.
    */
+  /*
+   * Fase 5: el disparador sigue mostrando el código (ES/EN), pero la opción
+   * dentro del desplegable muestra el nombre del IDIOMA DESTINO traducido al
+   * idioma ACTUAL de la página, no siempre en español — en `/en/...` el
+   * desplegable dice "Spanish"/"English", no "español"/"inglés". El primer
+   * intento fallaba justo en el sentido EN→ES porque buscaba "español" en
+   * una página que en ese momento decía "Spanish".
+   */
+  const OPTION_LABEL = {
+    "es-US": { EN: "inglés", ES: "español" },
+    "en-US": { EN: "English", ES: "Spanish" },
+  };
+
   const switchAndGet = async (from, to, attempts = 5) => {
     await p.goto(URL + from, { waitUntil: "domcontentloaded" });
     // `URL` está sombreado por la constante de arriba: se usa el global.
     const startPath = new globalThis.URL(URL + from).pathname;
-    const btn = p.locator('[role="group"] button', { hasText: to });
-    await btn.waitFor({ state: "visible" });
+    const currentLocale = from.startsWith("/en") ? "en-US" : "es-US";
+    const trigger = p.locator('button[aria-haspopup="listbox"]');
+    await trigger.waitFor({ state: "visible" });
 
     for (let i = 0; i < attempts; i++) {
-      await btn.click().catch(() => {});
+      await trigger.click().catch(() => {});
       try {
+        const option = p.locator('[role="option"]', { hasText: OPTION_LABEL[currentLocale][to] });
+        await option.click({ timeout: 800 });
         await p.waitForURL((u) => u.pathname !== startPath, { timeout: 1500 });
         break;
       } catch {
-        /* aún no había hidratado: se reintenta */
+        /* aún no había hidratado, o el desplegable no llegó a abrirse a
+           tiempo: se reintenta desde el disparador. */
       }
     }
     return p.url().replace(URL, "");
