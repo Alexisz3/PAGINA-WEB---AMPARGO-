@@ -414,7 +414,9 @@
   },
   "Testimonials": {
     "heading": "Lo que dicen nuestros clientes",
-    "eyebrow": "CLIENTES"
+    "eyebrow": "CLIENTES",
+    "placeholderHeading": "Reseñas de clientes",
+    "placeholderBody": "Todavía no publicamos ninguna: preferimos esperar a tener el permiso explícito de nuestros clientes antes de mostrar sus palabras. En cuanto lo tengamos, aparecerán aquí."
   },
   "About": {
     "eyebrow": "NOSOTROS",
