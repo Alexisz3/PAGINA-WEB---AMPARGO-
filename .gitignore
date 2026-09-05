@@ -29,7 +29,7 @@ public/images/proyectos/cocina-cuarzo-01.jpeg
 public/images/proyectos/cocina-cuarzo-02.jpeg
 public/images/proyectos/cocina-cuarzo-03.jpeg
 public/images/proyectos/cocina-cuarzo-07.jpeg
-public/images/proyectos/demolicion-01.jpeg
+# demolicion-01.jpeg se utiliza en la página Proceso y debe acompañar el deploy.
 public/images/proyectos/demolicion-02.jpeg
 public/images/proyectos/estructura-03.jpeg
 public/images/proyectos/estructura-05.jpeg

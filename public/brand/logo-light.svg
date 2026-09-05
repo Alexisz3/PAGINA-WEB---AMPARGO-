@@ -6,7 +6,7 @@
     nota de color que sobrevive a la inversion sin ensuciar el conjunto.
   -->
   <g transform="translate(4.076 7.385) scale(0.83906)" fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 42.5 H41.5" stroke="#B8452F"/>
+    <path d="M20 42.5 H41.5" stroke="#F0692A"/>
     <path d="M11 54 L46 10 V54" stroke="#F2EFE8"/>
     <path d="M46 15 H56 A11.5 11.5 0 0 1 56 38 H46" stroke="#F2EFE8"/>
   </g>

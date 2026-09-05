@@ -17,17 +17,26 @@
   --color-muted: #626963;
   --color-line: rgb(24 26 24 / 16%);
   --color-bone: #f8f6f0;
-  --color-accent: #b8452f;
-  --color-accent-hover: #9d3826;
+  --color-accent: #bd4109;
+  --color-accent-hover: #a13708;
   --color-success: #2f6b50;
   --color-error: #a83232;
 
   /*
-   * accent (#B8452F) sobre paper = 4.65:1 -> vale como texto normal.
-   * accent sobre carbon = 3.46:1 -> NO vale como texto (falla 4.5:1).
-   * accent-ink es la variante segura para texto sobre superficies oscuras.
+   * Fase 5 — rebranding de color (rojo ladrillo #B8452F → naranja).
+   * Valores medidos, no estimados a ojo contra el mockup de referencia:
+   *
+   * accent (#BD4109) sobre paper       = 4.66:1 -> vale como texto normal.
+   * accent (#BD4109) sobre carbon      = 3.61:1 -> NO vale como texto.
+   * bone sobre accent (fondo de botón) = 4.95:1 -> vale, texto claro en botón sólido.
+   * accent-ink sobre carbon            = 5.96:1 -> vale como texto normal.
+   *
+   * accent-ink es la variante viva para texto de acento sobre superficies
+   * oscuras (eyebrows, cifras, subrayados); accent es el tono profundo para
+   * fondos de botón sólido — el mismo naranja no puede cumplir los dos
+   * roles con fondo oscuro persistente, igual que antes con el rojo ladrillo.
    */
-  --color-accent-ink: #d9764f;
+  --color-accent-ink: #f0692a;
 
   --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --font-body: var(--font-plex-sans), "IBM Plex Sans", sans-serif;
@@ -78,6 +87,12 @@ body {
   background-color: currentColor;
 }
 
+/* Titular editorial del hero aprobado. Se mantiene separado de la tipografía
+   de interfaz para que botones, navegación y cuerpo conserven su precisión. */
+.font-editorial {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
 /*
  * Safe area que COMPONE con el padding de Tailwind en vez de sobrescribirlo.
  * Un `style={{paddingBottom}}` en línea gana siempre a `lg:pb-24`, lo que
@@ -86,6 +101,89 @@ body {
  */
 .pb-safe {
   padding-bottom: max(var(--pb, 4rem), calc(env(safe-area-inset-bottom, 0px) + 3rem));
+}
+
+/* Movimiento editorial, deliberadamente contenido.
+   - No depende de JavaScript ni añade peso a la navegación móvil.
+   - Solo acompaña la primera lectura de cada hero; no hay parpadeos ni
+     animaciones infinitas de botones.
+   - La preferencia del visitante por menos movimiento se respeta abajo. */
+@keyframes apc-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.875rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes apc-image-breathe {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.025);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-reveal-1,
+  .motion-reveal-2,
+  .motion-reveal-3,
+  .motion-reveal-4,
+  .motion-reveal-5 {
+    animation: apc-reveal 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-reveal-2 {
+    animation-delay: 80ms;
+  }
+
+  .motion-reveal-3 {
+    animation-delay: 150ms;
+  }
+
+  .motion-reveal-4 {
+    animation-delay: 220ms;
+  }
+
+  .motion-reveal-5 {
+    animation-delay: 290ms;
+  }
+
+  .motion-cta {
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .motion-cta:active {
+    transform: translateY(1px);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .motion-cta:hover svg {
+    transform: translateX(3px);
+  }
+
+  .motion-cta svg {
+    transition: transform 180ms ease;
+  }
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Una entrada breve; nunca mantiene la fotografía en movimiento continuo.
+   Se omite en móvil para no gastar batería ni competir con la lectura. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .motion-hero-image {
+    animation: apc-image-breathe 1800ms ease-out both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

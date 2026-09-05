@@ -14,12 +14,16 @@ const TARGETS = [
   { name: "home es", path: "/es" },
   { name: "home en", path: "/en" },
   { name: "proyectos es", path: "/es/proyectos" },
-  { name: "proyectos filtrado", path: "/es/proyectos?cat=kitchens" },
+  { name: "proyectos filtrado", path: "/es/proyectos?categoria=kitchens" },
   { name: "detalle proyecto", path: "/es/proyectos/renovacion-de-cocina" },
+  { name: "proyecto con galeria", path: "/es/proyectos/construccion-de-cochera" },
   { name: "cotizacion es", path: "/es/cotizacion" },
   { name: "cotizacion en", path: "/en/quote" },
   { name: "servicios es", path: "/es/servicios" },
+  { name: "detalle servicio", path: "/es/servicios/cocinas-y-banos" },
   { name: "proceso es", path: "/es/proceso" },
+  { name: "nosotros es", path: "/es/nosotros" },
+  { name: "contacto es", path: "/es/contacto" },
 ];
 
 const VIEWPORTS = [

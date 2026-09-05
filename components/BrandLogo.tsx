@@ -38,9 +38,11 @@ interface BrandLogoProps {
  * Isotipo. Sin `width`/`height` fijos: la altura la fija el contenedor y el
  * `viewBox` mantiene la proporción, así el símbolo nunca se deforma.
  *
- * La A y el cuenco heredan `currentColor`; solo el travesaño conserva el rojo
- * de marca, que es la única nota de color que sobrevive a la inversión sobre
- * fondo oscuro.
+ * La A y el cuenco heredan `currentColor`; solo el travesaño conserva el
+ * naranja de marca (Fase 5: reemplaza al rojo ladrillo), que es la única
+ * nota de color que sobrevive a la inversión sobre fondo oscuro. El valor
+ * viene de `--color-accent-ink` (app/globals.css) en vez de un hex propio,
+ * para que un cambio de paleta futuro no tenga que tocar este archivo.
  *
  * Es TRAZO, no relleno: `fill="none"` con `strokeWidth` y remates redondos.
  * Quitar cualquiera de esos tres atributos no rompe nada visiblemente en el
@@ -67,9 +69,9 @@ function Mark({ size, accent = true }: { size: number; accent?: boolean }) {
         allí, se toca aquí — y al revés, esto no se toca sin tocar allí.
 
         El travesaño va PRIMERO: la riostra de la A pasa por encima y deja la
-        diagonal continua, con el rojo visible solo en el vano.
+        diagonal continua, con el naranja visible solo en el vano.
       */}
-      <path d="M20 42.5 H41.5" stroke={accent ? "#B8452F" : "currentColor"} />
+      <path d="M20 42.5 H41.5" stroke={accent ? "var(--color-accent-ink)" : "currentColor"} />
       <path d="M11 54 L46 10 V54" />
       <path d="M46 15 H56 A11.5 11.5 0 0 1 56 38 H46" />
     </svg>

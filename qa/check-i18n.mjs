@@ -5,7 +5,7 @@
  * Este chequeo existe porque una divergencia de traducciones no rompe el
  * build ni los tipos: se descubre en producción, con un idioma a medias.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import path from "node:path";
 
@@ -65,21 +65,15 @@ for (const loc of [1, 2]) {
 /*
  * Fotos referenciadas: deben estar VERSIONADAS, no solo presentes en disco.
  *
- * Antes esto se comprobaba con `existsSync` y no bastaba. `.gitignore` excluye
- * 16 de las 29 fotos de `public/images/proyectos/`: dos por privacidad —rostro
- * de operario sin consentimiento por escrito— y catorce porque la aplicación
- * no las usa. Esas dos poblaciones no coinciden: en la máquina de quien
- * desarrolla están las 29, y en el clon que compila Hostinger solo 13.
- *
- * Comprobar contra el disco, por tanto, aprueba una referencia a una foto que
- * NUNCA llegará al servidor. La página compila, el chequeo pasa, y la imagen
- * sale rota solo en producción. Se compara contra `git ls-files`, que es la
- * lista real de lo que viaja.
+ * No basta con que una foto exista en disco: puede estar excluida de Git.
+ * Se comprueban archivos versionados y nuevos no ignorados. Estos últimos
+ * aún deben incluirse en el commit de entrega; no se simula que ya estén
+ * publicados. Las exclusiones por privacidad permanecen intactas.
  */
 const trackedPhotos = (() => {
   try {
     return new Set(
-      execSync("git ls-files public/images/proyectos", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+      execSync("git ls-files --cached --others --exclude-standard public/images/proyectos", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
         .split("\n")
         .filter(Boolean)
         .map((p) => p.split("/").pop())
@@ -103,12 +97,17 @@ const photoRefs = new Set([
   ...[...readFileSync(path.join("qa", "build-og.mjs"), "utf8").matchAll(/photo:\s*"([^"]+\.jpe?g)"/g)].map((m) => m[1]),
 ]);
 
-for (const file of [
-  path.join("components", "home", "HomeHero.tsx"),
-  path.join("app", "[locale]", "projects", "page.tsx"),
-]) {
+function sourceFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    return entry.isDirectory() ? sourceFiles(file) : /\.tsx?$/.test(entry.name) ? [file] : [];
+  });
+}
+
+for (const file of ["app", "components", "content"].flatMap(sourceFiles)) {
   const src = readFileSync(file, "utf8");
   for (const m of src.matchAll(/images\/proyectos\/([\w-]+\.jpe?g)/g)) photoRefs.add(m[1]);
+  for (const m of src.matchAll(/(?:heroImage|image):\s*"([\w-]+\.jpe?g)"/g)) photoRefs.add(m[1]);
 }
 
 for (const f of photoRefs) {
@@ -117,7 +116,7 @@ for (const f of photoRefs) {
     errors.push(`Foto referenciada que no existe: ${f}`);
   } else if (trackedPhotos && !trackedPhotos.has(f)) {
     errors.push(
-      `Foto referenciada pero NO versionada: ${f} — existe en este disco y no en el repositorio, ` +
+      `Foto referenciada pero excluida del repositorio: ${f} — existe en este disco, pero Git no la incluirá, ` +
         `así que el build de Hostinger la servirá rota. Revise .gitignore: puede estar excluida a propósito.`
     );
   }
@@ -151,7 +150,7 @@ console.log(`Locales: ${LOCALES.join(", ")}`);
 console.log(`Claves por idioma: ${keySets[a].size}`);
 console.log(
   `Proyectos: ${idMatches.length} · fotos referenciadas: ${photoRefs.size}` +
-    (trackedPhotos ? ` · versionadas en el repositorio: ${trackedPhotos.size}` : " · sin comprobar versionado")
+    (trackedPhotos ? ` · disponibles para incluir en el repositorio: ${trackedPhotos.size}` : " · sin comprobar exclusiones de Git")
 );
 
 if (warnings.length) {

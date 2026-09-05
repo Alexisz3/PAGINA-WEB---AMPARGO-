@@ -23,7 +23,12 @@ const APP_ICON = fileURLToPath(new URL("../app/icon.svg", import.meta.url));
 
 /* ─── Paleta ─────────────────────────────────────────────────────────── */
 export const NAVY = "#1B2A4A";
-export const BRICK = "#B8452F";
+/*
+ * Fase 5 — rebranding de color: rojo ladrillo → naranja. Mismo valor que
+ * `--color-accent-ink` en app/globals.css (la variante viva del token,
+ * pensada para verse bien como marca visible, no solo como texto).
+ */
+export const ACCENT = "#F0692A";
 const IVORY = "#F2EFE8";
 export const STEEL = "#5A6472";
 const BLACK = "#000000";
@@ -209,7 +214,7 @@ export function flagRule(x, y, width, height = 3) {
   const canton = width * 0.38;
   return `<g>
     <rect x="${x}" y="${y}" width="${canton.toFixed(2)}" height="${height}" fill="${NAVY}"/>
-    <rect x="${(x + canton).toFixed(2)}" y="${y}" width="${(width - canton).toFixed(2)}" height="${height}" fill="${BRICK}"/>
+    <rect x="${(x + canton).toFixed(2)}" y="${y}" width="${(width - canton).toFixed(2)}" height="${height}" fill="${ACCENT}"/>
   </g>`;
 }
 
@@ -235,7 +240,7 @@ writeFileSync(
     desc: DESC_MARK,
     note:
       "Isotipo AP. La A lleva travesano a proposito: sin el, el conjunto se leia \"/P\".\n    El rojo va solo en el travesano, rodeado de azul, para que el simbolo no se\n    fragmente en dos objetos sueltos.",
-    body: `  ${mark({ body: NAVY, accent: BRICK })}`,
+    body: `  ${mark({ body: NAVY, accent: ACCENT })}`,
   })
 );
 
@@ -259,7 +264,7 @@ const favicon = doc({
     note:
       "Favicon. Va sobre tesela azul maciza y no suelto: en una pestana el fondo\n    del navegador cambia con el tema del sistema, y un monograma sin tesela\n    desaparece contra uno de los dos.",
     body: `  <rect width="64" height="64" rx="10" fill="${NAVY}"/>
-  ${mark({ body: IVORY, accent: BRICK, transform: place(FAV_H, FAV_X, FAV_Y) })}`,
+  ${mark({ body: IVORY, accent: ACCENT, transform: place(FAV_H, FAV_X, FAV_Y) })}`,
   });
 writeFileSync(`${OUT}/favicon.svg`, favicon);
 writeFileSync(APP_ICON, favicon);
@@ -274,7 +279,7 @@ writeFileSync(
     h: 76,
     title: "Andrade Parra Corporation — General Remodeling",
     desc: `${DESC_MARK} A su derecha, el nombre completo sobre el descriptor General Remodeling.`,
-    body: `  ${mark({ body: NAVY, accent: BRICK, transform: place(H_MARK_H, 8, 12) })}
+    body: `  ${mark({ body: NAVY, accent: ACCENT, transform: place(H_MARK_H, 8, 12) })}
   ${wordmark({
     x: H_TEXT_X,
     nameY: 40,
@@ -305,7 +310,7 @@ writeFileSync(
     h: 190,
     title: "Andrade Parra Corporation — General Remodeling",
     desc: `${DESC_MARK} Debajo, el nombre en tres niveles: Andrade Parra, Corporation y el descriptor General Remodeling, centrados, sobre un filete azul y rojo.`,
-    body: `  ${mark({ body: NAVY, accent: BRICK, transform: place(52, 123, 12) })}
+    body: `  ${mark({ body: NAVY, accent: ACCENT, transform: place(52, 123, 12) })}
   <text x="160" y="112" font-family="${FONT}" font-size="27" font-weight="700" letter-spacing="0.01em" fill="${NAVY}" text-anchor="middle">ANDRADE PARRA</text>
   <text x="160" y="136" font-family="${FONT}" font-size="15" font-weight="500" letter-spacing="0.16em" fill="${NAVY}" text-anchor="middle">CORPORATION</text>
 ${flagRule(80, 148, 160)}
@@ -323,7 +328,7 @@ writeFileSync(
     desc: `${DESC_MARK} Version en blanco marfil para fondos oscuros.`,
     note:
       "El travesano conserva el rojo: sobre carbon mantiene 4,6:1 y es la unica\n    nota de color que sobrevive a la inversion sin ensuciar el conjunto.",
-    body: `  ${mark({ body: IVORY, accent: BRICK, transform: place(H_MARK_H, 8, 12) })}
+    body: `  ${mark({ body: IVORY, accent: ACCENT, transform: place(H_MARK_H, 8, 12) })}
   ${wordmark({
     x: H_TEXT_X,
     nameY: 40,

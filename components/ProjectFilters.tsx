@@ -3,12 +3,14 @@
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import type { ProjectCategory } from "@/content/projects";
+import type { ProjectCategory, ProjectStatus } from "@/content/projects";
 
-export type FilterValue = ProjectCategory | "all";
+export type FilterValue = ProjectCategory | ProjectStatus | "all";
 
 const FILTERS: { value: FilterValue; key: string }[] = [
   { value: "all", key: "filterAll" },
+  { value: "in_progress", key: "filterInProgress" },
+  { value: "completed", key: "filterCompleted" },
   { value: "exteriors", key: "filterExteriors" },
   { value: "structures", key: "filterStructures" },
   { value: "kitchens", key: "filterKitchens" },

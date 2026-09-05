@@ -9,6 +9,8 @@ import { pickContactIndex, quoteSeed } from "@/lib/assignment";
 import QuoteStepper, { TOTAL_STEPS } from "./QuoteStepper";
 import DeliveryChannelSelector, { type Channel } from "./DeliveryChannelSelector";
 import QuoteSummary from "./QuoteSummary";
+import LineIcon from "@/components/icons/LineIcon";
+import { QUOTE_SOURCES, normalizeQuoteSource, quoteSourceKey } from "@/lib/quote-source";
 
 export interface ServiceOption {
   /** ID estable, no traducido. Es lo que viaja en ?servicio= */
@@ -42,12 +44,20 @@ type PersistedDraft = QuoteDraft & { step?: number };
 
 export interface QuoteDraft {
   service: string;
+  projectType: "" | "residential" | "commercial";
   location: string;
+  startDate: string;
+  hasPlans: "" | "yes" | "no";
+  squareFeet: string;
+  budget: string;
   description: string;
+  source: string;
+  comments: string;
   name: string;
   phone: string;
   email: string;
   channel: Channel | null;
+  bestTime: string;
   consent: boolean;
 }
 
@@ -61,12 +71,20 @@ export interface QuoteDraft {
  */
 const FIELD_STEP: Record<keyof QuoteDraft, number> = {
   service: 1,
+  projectType: 1,
   location: 1,
+  startDate: 1,
+  hasPlans: 1,
+  squareFeet: 1,
+  budget: 1,
   description: 1,
+  source: 1,
+  comments: 1,
   name: 2,
   phone: 2,
   email: 2,
   channel: 2,
+  bestTime: 2,
   consent: 2,
 };
 
@@ -138,11 +156,13 @@ export default function QuoteShell({
    *  `draft.channel` en el render: así un cambio de canal después de enviar
    *  —antes de pulsar «Corregir algo antes»— no desincroniza el texto de
    *  confirmación del enlace que en realidad quedó abierto. */
-  const [handoffChannel, setHandoffChannel] = useState<Channel | null>(null);
+  const [handoffChannel, setHandoffChannel] = useState<"email" | "whatsapp" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [draft, setDraft] = useState<QuoteDraft>({
-    service: "", location: "", description: "",
+    service: "", projectType: "", location: "", startDate: "", hasPlans: "",
+    squareFeet: "", budget: "", description: "", source: "", comments: "",
     name: "", phone: "", email: "",
-    channel: null, consent: false,
+    channel: null, bestTime: "", consent: false,
   });
 
   /*
@@ -156,31 +176,31 @@ export default function QuoteShell({
    * Qué se exige y qué no:
    *  · Descripción — sin ella no hay nada que cotizar.
    *  · Nombre — hace falta para dirigirse a alguien.
-   *  · Teléfono O correo, indistintamente. Exigir ambos es la forma más común
-   *    de perder solicitudes: mucha gente da uno y no el otro a propósito.
+   *  · Servicio, teléfono y correo: obligatorios en el flujo actual.
    *  · Canal y consentimiento — sin permiso no se puede contactar.
    *
-   * Servicio y ubicación quedan OPCIONALES: son útiles, no imprescindibles,
-   * y cada campo obligatorio de más cuesta conversiones.
+   * Ubicación y los demás detalles del proyecto quedan opcionales.
    */
   const [errors, setErrors] = useState<Partial<Record<keyof QuoteDraft, string>>>({});
 
   const validateStep = (n: number): Partial<Record<keyof QuoteDraft, string>> => {
     const e: Partial<Record<keyof QuoteDraft, string>> = {};
-    if (n === 1 && draft.description.trim().length < 4) e.description = t("errDescription");
+    if (n === 1) {
+      if (!draft.service) e.service = t("errService");
+      if (draft.description.trim().length < 4) e.description = t("errDescription");
+      if (draft.squareFeet && (!Number.isFinite(Number(draft.squareFeet)) || Number(draft.squareFeet) <= 0)) {
+        e.squareFeet = t("errSquareFeet");
+      }
+    }
     if (n === 2) {
       if (!draft.name.trim()) e.name = t("errName");
 
       const phone = draft.phone.replace(/\D/g, "");
       const email = draft.email.trim();
-      if (!phone && !email) {
-        // El mensaje se ancla al teléfono, que es el primero de los dos.
-        e.phone = t("errContact");
-      } else {
-        // Solo se valida el formato de lo que la persona SÍ escribió.
-        if (phone && phone.length < 10) e.phone = t("errPhone");
-        if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) e.email = t("errEmail");
-      }
+      if (!phone) e.phone = t("errPhoneRequired");
+      else if (phone.length < 10) e.phone = t("errPhone");
+      if (!email) e.email = t("errEmailRequired");
+      else if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) e.email = t("errEmail");
 
       if (!draft.channel) e.channel = t("errChannel");
       if (!draft.consent) e.consent = t("errConsent");
@@ -221,7 +241,12 @@ export default function QuoteShell({
     if (!first) return;
     setStep(FIELD_STEP[first]);
     requestAnimationFrame(() => {
-      document.getElementById(first)?.focus();
+      const target = first === "channel"
+        ? document.querySelector<HTMLInputElement>('input[name="channel"]:not(:disabled)')
+        : document.getElementById(first);
+      const details = target?.closest("details");
+      if (details) details.open = true;
+      target?.focus();
     });
   };
 
@@ -239,16 +264,29 @@ export default function QuoteShell({
    */
   const buildMessage = (): string => {
     const serviceLabel = services.find((s) => s.id === draft.service)?.label;
+    const projectTypeLabel = draft.projectType ? t(`project${draft.projectType === "residential" ? "Residential" : "Commercial"}`) : "";
+    const plansLabel = draft.hasPlans ? t(`plans${draft.hasPlans === "yes" ? "Yes" : "No"}`) : "";
+    const budgetLabel = draft.budget ? t(`budget${draft.budget}`) : "";
     const lines = [t("msgIntro"), ""];
     const add = (label: string, value: string) => value && lines.push(`${label}: ${value}`);
 
     if (serviceLabel) add(t("msgService"), serviceLabel);
+    add(t("msgProjectType"), projectTypeLabel);
     add(t("msgLocation"), draft.location.trim());
+    add(t("msgStartDate"), draft.startDate);
+    add(t("msgPlans"), plansLabel);
+    add(t("msgSquareFeet"), draft.squareFeet.trim());
+    add(t("msgBudget"), budgetLabel);
     add(t("msgDescription"), draft.description.trim());
+    const sourceKey = quoteSourceKey(draft.source);
+    add(t("msgSource"), sourceKey ? t(`source${sourceKey}`) : draft.source);
+    add(t("msgComments"), draft.comments.trim());
     lines.push("");
     add(t("msgName"), draft.name.trim());
     add(t("msgPhone"), draft.phone.trim());
     add(t("msgEmail"), draft.email.trim());
+    add(t("msgChannel"), draft.channel ? t(`channel${draft.channel === "call" ? "Call" : draft.channel === "email" ? "Email" : "Whatsapp"}`) : "");
+    add(t("msgBestTime"), draft.bestTime ? t(`time${draft.bestTime}`) : "");
 
     return lines.join("\n");
   };
@@ -274,6 +312,7 @@ export default function QuoteShell({
    * nadie.
    */
   const submitQuote = () => {
+    if (isSubmitting) return;
     const e = validateThrough(TOTAL_STEPS);
     setErrors(e);
     if (Object.keys(e).length > 0) {
@@ -281,7 +320,8 @@ export default function QuoteShell({
       return;
     }
 
-    const channel: Channel = draft.channel === "email" && businessEmail ? "email" : "whatsapp";
+    setIsSubmitting(true);
+    const channel: "email" | "whatsapp" = draft.channel === "email" && businessEmail ? "email" : "whatsapp";
     const message = buildMessage();
 
     let url: string | null;
@@ -297,7 +337,10 @@ export default function QuoteShell({
       const target = whatsappTargets[pickContactIndex(seed, whatsappTargets.length)];
       url = target ? buildWhatsAppLink(target.phone, message) : null;
     }
-    if (!url) return;
+    if (!url) {
+      setIsSubmitting(false);
+      return;
+    }
 
     track("quote_submitted", { channel, service: draft.service || "none" });
     setHandoffUrl(url);
@@ -311,9 +354,20 @@ export default function QuoteShell({
      */
     if (channel === "email") {
       window.location.href = url;
+      setIsSubmitting(false);
     } else {
       window.open(url, "_blank", "noopener,noreferrer");
+      setIsSubmitting(false);
     }
+  };
+
+  const showStep = (next: number) => {
+    setStep(next);
+    requestAnimationFrame(() => {
+      const stage = document.getElementById("quote-stage");
+      stage?.focus({ preventScroll: true });
+      stage?.scrollIntoView({ block: "start" });
+    });
   };
 
   const goNext = () => {
@@ -326,7 +380,7 @@ export default function QuoteShell({
       return;
     }
     track("quote_step_completed", { step });
-    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
+    showStep(Math.min(TOTAL_STEPS, step + 1));
   };
 
   /**
@@ -339,7 +393,7 @@ export default function QuoteShell({
    */
   const goToStep = (n: number) => {
     if (n <= step) {
-      setStep(n);
+      showStep(n);
       return;
     }
     const e = validateThrough(n - 1);
@@ -348,7 +402,7 @@ export default function QuoteShell({
       focusFirstError(e);
       return;
     }
-    setStep(n);
+    showStep(n);
   };
 
   const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) => {
@@ -431,7 +485,7 @@ export default function QuoteShell({
      * cubrir: sincronizar con un sistema externo al montar. El centinela
      * `restored` garantiza que ocurre una única vez y no encadena renders.
      */
-    setDraft((d) => ({ ...d, ...saved, service: saved.service || validInitial || d.service }));
+    setDraft((d) => ({ ...d, ...saved, source: normalizeQuoteSource(saved.source || ""), service: saved.service || validInitial || d.service }));
     if (savedStep >= 1) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- ver comentario arriba
       setStep(restoredStep);
@@ -462,11 +516,11 @@ export default function QuoteShell({
 
   return (
     <section className="bg-paper py-12 lg:py-16">
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 lg:grid-cols-[1fr_380px] lg:px-10">
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-10">
         <div>
           <QuoteStepper current={step} onStepChange={goToStep} />
 
-          <div className="mt-10">
+          <div id="quote-stage" tabIndex={-1} className="mt-10 scroll-mt-28">
             {step === 1 ? (
               <fieldset className="space-y-6">
                 <legend className="sr-only">{t("step1")}</legend>
@@ -477,8 +531,11 @@ export default function QuoteShell({
                   </label>
                   <select
                     id="service"
-                    className={FIELD}
+                    required
+                    className={fieldClass(errors.service)}
                     value={draft.service}
+                    aria-invalid={errors.service ? true : undefined}
+                    aria-describedby={errors.service ? "service-error" : undefined}
                     onChange={(e) => update("service", e.target.value)}
                   >
                     <option value="">{t("servicePlaceholder")}</option>
@@ -490,38 +547,197 @@ export default function QuoteShell({
                       </option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <label htmlFor="location" className="mb-2 block text-sm font-medium text-ink">
-                    {t("locationLabel")}
-                  </label>
-                  <input
-                    id="location"
-                    className={FIELD}
-                    placeholder={t("locationPlaceholder")}
-                    autoComplete="postal-code"
-                    value={draft.location}
-                    onChange={(e) => update("location", e.target.value)}
-                  />
+                  <FieldError id="service-error" message={errors.service} />
                 </div>
 
                 <div>
                   <label htmlFor="description" className="mb-2 block text-sm font-medium text-ink">
-                    {t("descriptionLabel")}
+                    {t("descriptionLabel")} <span aria-hidden="true">*</span>
                   </label>
                   <textarea
                     id="description"
+                    required
+                    minLength={4}
                     rows={5}
-                    maxLength={2000}
+                    maxLength={1500}
                     className={fieldClass(errors.description)}
                     placeholder={t("descriptionPlaceholder")}
                     value={draft.description}
                     aria-invalid={errors.description ? true : undefined}
-                    aria-describedby={errors.description ? "description-error" : undefined}
+                    aria-describedby={`description-counter${errors.description ? " description-error" : ""}`}
                     onChange={(e) => update("description", e.target.value)}
                   />
+                  <p id="description-counter" className="mt-2 text-right font-mono text-xs text-muted">
+                    {draft.description.length} / 1500
+                  </p>
                   <FieldError id="description-error" message={errors.description} />
+                </div>
+
+                <details className="quote-options group border border-line bg-surface">
+                  <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 p-5">
+                    <span>
+                      <span className="block font-display font-semibold text-ink">{t("optionalHeading")}</span>
+                      <span className="mt-1 block text-sm leading-relaxed text-muted">{t("optionalBody")}</span>
+                    </span>
+                    <span aria-hidden="true" className="text-2xl text-accent transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <div className="space-y-6 border-t border-line p-5">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="projectType" className="mb-2 block text-sm font-medium text-ink">
+                      {t("projectTypeLabel")}
+                    </label>
+                    <select
+                      id="projectType"
+                      className={FIELD}
+                      value={draft.projectType}
+                      onChange={(e) => update("projectType", e.target.value as QuoteDraft["projectType"])}
+                    >
+                      <option value="">{t("optional")}</option>
+                      <option value="residential">{t("projectResidential")}</option>
+                      <option value="commercial">{t("projectCommercial")}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="location" className="mb-2 block text-sm font-medium text-ink">
+                      {t("locationLabel")}
+                    </label>
+                    <input
+                      id="location"
+                      className={FIELD}
+                      placeholder={t("locationPlaceholder")}
+                      autoComplete="postal-code"
+                      value={draft.location}
+                      onChange={(e) => update("location", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="startDate" className="mb-2 block text-sm font-medium text-ink">
+                      {t("startDateLabel")}
+                    </label>
+                    <input
+                      id="startDate"
+                      type="date"
+                      className={FIELD}
+                      value={draft.startDate}
+                      onChange={(e) => update("startDate", e.target.value)}
+                    />
+                  </div>
+
+                  <fieldset>
+                    <legend className="mb-2 block text-sm font-medium text-ink">{t("plansLabel")}</legend>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(["yes", "no"] as const).map((value) => (
+                        <label
+                          key={value}
+                          className={`flex min-h-[48px] cursor-pointer items-center gap-3 border px-4 text-sm transition-colors ${
+                            draft.hasPlans === value ? "border-accent bg-surface" : "border-line hover:border-ink"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="hasPlans"
+                            value={value}
+                            checked={draft.hasPlans === value}
+                            onChange={() => update("hasPlans", value)}
+                            className="h-5 w-5 accent-accent"
+                          />
+                          {value === "yes" ? t("plansYes") : t("plansNo")}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="squareFeet" className="mb-2 block text-sm font-medium text-ink">
+                      {t("squareFeetLabel")}
+                    </label>
+                    <input
+                      id="squareFeet"
+                      type="number"
+                      min="0.01"
+                      step="any"
+                      inputMode="decimal"
+                      className={fieldClass(errors.squareFeet)}
+                      aria-invalid={errors.squareFeet ? true : undefined}
+                      aria-describedby={errors.squareFeet ? "squareFeet-error" : undefined}
+                      placeholder="sq ft"
+                      value={draft.squareFeet}
+                      onChange={(e) => update("squareFeet", e.target.value)}
+                    />
+                    <FieldError id="squareFeet-error" message={errors.squareFeet} />
+                  </div>
+
+                  <div>
+                    <label htmlFor="budget" className="mb-2 block text-sm font-medium text-ink">
+                      {t("budgetLabel")}
+                    </label>
+                    <select
+                      id="budget"
+                      className={FIELD}
+                      value={draft.budget}
+                      onChange={(e) => update("budget", e.target.value)}
+                    >
+                      <option value="">{t("optional")}</option>
+                      <option value="Under25">{t("budgetUnder25")}</option>
+                      <option value="25to50">{t("budget25to50")}</option>
+                      <option value="50to100">{t("budget50to100")}</option>
+                      <option value="100to250">{t("budget100to250")}</option>
+                      <option value="Over250">{t("budgetOver250")}</option>
+                      <option value="PreferNot">{t("budgetPreferNot")}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="source" className="mb-2 block text-sm font-medium text-ink">
+                      {t("sourceLabel")}
+                    </label>
+                    <select
+                      id="source"
+                      className={FIELD}
+                      value={draft.source}
+                      onChange={(e) => update("source", e.target.value)}
+                    >
+                      <option value="">{t("optional")}</option>
+                      {QUOTE_SOURCES.map((source) => (
+                        <option key={source} value={source}>{t(`source${source}`)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="comments" className="mb-2 block text-sm font-medium text-ink">
+                      {t("commentsLabel")}
+                    </label>
+                    <textarea
+                      id="comments"
+                      rows={3}
+                      maxLength={800}
+                      className={FIELD}
+                      placeholder={t("commentsPlaceholder")}
+                      value={draft.comments}
+                      onChange={(e) => update("comments", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                  </div>
+                </details>
+
+                <div className="flex gap-4 border-l-2 border-accent px-5 py-2">
+                  <LineIcon name="quality" className="h-6 w-6 flex-none text-accent" />
+                  <div>
+                    <h3 className="font-display font-semibold text-ink">{t("photosHeading")}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted">{t("photosUnavailable")}</p>
+                  </div>
                 </div>
               </fieldset>
             ) : null}
@@ -536,6 +752,7 @@ export default function QuoteShell({
                   </label>
                   <input
                     id="name"
+                    required
                     className={fieldClass(errors.name)}
                     placeholder={t("namePlaceholder")}
                     autoComplete="name"
@@ -555,6 +772,7 @@ export default function QuoteShell({
                     <input
                       id="phone"
                       type="tel"
+                      required
                       inputMode="tel"
                       autoComplete="tel"
                       className={fieldClass(errors.phone)}
@@ -572,6 +790,7 @@ export default function QuoteShell({
                     <input
                       id="email"
                       type="email"
+                      required
                       inputMode="email"
                       autoComplete="email"
                       className={fieldClass(errors.email)}
@@ -589,8 +808,27 @@ export default function QuoteShell({
                     value={draft.channel}
                     onChange={(c) => update("channel", c)}
                     emailAvailable={!!businessEmail}
+                    error={errors.channel}
                   />
                   <FieldError id="channel-error" message={errors.channel} />
+                </div>
+
+                <div>
+                  <label htmlFor="bestTime" className="mb-2 block text-sm font-medium text-ink">
+                    {t("bestTimeLabel")}
+                  </label>
+                  <select
+                    id="bestTime"
+                    className={FIELD}
+                    value={draft.bestTime}
+                    onChange={(e) => update("bestTime", e.target.value)}
+                  >
+                    <option value="">{t("optional")}</option>
+                    <option value="Morning">{t("timeMorning")}</option>
+                    <option value="Afternoon">{t("timeAfternoon")}</option>
+                    <option value="AfterFive">{t("timeAfterFive")}</option>
+                    <option value="Any">{t("timeAny")}</option>
+                  </select>
                 </div>
 
                 <div>
@@ -598,6 +836,7 @@ export default function QuoteShell({
                     <input
                       id="consent"
                       type="checkbox"
+                      required
                       checked={draft.consent}
                       aria-invalid={errors.consent ? true : undefined}
                       aria-describedby={errors.consent ? "consent-error" : undefined}
@@ -664,9 +903,15 @@ export default function QuoteShell({
                   <button
                     type="button"
                     onClick={submitQuote}
-                    className="inline-flex min-h-[52px] w-full items-center justify-center bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover"
+                    disabled={isSubmitting}
+                    aria-busy={isSubmitting}
+                    className="inline-flex min-h-[52px] w-full items-center justify-center bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover disabled:cursor-wait disabled:opacity-60"
                   >
-                    {draft.channel === "email" && businessEmail ? t("sendEmail") : t("sendWhatsapp")}
+                    {isSubmitting
+                      ? t("sending")
+                      : draft.channel === "email" && businessEmail
+                        ? t("sendEmail")
+                        : t("sendWhatsapp")}
                   </button>
                 )}
               </fieldset>
@@ -676,7 +921,7 @@ export default function QuoteShell({
           <div className="mt-10 flex items-center justify-between gap-4">
             <button
               type="button"
-              onClick={() => setStep((s) => Math.max(1, s - 1))}
+              onClick={() => showStep(Math.max(1, step - 1))}
               disabled={step === 1}
               className="inline-flex min-h-[48px] items-center gap-2 border border-line px-5 text-sm text-ink transition-colors hover:border-ink disabled:opacity-40"
             >

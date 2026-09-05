@@ -51,13 +51,17 @@ export default async function QuotePage({ params, searchParams }: PageProps<"/[l
   setRequestLocale(locale);
 
   const loc = locale as AppLocale;
+  const tq = await getTranslations("Quote");
 
   // Las etiquetas se resuelven en servidor: al cliente solo viaja
   // {id, label} en el idioma actual, no ambos diccionarios de servicios.
-  const serviceOptions = getPublishedServices().map((s) => ({
-    id: s.id,
-    label: s.title[loc],
-  }));
+  const serviceOptions = [
+    ...getPublishedServices().map((s) => ({
+      id: s.id,
+      label: s.title[loc],
+    })),
+    { id: "other", label: tq("serviceOther") },
+  ];
 
   // `?servicio=` trae un ID estable. Se valida contra el catálogo real:
   // un valor inventado se ignora en vez de preseleccionar basura.
@@ -68,7 +72,6 @@ export default async function QuotePage({ params, searchParams }: PageProps<"/[l
     : undefined;
 
   const tn = await getTranslations("Nav");
-  const tq = await getTranslations("Quote");
 
   // Proveedor anidado: `Quote` y `Services` solo se envían al navegador en
   // esta página, no en todo el sitio.
@@ -85,9 +88,10 @@ export default async function QuotePage({ params, searchParams }: PageProps<"/[l
           <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
             <h1 className="font-display font-bold uppercase leading-[0.9] tracking-[-0.02em] text-bone [font-size:clamp(2rem,6vw,4.5rem)]">
               {tn("quote")}
+              <span className="text-accent-ink">.</span>
             </h1>
             <p className="mt-3 text-bone/75 [font-size:clamp(1rem,1.6vw,1.25rem)]">
-              {tq("subtitle")}
+              {tq("heroBody")}
             </p>
           </div>
         </section>

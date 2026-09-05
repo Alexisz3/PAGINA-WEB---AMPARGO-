@@ -92,7 +92,7 @@ export default function MobileContactBar() {
         Hueco del mismo alto que la barra. Sin él, la barra tapa el final del
         pie —los enlaces legales y los teléfonos— en todas las páginas.
       */}
-      <div aria-hidden="true" className="h-[64px] lg:hidden" />
+      <div aria-hidden="true" className="h-[calc(64px+env(safe-area-inset-bottom,0px))] lg:hidden" />
 
       <nav
         aria-label={t("contactBar")}

@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 interface PageHeroProps {
+  /** Etiqueta pequeña sobre el título principal. */
+  eyebrow?: string;
   /** Palabra monumental (PROYECTOS., SERVICIOS.) — el ADN del home en interiores. */
   title: string;
   tagline?: string;
@@ -23,6 +25,7 @@ interface PageHeroProps {
  * de la página empiece antes. Las referencias aprobadas lo muestran así.
  */
 export default function PageHero({
+  eyebrow,
   title,
   tagline,
   intro,
@@ -53,6 +56,7 @@ export default function PageHero({
           compact ? "pb-10 pt-28 lg:pb-14 lg:pt-36" : "pb-14 pt-32 lg:pb-20 lg:pt-44"
         }`}
       >
+        {eyebrow ? <p className="eyebrow mb-5 text-accent-ink">{eyebrow}</p> : null}
         <h1
           className={
             plainTitle

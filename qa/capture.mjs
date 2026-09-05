@@ -64,9 +64,14 @@ async function main() {
         if (msg.type() === "error") consoleErrors.push(msg.text());
       });
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("requestfailed", (req) =>
-        failedRequests.push(`${req.url()} :: ${req.failure()?.errorText ?? "desconocido"}`)
-      );
+      page.on("requestfailed", (req) => {
+        const errorText = req.failure()?.errorText ?? "desconocido";
+        // Playwright reports the previous RSC navigation as aborted when a
+        // client-side transition starts. That is expected and not a broken
+        // asset or application request.
+        if (errorText === "net::ERR_ABORTED" && req.url().includes("?_rsc=")) return;
+        failedRequests.push(`${req.url()} :: ${errorText}`);
+      });
 
       await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 60000 });
       // Deja que corran las animaciones de entrada antes de capturar.
@@ -151,7 +156,9 @@ async function main() {
             return Boolean(target && target.closest("main, [role='main']") !== null) ||
                    first.getAttribute("href") === "#contenido";
           })(),
-          imagesWithoutAlt: [...document.querySelectorAll("img")].filter((i) => !i.getAttribute("alt")).length,
+          // Empty alt text is valid for decorative images; only a missing
+          // alt attribute is an accessibility issue.
+          imagesWithoutAlt: [...document.querySelectorAll("img")].filter((i) => !i.hasAttribute("alt")).length,
           totalImages: document.querySelectorAll("img").length,
           documentHeight: doc.scrollHeight,
         };

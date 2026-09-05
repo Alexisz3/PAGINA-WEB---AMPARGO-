@@ -3,96 +3,95 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import ArrowRight from "../icons/ArrowRight";
 
+function AssuranceMark() {
+  return (
+    <svg viewBox="0 0 48 52" aria-hidden="true" className="h-9 w-9 flex-none text-muted sm:h-10 sm:w-10">
+      <path
+        d="M24 3 42 10v13c0 12.5-7.4 21.3-18 26C13.4 44.3 6 35.5 6 23V10L24 3Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path
+        d="m16.5 25 5 5 10-12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /**
- * Hero monumental del Concepto A.
+ * Hero editorial de la portada — fondo claro, texto e imagen en columnas.
  *
- * Jerarquía de CTA según la referencia móvil V2 aprobada: un botón compacto
- * ajustado al texto + un enlace textual con flecha. NO dos cajas apiladas de
- * ancho completo — eso hacía que los botones compitieran con la fotografía,
- * que es justo lo que debe dominar.
- *
- * Server Component: sin interactividad, no paga hidratación.
+ * Fase 5: reemplaza la versión anterior (fondo carbón, foto a pantalla
+ * completa con velos oscuros) por una composición de dos columnas sobre
+ * `paper`, pedida explícitamente sobre una referencia visual concreta. La
+ * fotografía sigue siendo el proyecto real (`exterior-lujo-01.jpeg`), ahora
+ * contenida en un bloque propio en vez de extenderse de fondo — no hace
+ * falta atenuarla con velos para que el texto se lea encima, porque el texto
+ * ya no va encima.
  */
 export default async function HomeHero() {
   const t = await getTranslations("Home");
 
   return (
-    <section className="relative isolate overflow-hidden bg-carbon">
-      <Image
-        src="/images/proyectos/exterior-lujo-01.jpeg"
-        alt={t("heroImageAlt")}
-        fill
-        /*
-         * Next 16 dejó OBSOLETO `priority` en favor de `preload`. Con el prop
-         * antiguo el navegador no recibía ni el <link rel="preload"> en la
-         * cabecera ni prioridad alta de descarga: la imagen del hero, que es
-         * el elemento LCP, competía con el resto de recursos.
-         *
-         * `loading="eager"` va aparte porque `loading` sigue por defecto en
-         * `lazy`, y precargar algo que luego se difiere no tiene sentido.
-         */
-        preload
-        loading="eager"
-        sizes="100vw"
-        // Dirección de arte por breakpoint. En un recorte vertical de móvil la
-        // escena se pierde si se centra por defecto: se sesga hacia arriba
-        // para conservar la cabaña y el borde de la piscina, que es el sujeto.
-        // En escritorio el encuadre completo ya respira.
-        className="object-cover object-[42%_38%] sm:object-center"
-      />
+    <section className="bg-paper">
+      <div className="mx-auto grid max-w-[1400px] items-center gap-10 px-6 pb-12 pt-28 sm:pt-32 lg:grid-cols-2 lg:gap-16 lg:px-10 lg:pb-20 lg:pt-40">
+        <div className="order-2 lg:order-1">
+          <p className="motion-reveal-1 font-mono text-xs font-medium uppercase tracking-[0.12em] text-accent">
+            {t("heroEyebrow")}
+          </p>
+          <div className="mt-4 h-px w-10 bg-accent sm:mt-5" />
 
-      {/* Velos direccionales. Sin z-index negativo: eso los enviaría detrás de
-          la foto y el titular caería a ~1:1 de contraste (medido). */}
-      <div className="absolute inset-0 bg-gradient-to-t from-carbon from-12% via-carbon/60 via-45% to-carbon/5" />
-      {/* En móvil el velo lateral es más suave: el texto está abajo, ya
-          cubierto por el velo vertical, y aquí sólo apagaba la foto. */}
-      <div className="absolute inset-0 bg-gradient-to-r from-carbon/45 via-carbon/10 to-transparent sm:from-carbon/75 sm:via-carbon/15" />
+          <h1 className="motion-reveal-2 font-editorial mt-5 max-w-[26rem] whitespace-pre-line text-balance text-[clamp(2rem,3.6vw,2.9rem)] font-normal leading-[1.08] tracking-[-0.02em] text-ink">
+            {t("heroHeadline")}
+          </h1>
 
-      {/*
-        `--pb` alimenta la utilidad .pb-safe: 4rem en móvil, 9rem en escritorio.
-        Los 9rem dan holgura a las tarjetas de servicio, que suben 6rem sobre
-        el hero; con menos, taparían los botones (detectado por axe).
-      */}
-      <div className="relative mx-auto flex min-h-[86svh] max-w-[1400px] flex-col justify-end px-6 pt-28 pb-safe [--pb:4rem] sm:pt-32 lg:min-h-[92svh] lg:px-10 lg:[--pb:9rem]">
-        {/*
-          El titular pasa de una palabra de 7 letras ("AMPARGO") a un nombre de
-          25, así que se parte en los dos niveles de la marca en vez de crecer
-          hasta desbordar: con el clamp anterior, "CORPORATION" sola medía más
-          que el ancho útil de una pantalla de 375 px.
+          <p className="motion-reveal-3 mt-5 max-w-[30rem] text-pretty text-base leading-relaxed text-muted">
+            {t("heroBody")}
+          </p>
 
-          Desaparece también el punto de acento: era el remate del wordmark
-          antiguo. El nuevo lleva su acento en el travesaño rojo del isotipo, y
-          un punto final tras el nombre de una corporación se lee como errata.
-        */}
-        <h1 className="font-display font-bold leading-[0.85] tracking-[-0.02em] text-bone">
-          <span className="block [font-size:clamp(2.5rem,10vw,8rem)]">{t("heroHeadline")}</span>
-          <span className="mt-2 block font-medium tracking-[0.08em] text-bone/85 [font-size:clamp(1.05rem,3.4vw,2.6rem)]">
-            {t("heroHeadlineSuffix")}
-          </span>
-        </h1>
+          <div className="motion-reveal-4 mt-7 grid grid-cols-1 items-center gap-3 min-[360px]:grid-cols-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+            <Link
+              href="/quote"
+              className="motion-cta inline-flex min-h-[50px] items-center justify-center gap-2 bg-accent px-3 text-sm font-medium text-bone transition-colors hover:bg-accent-hover sm:gap-5 sm:px-6"
+            >
+              <span className="sm:hidden">{t("heroCtaShort")}</span>
+              <span className="hidden sm:inline">{t("heroCtaPrimary")}</span>
+              <ArrowRight />
+            </Link>
 
-        <p className="mt-4 max-w-2xl text-pretty font-display text-bone [font-size:clamp(1.0625rem,2.6vw,2rem)]">
-          {t("heroSubhead")}
-        </p>
+            <Link
+              href="/projects"
+              className="inline-flex min-h-[50px] items-center justify-center gap-2 border border-line px-3 text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink/5 sm:gap-5 sm:px-6"
+            >
+              {t("heroCtaSecondary")}
+              <ArrowRight />
+            </Link>
+          </div>
 
-        {/* Botón compacto + enlace textual. `w-fit` evita que el botón se
-            estire a ancho completo cuando el contenedor es flex. */}
-        <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Link
-            href="/quote"
-            className="inline-flex min-h-[48px] w-fit items-center gap-2 bg-accent px-5 text-sm font-medium text-bone transition-colors hover:bg-accent-hover"
-          >
-            {t("heroCtaPrimary")}
-            <ArrowRight />
-          </Link>
+          <div className="motion-reveal-5 mt-9 flex max-w-[31rem] items-center gap-5 border-l-2 border-accent pl-5">
+            <AssuranceMark />
+            <p className="max-w-sm text-xs leading-relaxed text-muted sm:text-sm">
+              {t("heroAssurance")}
+            </p>
+          </div>
+        </div>
 
-          <Link
-            href="/projects"
-            className="inline-flex min-h-[48px] w-fit items-center gap-2 border-b border-bone/50 text-sm text-bone transition-colors hover:border-bone"
-          >
-            {t("heroCtaSecondary")}
-            <ArrowRight />
-          </Link>
+        <div className="relative order-1 aspect-[4/3] w-full overflow-hidden lg:order-2 lg:aspect-[5/4]">
+          <Image
+            src="/images/proyectos/exterior-lujo-01.jpeg"
+            alt={t("heroImageAlt")}
+            fill
+            preload
+            loading="eager"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="motion-hero-image object-cover object-center"
+          />
         </div>
       </div>
     </section>

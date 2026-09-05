@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 
-export type Channel = "email" | "whatsapp";
+export type Channel = "call" | "email" | "whatsapp";
 
 /**
- * El visitante elige EXACTAMENTE UN canal. No existe opción "ambos":
- * es una decisión de negocio ya confirmada por el cliente.
+ * El visitante elige EXACTAMENTE UN canal preferido de respuesta. No existe
+ * opción "ambos": llamada, correo y WhatsApp son radios excluyentes.
  *
  * Se implementa con radios nativos dentro de un fieldset/legend: así la
  * exclusividad mutua, la navegación por teclado y el anuncio por lector de
@@ -16,6 +16,7 @@ export default function DeliveryChannelSelector({
   value,
   onChange,
   emailAvailable,
+  error,
 }: {
   value: Channel | null;
   onChange: (c: Channel) => void;
@@ -24,18 +25,20 @@ export default function DeliveryChannelSelector({
    *  ofrecer una opción rota. Mismo criterio que `emailUnavailable` en
    *  `QuoteShell`. */
   emailAvailable: boolean;
+  error?: string;
 }) {
   const t = useTranslations("Quote");
   const options: { id: Channel; label: string; disabled?: boolean }[] = [
+    { id: "call", label: t("channelCall") },
     { id: "email", label: t("channelEmail"), disabled: !emailAvailable },
     { id: "whatsapp", label: t("channelWhatsapp") },
   ];
 
   return (
-    <fieldset>
-      <legend className="mb-2 text-sm font-medium text-ink">{t("channelLabel")}</legend>
+    <fieldset role="radiogroup" aria-labelledby="channel-label" aria-required="true" aria-invalid={error ? true : undefined} aria-describedby={error ? "channel-error" : undefined}>
+      <legend id="channel-label" className="mb-2 text-sm font-medium text-ink">{t("channelLabel")} <span aria-hidden="true">*</span></legend>
       <p className="mb-3 text-sm text-muted">{t("channelHint")}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         {options.map((opt) => {
           const checked = value === opt.id;
           return (
@@ -53,6 +56,8 @@ export default function DeliveryChannelSelector({
                 <input
                   type="radio"
                   name="channel"
+                  required
+                  aria-describedby={error ? "channel-error" : undefined}
                   value={opt.id}
                   checked={checked}
                   disabled={opt.disabled}

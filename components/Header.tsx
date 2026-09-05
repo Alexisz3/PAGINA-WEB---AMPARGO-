@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
 import { BRAND } from "@/lib/site";
 import BrandLogo from "./BrandLogo";
@@ -28,8 +28,10 @@ const NAV_LINKS: { href: StaticPathname; key: "services" | "projects" | "process
  */
 export default function Header() {
   const t = useTranslations("Nav");
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [solid, setSolid] = useState(false);
+  const hasSolidSurface = solid || pathname === "/";
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function Header() {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-          solid ? "bg-carbon/95 backdrop-blur border-b border-bone/10" : "bg-transparent"
+          hasSolidSurface ? "border-b border-bone/10 bg-carbon/95 backdrop-blur" : "bg-transparent"
         }`}
       >
         {/*
@@ -65,7 +67,7 @@ export default function Header() {
           Va detrás del contenido (`-z-10`) y no intercepta el puntero, para no
           robarle el clic a ningún enlace.
         */}
-        {solid ? null : (
+        {hasSolidSurface ? null : (
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[180%] bg-gradient-to-b from-carbon/90 via-carbon/70 to-transparent"
@@ -82,44 +84,43 @@ export default function Header() {
         <FlagRule />
 
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-4 lg:px-10">
-          {/*
-            El nombre nuevo es mucho más largo que el anterior, así que el
-            enlace lleva `min-w-0`: sin él, el logotipo usa su ancho de
-            contenido como mínimo de flex y empuja la navegación fuera de la
-            pantalla en móvil. Por debajo de `sm` se muestra solo el isotipo.
-          */}
-          {/*
-            `min-w-[44px]` y no `min-w-0`: en móvil solo se ve el isotipo, que
-            mide 33 px de ancho, y el enlace se ajustaba a él — cumplía el alto
-            táctil de 44 px pero no el ancho. El encogimiento del texto largo lo
-            resuelve el `min-w-0` del <span> interior, no el enlace.
-          */}
+          {/* Marca legible también en móvil, conservando un enlace táctil de 44px. */}
           <Link
             href="/"
             className="flex min-h-[44px] min-w-[44px] items-center text-bone"
             aria-label={`${BRAND.name} — ${BRAND.descriptor}`}
           >
-            {/*
-              Solo el isotipo, en todas las anchuras. El nombre completo no se
-              pierde: lo lleva el `aria-label` del enlace para quien navega con
-              lector de pantalla, y aparece en el hero, el pie y el <title>.
-            */}
-            <BrandLogo variant="compact" size={30} decorative />
+            <span className="flex items-center gap-2 sm:hidden">
+              <BrandLogo variant="compact" size={30} decorative />
+              <span aria-hidden="true" className="leading-tight">
+                <span className="block text-xs font-semibold tracking-[0.015em] max-[360px]:text-[0.625rem]">ANDRADE PARRA</span>
+                <span className="mt-1 block text-[0.625rem] tracking-[0.16em] text-bone/75 max-[360px]:text-[0.5rem]">CORPORATION</span>
+              </span>
+            </span>
+            <span className="hidden sm:block">
+              <BrandLogo variant="horizontal" size={25} decorative />
+            </span>
           </Link>
 
           <nav aria-label={t("menuTitle")} className="hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
+            {NAV_LINKS.map((link) => {
+              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
                 /* Sin `/85`: rebajar la opacidad del texto sobre una foto es
                    restar contraste justo donde ya faltaba. El matiz de "no
                    activo" lo da ahora el velo, no un texto más apagado. */
-                className="flex min-h-[44px] items-center px-3 text-sm text-bone transition-colors hover:text-accent-ink"
-              >
-                {t(link.key)}
-              </Link>
-            ))}
+                  aria-current={active ? "page" : undefined}
+                className={`relative flex min-h-[44px] items-center px-3 text-sm text-bone transition-colors hover:text-accent-ink after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-accent-ink after:transition-transform ${
+                  active ? "text-accent-ink after:scale-x-100" : ""
+                }`}
+                >
+                  {t(link.key)}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2">
