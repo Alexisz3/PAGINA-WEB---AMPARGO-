@@ -1,6 +1,7 @@
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 /**
  * IMPORTANTE (Hostinger): este archivo debe exportar un OBJETO, no una función.
@@ -60,13 +61,17 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Google Analytics y Tag Manager, solo si se configura el ID.
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+              // Next usa `eval` únicamente para depurar en `next dev`. Sin
+              // esta excepción limitada, aparece el indicador rojo de error
+              // sobre la página local aunque el sitio de producción esté sano.
+              `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               // `data:` y `blob:` los necesita next/image y la previsualización
               // de las fotos de referencia antes de enviarlas.
               "img-src 'self' data: blob: https://www.google-analytics.com",
               "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com",
+              "frame-src https://www.google.com",
               "form-action 'self'",
               "frame-ancestors 'none'",
               "base-uri 'self'",

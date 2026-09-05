@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import ArrowRight from "./icons/ArrowRight";
 
 /**
  * CTA principal del sitio. Apunta a la página de cotización, no directamente
@@ -14,9 +15,10 @@ export default function WhatsAppButton({ className = "" }: { className?: string 
   return (
     <Link
       href="/quote"
-      className={`inline-flex min-h-[44px] items-center justify-center gap-2 bg-accent px-5 text-sm font-medium text-bone transition-colors hover:bg-accent-hover ${className}`}
+      className={`inline-flex min-h-[44px] items-center justify-center gap-4 bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover ${className}`}
     >
       {t("quote")}
+      <ArrowRight />
     </Link>
   );
 }

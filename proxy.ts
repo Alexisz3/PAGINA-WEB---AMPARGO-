@@ -51,7 +51,11 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Excluye API, internals de Next, Vercel y cualquier archivo con extensión
-  // (favicon, robots.txt, sitemap.xml, imágenes servidas por next/image…).
-  matcher: "/((?!api|_next|_vercel|.*\\..*).*)",
+  // Excluye API, internals de Next, Vercel, las rutas internas regionales que
+  // next-intl genera al reescribir `/es` y `/en`, y cualquier archivo con
+  // extensión (favicon, robots.txt, sitemap.xml, imágenes servidas por
+  // next/image…). Sin las dos regiones, el proxy vuelve a ejecutarse sobre
+  // `/es-US` o `/en-US` y puede anteponer el idioma por defecto otra vez,
+  // produciendo una cadena como `/en/es-US`.
+  matcher: "/((?!api|_next|_vercel|es-US|en-US|.*\\..*).*)",
 };

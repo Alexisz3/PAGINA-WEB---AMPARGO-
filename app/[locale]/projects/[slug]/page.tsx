@@ -12,17 +12,17 @@ import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
 import BeforeAfter from "@/components/BeforeAfter";
 import ZoomableImage from "@/components/ZoomableImage";
+import ProjectCard from "@/components/ProjectCard";
 import CtaBand from "@/components/CtaBand";
 import { Link } from "@/i18n/navigation";
 import ArrowRight from "@/components/icons/ArrowRight";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
-    PROJECTS.map((p) => ({ locale, slug: p.slugs[locale as AppLocale] }))
+    PROJECTS.map((project) => ({ locale, slug: project.slugs[locale as AppLocale] }))
   );
 }
 
-/** Etiqueta traducida de la categoría; reutiliza las claves de los filtros. */
 const CATEGORY_KEY = {
   kitchens: "filterKitchens",
   bathrooms: "filterBathrooms",
@@ -42,15 +42,16 @@ export async function generateMetadata({
   if (!project) return {};
 
   const t = await getTranslations({ locale: locale as Locale, namespace: "Projects" });
-  const path = (l: AppLocale) =>
-    `${LOCALE_PREFIXES[l]}${l === "es-US" ? "/proyectos/" : "/projects/"}${project.slugs[l]}`;
+  const path = (targetLocale: AppLocale) =>
+    `${LOCALE_PREFIXES[targetLocale]}${
+      targetLocale === "es-US" ? "/proyectos/" : "/projects/"
+    }${project.slugs[targetLocale]}`;
 
   return {
     title: `${project.title[loc]} | ${t("eyebrow")} | ${BRAND.name}`,
     description: project.excerpt[loc],
     alternates: {
       canonical: path(loc),
-      // Recíprocos por ENTIDAD: cada idioma apunta a su propio slug.
       languages: { "es-US": path("es-US"), "en-US": path("en-US") },
     },
     openGraph: {
@@ -63,7 +64,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProjectDetail({ params }: PageProps<"/[locale]/projects/[slug]">) {
+export default async function ProjectDetail({
+  params,
+}: PageProps<"/[locale]/projects/[slug]">) {
   const { locale, slug } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
@@ -74,29 +77,22 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
 
   const t = await getTranslations("Projects");
   const tn = await getTranslations("Nav");
-
   const categoryLabel = t(CATEGORY_KEY[project.category]);
   const statusLabel = project.status === "completed" ? t("statusCompleted") : t("statusInProgress");
-
-  // El servicio se DERIVA de la categoría; no es un dato inventado por obra.
-  const service = SERVICES.find((s) => s.id === CATEGORY_TO_SERVICE[project.category]);
-
-  // Antes/después: solo pares doblemente confirmados y ligados a ESTE proyecto.
+  const service = SERVICES.find((item) => item.id === CATEGORY_TO_SERVICE[project.category]);
   const pair = project.beforeAfterId
-    ? publishablePairs().find((p) => p.id === project.beforeAfterId)
+    ? publishablePairs().find((item) => item.id === project.beforeAfterId)
     : undefined;
+  const galleryPhotos = project.gallery.filter((photo) => photo.file !== project.coverPhoto.file);
+  const related = [
+    ...PROJECTS.filter(
+      (candidate) => candidate.id !== project.id && candidate.category === project.category
+    ),
+    ...PROJECTS.filter(
+      (candidate) => candidate.id !== project.id && candidate.category !== project.category
+    ),
+  ].slice(0, 3);
 
-  /*
-   * La portada encabeza la página; la galería muestra el resto. Si la galería
-   * repite la portada (varios proyectos tienen una sola foto), no se pinta dos
-   * veces la misma imagen con distinto encuadre.
-   */
-  const galleryPhotos = project.gallery.filter((p) => p.file !== project.coverPhoto.file);
-
-  /*
-   * JSON-LD. Sin `datePublished` ni `award`: no hay fechas de obra
-   * confirmadas. `CreativeWork` describe honestamente un trabajo mostrado.
-   */
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
@@ -115,122 +111,51 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
       />
       <Header />
       <main id="contenido" tabIndex={-1}>
-        {/* ── Encabezado ── */}
-        <section className="bg-carbon pb-10 pt-28 lg:pb-14 lg:pt-36">
-          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-            <span className="eyebrow text-accent-ink">{statusLabel}</span>
-            <h1 className="mt-5 max-w-3xl text-balance font-display font-bold leading-[0.95] text-bone [font-size:clamp(2rem,5vw,3.5rem)]">
-              {project.title[loc]}
-            </h1>
-            <p className="mt-4 font-mono text-sm text-bone/55">
-              {categoryLabel} · {project.location}
-            </p>
-          </div>
-        </section>
-
-        {/* ── Fotografía principal: es el LCP, va con preload ── */}
-        <section className="bg-carbon">
-          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-            {/* Ampliable: es la foto por la que se juzga la obra. El recorte
-                del encuadre se conserva aquí; el visor muestra la foto
-                completa, sin recortar. */}
-            <ZoomableImage
-              src={`/images/proyectos/${project.coverPhoto.file}`}
-              alt={project.title[loc]}
-              orientation={project.coverPhoto.orientation}
-              eager
-              preload
-              sizes="(min-width: 1400px) 1340px, 100vw"
-              className={`bg-carbon-raised ${
-                project.coverPhoto.orientation === "vertical"
-                  ? "aspect-[4/5] sm:aspect-[3/2]"
-                  : "aspect-[4/3] sm:aspect-[16/9]"
-              }`}
-            />
-          </div>
-        </section>
-
-        <section className="bg-paper py-12 lg:py-20">
-          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <section className="overflow-hidden bg-carbon text-bone">
+          <div className="mx-auto max-w-[1400px] px-6 pt-24 lg:px-10 lg:pt-28">
             <Breadcrumb
+              theme="dark"
               items={[
                 { label: tn("projects"), href: "/projects" },
                 { label: project.title[loc] },
               ]}
             />
 
-            <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-              {/* ── El proyecto ── */}
-              <div>
-                <h2 className="font-display text-xl font-semibold text-ink">{t("theProject")}</h2>
-                <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-ink">
-                  {project.excerpt[loc]}
-                </p>
+            <div className="grid gap-10 pb-12 pt-7 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-stretch lg:gap-14 lg:pb-16 lg:pt-8">
+              <div className="flex flex-col justify-center">
+                <span className="eyebrow text-accent-ink">{statusLabel}</span>
+                <h1 className="mt-6 max-w-xl text-balance font-display font-semibold leading-[0.98] tracking-[-0.025em] [font-size:clamp(2.7rem,5.5vw,5.6rem)]">
+                  {project.title[loc]}
+                </h1>
 
-                {/* Alcance: solo si el cliente lo confirmó. */}
-                {project.scope ? (
-                  <>
-                    <h2 className="mt-12 font-display text-xl font-semibold text-ink">
-                      {t("scopeHeading")}
-                    </h2>
-                    <ul className="mt-5 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
-                      {project.scope[loc].map((item) => (
-                        <li key={item} className="bg-surface p-4 text-sm leading-relaxed text-ink">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : null}
-
-                {/* Trabajos realizados: NUNCA deducidos de las fotos. */}
-                {project.workCompleted ? (
-                  <>
-                    <h2 className="mt-12 font-display text-xl font-semibold text-ink">
-                      {t("workCompletedHeading")}
-                    </h2>
-                    <ul className="mt-5 flex flex-wrap gap-2">
-                      {project.workCompleted[loc].map((item) => (
-                        <li
-                          key={item}
-                          className="border border-line bg-surface px-3 py-2 font-mono text-xs uppercase tracking-wider text-muted"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : null}
-              </div>
-
-              {/* ── Ficha: solo campos con dato real ── */}
-              <aside className="h-fit border border-line bg-surface p-6 lg:sticky lg:top-24">
-                <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-accent">
-                  {t("detailsHeading")}
-                </h2>
-                <dl className="mt-5 space-y-4 text-sm">
-                  <div>
-                    <dt className="text-muted">{t("detailCategory")}</dt>
-                    <dd className="mt-0.5 font-medium text-ink">{categoryLabel}</dd>
+                <dl className="mt-10 grid grid-cols-2 border-y border-bone/15 text-sm">
+                  <div className="border-b border-r border-bone/15 py-5 pr-4">
+                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-bone/65">
+                      {t("detailCategory")}
+                    </dt>
+                    <dd className="mt-2 font-medium text-bone">{categoryLabel}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted">{t("detailLocation")}</dt>
-                    <dd className="mt-0.5 font-medium text-ink">{project.location}</dd>
+                  <div className="border-b border-bone/15 py-5 pl-4">
+                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-bone/65">
+                      {t("detailStatus")}
+                    </dt>
+                    <dd className="mt-2 font-medium text-bone">{statusLabel}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted">{t("detailStatus")}</dt>
-                    <dd className="mt-0.5 font-medium text-ink">{statusLabel}</dd>
+                  <div className="border-r border-bone/15 py-5 pr-4">
+                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-bone/65">
+                      {t("detailLocation")}
+                    </dt>
+                    <dd className="mt-2 font-medium text-bone">{project.location}</dd>
                   </div>
                   {service ? (
-                    <div>
-                      <dt className="text-muted">{t("detailService")}</dt>
+                    <div className="py-5 pl-4">
+                      <dt className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-bone/65">
+                        {t("detailService")}
+                      </dt>
                       <dd>
-                        {/* `inline-flex` con altura mínima: como enlace en
-                            línea medía 103×18 px, por debajo del objetivo
-                            táctil de 44 px de WCAG 2.2. */}
                         <Link
                           href={{ pathname: "/services/[slug]", params: { slug: service.slugs[loc] } }}
-                          className="inline-flex min-h-[44px] items-center font-medium text-accent underline-offset-4 hover:underline"
+                          className="inline-flex min-h-[44px] items-center font-medium text-accent-ink underline-offset-4 hover:underline"
                         >
                           {service.title[loc]}
                         </Link>
@@ -239,23 +164,97 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
                   ) : null}
                 </dl>
 
-                <Link
-                  href="/projects"
-                  className="mt-6 flex min-h-[44px] items-center border-t border-line pt-4 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-accent"
-                >
-                  {t("backToProjects")}
-                </Link>
-              </aside>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    href={{ pathname: "/quote", query: service ? { servicio: service.id } : {} }}
+                    className="inline-flex min-h-[50px] w-fit items-center gap-3 bg-accent px-6 text-sm font-semibold text-bone transition-colors hover:bg-accent-hover"
+                  >
+                    {tn("quote")}
+                    <ArrowRight />
+                  </Link>
+                  <Link
+                    href="/projects"
+                    className="inline-flex min-h-[48px] w-fit items-center border-b border-bone/35 text-sm text-bone/80 transition-colors hover:border-bone hover:text-bone"
+                  >
+                    {t("backToProjects")}
+                  </Link>
+                </div>
+              </div>
+
+              <ZoomableImage
+                src={`/images/proyectos/${project.coverPhoto.file}`}
+                alt={project.title[loc]}
+                orientation={project.coverPhoto.orientation}
+                eager
+                preload
+                sizes="(min-width: 1400px) 760px, (min-width: 1024px) 56vw, 100vw"
+                className={
+                  project.coverPhoto.orientation === "vertical"
+                    ? "aspect-[4/5] bg-carbon-raised lg:h-[660px] lg:aspect-auto"
+                    : "aspect-[4/3] bg-carbon-raised lg:h-[590px] lg:aspect-auto"
+                }
+              />
             </div>
           </div>
         </section>
 
-        {/* ── Antes / después: solo con par confirmado ── */}
+        <section className="bg-paper py-16 lg:py-24">
+          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+            <div className="grid gap-8 lg:grid-cols-[0.34fr_0.66fr] lg:gap-16">
+              <div>
+                <span className="eyebrow text-accent">{t("theProject")}</span>
+              </div>
+              <p className="max-w-3xl text-pretty font-display text-2xl font-medium leading-snug text-ink sm:text-3xl lg:text-4xl">
+                {project.excerpt[loc]}
+              </p>
+            </div>
+
+            {project.scope || project.workCompleted ? (
+              <div className="mt-14 grid gap-12 border-t border-line pt-10 lg:grid-cols-2">
+                {project.scope ? (
+                  <div>
+                    <h2 className="font-display text-2xl font-semibold text-ink">{t("scopeHeading")}</h2>
+                    <ul className="mt-6 space-y-0">
+                      {project.scope[loc].map((item, index) => (
+                        <li key={item} className="flex gap-5 border-t border-line py-4">
+                          <span className="font-mono text-xs text-accent" aria-hidden="true">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span className="leading-relaxed text-ink">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {project.workCompleted ? (
+                  <div>
+                    <h2 className="font-display text-2xl font-semibold text-ink">
+                      {t("workCompletedHeading")}
+                    </h2>
+                    <ul className="mt-6 flex flex-wrap gap-2">
+                      {project.workCompleted[loc].map((item) => (
+                        <li
+                          key={item}
+                          className="border border-line bg-surface px-4 py-3 font-mono text-xs uppercase tracking-wider text-muted"
+                        >
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </section>
+
         {pair ? (
-          <section className="bg-paper pb-12 lg:pb-20">
+          <section className="bg-surface py-16 lg:py-24">
             <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-              {/* Las etiquetas llegan como props: el comparador es un
-                  componente de cliente y no puede traducir por sí mismo. */}
+              <h2 className="mb-8 font-display text-3xl font-semibold text-ink">
+                {t("compareHeading")}
+              </h2>
               <BeforeAfter
                 pair={pair}
                 beforeLabel={t("beforeLabel")}
@@ -266,27 +265,30 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
           </section>
         ) : null}
 
-        {/* ── Galería ── */}
         {galleryPhotos.length > 0 ? (
-          <section className="bg-paper pb-12 lg:pb-20">
+          <section className="bg-carbon py-16 text-bone lg:py-24">
             <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-              <h2 className="font-display text-xl font-semibold text-ink">
-                {t("galleryHeading")}
-              </h2>
-              {/*
-                Rejilla editorial: las verticales ocupan una columna, las
-                horizontales dos en escritorio. Evita recortar en cuadrado
-                fotos que no lo admiten.
-              */}
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {galleryPhotos.map((photo, i) => (
+              <div className="flex items-end justify-between gap-6">
+                <div>
+                  <span className="eyebrow text-accent-ink">{t("eyebrow")}</span>
+                  <h2 className="mt-5 font-display text-3xl font-semibold sm:text-4xl">
+                    {t("galleryHeading")}
+                  </h2>
+                </div>
+                <span className="hidden font-mono text-xs text-bone/65 sm:block">
+                  {String(galleryPhotos.length).padStart(2, "0")}
+                </span>
+              </div>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {galleryPhotos.map((photo, index) => (
                   <ZoomableImage
                     key={photo.file}
                     src={`/images/proyectos/${photo.file}`}
-                    alt={`${project.title[loc]} — ${i + 2}`}
+                    alt={`${project.title[loc]} — ${index + 2}`}
                     orientation={photo.orientation}
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className={`bg-carbon ${
+                    sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
+                    className={`bg-carbon-raised ${
                       photo.orientation === "vertical"
                         ? "aspect-[3/4]"
                         : "aspect-[4/3] lg:col-span-2"
@@ -298,38 +300,45 @@ export default async function ProjectDetail({ params }: PageProps<"/[locale]/pro
           </section>
         ) : null}
 
-        {/* ── El resultado: solo si el cliente lo describió ── */}
         {project.result ? (
-          <section className="bg-paper pb-16 lg:pb-24">
-            <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-              <h2 className="font-display text-xl font-semibold text-ink">{t("resultHeading")}</h2>
-              <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-ink">
+          <section className="bg-paper py-16 lg:py-24">
+            <div className="mx-auto grid max-w-[1400px] gap-8 px-6 lg:grid-cols-[0.34fr_0.66fr] lg:gap-16 lg:px-10">
+              <h2 className="eyebrow h-fit text-accent">{t("resultHeading")}</h2>
+              <p className="max-w-3xl text-pretty font-display text-2xl font-medium leading-snug text-ink sm:text-3xl">
                 {project.result[loc]}
               </p>
             </div>
           </section>
         ) : null}
 
-        {/* ── CTA contextual ── */}
-        <section className="bg-surface py-12 lg:py-16">
-          <div className="mx-auto flex max-w-[1400px] flex-col gap-5 px-6 sm:flex-row sm:items-center sm:justify-between lg:px-10">
-            <div>
-              <h2 className="text-balance font-display text-2xl font-semibold text-ink">
-                {t("similarHeading")}
-              </h2>
-              <p className="mt-2 max-w-lg text-pretty leading-relaxed text-muted">
-                {t("similarBody")}
-              </p>
+        {related.length > 0 ? (
+          <section className="bg-surface py-16 lg:py-24">
+            <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="eyebrow text-accent">{t("eyebrow")}</span>
+                  <h2 className="mt-5 text-balance font-display text-3xl font-semibold text-ink sm:text-4xl">
+                    {t("moreProjectsHeading")}
+                  </h2>
+                  <p className="mt-3 max-w-xl leading-relaxed text-muted">{t("moreProjectsBody")}</p>
+                </div>
+                <Link
+                  href="/projects"
+                  className="inline-flex min-h-[44px] w-fit items-center gap-3 border-b border-ink/30 text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  {t("backToProjects")}
+                  <ArrowRight />
+                </Link>
+              </div>
+
+              <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((candidate) => (
+                  <ProjectCard key={candidate.id} project={candidate} compact />
+                ))}
+              </div>
             </div>
-            <Link
-              href={{ pathname: "/quote", query: service ? { servicio: service.id } : {} }}
-              className="inline-flex min-h-[48px] w-fit flex-none items-center gap-2 bg-accent px-6 text-sm font-medium text-bone transition-colors hover:bg-accent-hover"
-            >
-              {tn("quote")}
-              <ArrowRight />
-            </Link>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         <CtaBand />
       </main>

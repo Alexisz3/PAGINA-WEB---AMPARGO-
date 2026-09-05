@@ -27,6 +27,8 @@ interface ProjectCardProps {
    * a un toque de distancia.
    */
   compact?: boolean;
+  /** Variante de catálogo: tarjeta contenida con metadatos y CTA explícito. */
+  catalog?: boolean;
   /**
    * Nivel del encabezado de la tarjeta.
    *
@@ -44,6 +46,7 @@ export default async function ProjectCard({
   eager = false,
   sizes,
   compact = false,
+  catalog = false,
   headingLevel: Heading = "h3",
 }: ProjectCardProps) {
   const locale = (await getLocale()) as AppLocale;
@@ -54,7 +57,7 @@ export default async function ProjectCard({
       `relative` no es decorativo: es lo que permite superponer la lupa a la
       foto SIN meterla dentro del enlace. Ver components/ZoomButton.tsx.
     */
-    <article className="group relative">
+    <article className={`group relative ${catalog ? "overflow-hidden border border-line bg-surface" : ""}`}>
       <Link href={{ pathname: "/projects/[slug]", params: { slug: project.slugs[locale] } }} className="block">
         {/*
           Proporción uniforme en rejilla, a propósito.
@@ -84,14 +87,22 @@ export default async function ProjectCard({
           </span>
         </div>
 
-        <div className="mt-4">
-          <Heading className="font-display text-lg font-semibold leading-snug text-ink">
+        <div className={catalog ? "p-4" : "mt-4"}>
+          <Heading className={`font-display font-semibold leading-snug text-ink ${catalog ? "text-base" : "text-lg"}`}>
             {project.title[locale]}
           </Heading>
           {compact ? null : (
             <p className="mt-2 text-sm leading-relaxed text-muted">{project.excerpt[locale]}</p>
           )}
-          <p className="mt-2 font-mono text-xs text-muted">{project.location}</p>
+          <p className="mt-2 font-mono text-xs text-muted">
+            {t(`filter${categoryKey(project.category)}`)} <span aria-hidden="true">•</span> {project.location}
+          </p>
+          {catalog ? (
+            <span className="mt-4 inline-flex min-h-[36px] items-center gap-2 text-sm font-medium text-accent">
+              {t("viewProject")}
+              <span aria-hidden="true">→</span>
+            </span>
+          ) : null}
         </div>
       </Link>
 

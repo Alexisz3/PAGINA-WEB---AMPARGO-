@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useParams, useSearchParams } from "next/navigation";
@@ -8,16 +8,15 @@ import { routing, LOCALE_CODES, type AppLocale } from "@/i18n/routing";
 import { resolveLocalizedDestination } from "@/i18n/localized-destination";
 
 /**
- * Filete de bandera en miniatura, para el selector de idioma.
+ * Filete de bandera en miniatura — NO una bandera realista.
  *
- * Reutiliza el mismo patrón reducido que `FlagRule.tsx` (cantón azul marino
- * 2/5 del ancho + resto en el acento) en vez de una bandera realista con
- * estrellas y franjas. Es la misma razón documentada allí: en la papelería de
- * un contratista sin licencia ni seguro confirmados por escrito, un emblema
- * con estrellas y barras se lee como acreditación oficial. La miniatura no
- * distingue español de inglés a propósito — los dos son variantes de EE. UU.
- * (`es-US` / `en-US`, no España ni México), así que no hay una bandera de
- * país distinta que poner para cada uno sin mentir sobre el origen.
+ * Una sesión de auditoría posterior la reemplazó por banderas de España y
+ * EE. UU. con estrellas y franjas, sin ver `FlagRule.tsx`: en la papelería
+ * de un contratista sin licencia ni seguro confirmados por escrito, un
+ * emblema con estrellas y barras se lee como acreditación oficial. Además
+ * España no representa el español de Houston (`es-US`, no `es-ES`). Mismo
+ * patrón reducido para ambos idiomas — no hay una bandera de país distinta
+ * que poner sin mentir sobre el origen.
  */
 function MiniFlag() {
   return (
@@ -52,6 +51,13 @@ export default function LocaleSwitcher() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listId = useId();
+
+  useEffect(() => {
+    if (open) {
+      containerRef.current?.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.focus();
+    }
+  }, [open]);
 
   // Cierra al hacer clic fuera del componente.
   useEffect(() => {
@@ -81,6 +87,7 @@ export default function LocaleSwitcher() {
 
   const switchTo = (target: AppLocale) => {
     setOpen(false);
+    triggerRef.current?.focus();
     if (target === locale) return;
 
     const rawSlug = routeParams?.slug;
@@ -125,15 +132,37 @@ export default function LocaleSwitcher() {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div
+      ref={containerRef}
+      className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (!open || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const options = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="option"]'));
+        const current = options.indexOf(document.activeElement as HTMLButtonElement);
+        const next = event.key === "Home" ? 0 : event.key === "End" ? options.length - 1
+          : (current + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+        options[next]?.focus();
+      }}
+    >
       <button
         ref={triggerRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={open ? listId : undefined}
         aria-label={t("languageSwitcherLabel")}
-        className="flex min-h-[44px] items-center gap-2 rounded-full border border-bone/30 px-3 font-mono text-xs uppercase tracking-wider text-bone transition-colors hover:bg-bone/10"
+        className="flex min-h-[44px] items-center gap-2 border border-bone/30 px-3 font-mono text-xs uppercase tracking-wider text-bone transition-colors hover:border-bone/55 hover:bg-bone/10"
       >
         <MiniFlag />
         {LOCALE_CODES[locale].toUpperCase()}
@@ -149,9 +178,10 @@ export default function LocaleSwitcher() {
 
       {open ? (
         <div
+          id={listId}
           role="listbox"
           aria-label={t("languageSwitcherLabel")}
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[9rem] overflow-hidden rounded-lg border border-bone/20 bg-carbon-raised shadow-lg"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[9rem] overflow-hidden border border-bone/20 bg-carbon-raised shadow-lg"
         >
           {routing.locales.map((l) => {
             const isCurrent = l === locale;
@@ -160,6 +190,7 @@ export default function LocaleSwitcher() {
                 key={l}
                 type="button"
                 role="option"
+                tabIndex={-1}
                 aria-selected={isCurrent}
                 onClick={() => switchTo(l)}
                 className={`flex min-h-[44px] w-full items-center gap-3 px-4 text-left text-sm transition-colors ${
@@ -167,7 +198,7 @@ export default function LocaleSwitcher() {
                 }`}
               >
                 <MiniFlag />
-                {t(`languageName.${l}`)}
+                {l === "es-US" ? "Español" : "English"}
               </button>
             );
           })}

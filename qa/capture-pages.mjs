@@ -10,6 +10,8 @@ import path from "node:path";
 
 const label = process.argv[2] ?? "sin-etiqueta";
 const baseUrl = process.argv[3] ?? "http://127.0.0.1:4318";
+const requestedPage = process.argv[4];
+const requestedViewport = process.argv[5];
 const outDir = path.join("qa", "shots", label);
 
 const PAGES = [
@@ -18,10 +20,17 @@ const PAGES = [
   { name: "cotizacion", es: "/es/cotizacion", en: "/en/quote" },
   { name: "servicios", es: "/es/servicios", en: "/en/services" },
   { name: "proceso", es: "/es/proceso", en: "/en/process" },
+  { name: "nosotros", es: "/es/nosotros", en: "/en/about" },
+  { name: "contacto", es: "/es/contacto", en: "/en/contact" },
   {
     name: "detalle-proyecto",
     es: "/es/proyectos/renovacion-de-cocina",
     en: "/en/projects/kitchen-renovation",
+  },
+  {
+    name: "detalle-proyecto-galeria",
+    es: "/es/proyectos/construccion-de-cochera",
+    en: "/en/projects/carport-construction",
   },
   { name: "servicio-detalle", es: "/es/servicios/cocinas-y-banos", en: "/en/services/kitchens-and-bathrooms" },
   { name: "404", es: "/es/no-existe", en: "/en/does-not-exist" },
@@ -45,6 +54,14 @@ const VIEWPORTS = [
   { name: "1920x1080", width: 1920, height: 1080 },
 ];
 
+const pagesToCapture = requestedPage ? PAGES.filter((page) => page.name === requestedPage) : PAGES;
+const viewportsToCapture = requestedViewport
+  ? VIEWPORTS.filter((viewport) => viewport.name === requestedViewport)
+  : VIEWPORTS;
+
+if (pagesToCapture.length === 0) throw new Error(`Página de QA desconocida: ${requestedPage}`);
+if (viewportsToCapture.length === 0) throw new Error(`Viewport de QA desconocido: ${requestedViewport}`);
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
@@ -59,9 +76,9 @@ async function main() {
   p.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
   p.on("pageerror", (e) => pageErrors.push(String(e)));
 
-  for (const page of PAGES) {
+  for (const page of pagesToCapture) {
     for (const locale of ["es", "en"]) {
-      for (const vp of VIEWPORTS) {
+      for (const vp of viewportsToCapture) {
         consoleErrors = [];
         pageErrors = [];
         // La página 404 devuelve HTTP 404 por diseño; el navegador lo registra
@@ -71,7 +88,39 @@ async function main() {
 
         const url = baseUrl + page[locale];
         await p.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-        await p.waitForTimeout(900);
+        // El mapa de contacto se carga desde Google y necesita un poco más
+        // que el HTML local antes de quedar listo para la captura.
+        await p.waitForTimeout(page.name === "contacto" ? 5000 : 900);
+
+        // Una captura fullPage no activa por sí sola todas las imágenes con
+        // loading="lazy". Recorremos el documento antes de fotografiarlo para
+        // que la auditoría no confunda placeholders con imágenes rotas.
+        await p.evaluate(async () => {
+          const pause = () => new Promise((resolve) => setTimeout(resolve, 45));
+          const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          const step = Math.max(320, Math.floor(window.innerHeight * 0.8));
+          for (let y = 0; y <= maxY; y += step) {
+            window.scrollTo(0, y);
+            await pause();
+          }
+          window.scrollTo(0, maxY);
+          await pause();
+          window.scrollTo(0, 0);
+
+          await Promise.all(
+            Array.from(document.images).map(
+              (img) =>
+                new Promise((resolve) => {
+                  if (img.complete) return resolve(undefined);
+                  const done = () => resolve(undefined);
+                  img.addEventListener("load", done, { once: true });
+                  img.addEventListener("error", done, { once: true });
+                  setTimeout(done, 4000);
+                })
+            )
+          );
+        });
+        await p.waitForTimeout(200);
 
         const diag = await p.evaluate(() => {
           const doc = document.documentElement;
@@ -106,6 +155,13 @@ async function main() {
             const r = el.getBoundingClientRect();
             if (r.width <= 1 || r.height <= 1) continue;
             if (el.closest("[aria-hidden='true']")) continue;
+            // Un radio o checkbox pequeño puede tener un área táctil correcta
+            // cuando está envuelto por un label de al menos 44 × 44 px.
+            if (el instanceof HTMLInputElement && (el.type === "radio" || el.type === "checkbox")) {
+              const label = el.closest("label") ?? (el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null);
+              const lr = label?.getBoundingClientRect();
+              if (lr && lr.width >= 44 && lr.height >= 44) continue;
+            }
             if (r.width < 44 || r.height < 44) {
               smallTargets.push({
                 tag: el.tagName.toLowerCase(),
@@ -122,7 +178,9 @@ async function main() {
             offenders,
             smallTargets,
             h1Count: document.querySelectorAll("h1").length,
-            imagesWithoutAlt: [...document.querySelectorAll("img")].filter((i) => !i.getAttribute("alt")).length,
+            // Empty alt text is valid for decorative images; only a missing
+            // alt attribute is an accessibility issue.
+            imagesWithoutAlt: [...document.querySelectorAll("img")].filter((i) => !i.hasAttribute("alt")).length,
             documentHeight: doc.scrollHeight,
           };
         });

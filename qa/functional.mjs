@@ -120,7 +120,7 @@ console.log(`--- motor: ${ENGINE} ---`);
    * a un disparador + desplegable (`aria-haspopup="listbox"` +
    * `role="option"`). Hay que abrirlo antes de poder elegir una opción.
    */
-  const switchLocale = async (from, expected, optionLabel = "inglés") => {
+  const switchLocale = async (from, expected, optionLabel = "English") => {
     await p.goto(URL + from, { waitUntil: "domcontentloaded" });
     const trigger = p.locator('button[aria-haspopup="listbox"]');
     await trigger.waitFor({ state: "visible" });
@@ -155,7 +155,7 @@ console.log(`--- motor: ${ENGINE} ---`);
   await p.waitForTimeout(1200);
 
   await p.locator("header nav a", { hasText: "Proyectos" }).click();
-  await p.waitForTimeout(1500);
+  await p.waitForURL((url) => url.pathname === "/es/proyectos", { timeout: 15000 });
   check("Nav: Proyectos abre /es/proyectos", p.url().includes("/es/proyectos"), p.url());
   check("Nav: el idioma se conserva al navegar", (await p.getAttribute("html", "lang")) === "es-US");
 
@@ -198,8 +198,8 @@ console.log(`--- motor: ${ENGINE} ---`);
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const p = await ctx.newPage();
 
-  /** Rellena la etapa de contacto. `phone`/`email` a "" para omitirlos. */
-  const fillContact = async (page, { name = "Kevin Prueba", phone = "8325551234", email = "" } = {}) => {
+  /** Rellena la etapa de contacto con los dos datos requeridos. */
+  const fillContact = async (page, { name = "Kevin Prueba", phone = "8325551234", email = "cliente@example.com" } = {}) => {
     await page.locator("#name").fill(name);
     await page.locator("#phone").fill(phone);
     await page.locator("#email").fill(email);
@@ -235,11 +235,21 @@ console.log(`--- motor: ${ENGINE} ---`);
    * que el contratista no puede responder.
    */
   check(
+    "Cotización: exige seleccionar un servicio",
+    await (async () => {
+      await p.locator("button", { hasText: "Continuar" }).click();
+      await p.waitForTimeout(400);
+      return p.locator('#service[aria-invalid="true"]').isVisible();
+    })()
+  );
+
+  await p.locator("#service").selectOption("other");
+  check(
     "Cotización: bloquea avanzar sin describir el proyecto",
     await (async () => {
       await p.locator("button", { hasText: "Continuar" }).click();
       await p.waitForTimeout(400);
-      return p.locator('[role="alert"]').first().isVisible();
+      return p.locator('#description[aria-invalid="true"]').isVisible();
     })()
   );
 
@@ -262,7 +272,7 @@ console.log(`--- motor: ${ENGINE} ---`);
   check("Cotización: avanza a Contacto", (await p.locator("#name").count()) === 1);
 
   const radios = p.locator('input[name="channel"]');
-  check("Cotización: canal con 2 radios excluyentes", (await radios.count()) === 2);
+  check("Cotización: canal con 3 radios excluyentes", (await radios.count()) === 3);
   await radios.first().check();
   await p.waitForTimeout(200);
   await radios.last().check();
@@ -284,19 +294,19 @@ console.log(`--- motor: ${ENGINE} ---`);
       return opened === null && (await p.locator('[role="alert"]').count()) >= 3;
     })());
 
-  // Teléfono O correo, indistintamente: exigir ambos pierde solicitudes.
+  // La especificación final exige teléfono y correo.
   await fillContact(p, { phone: "8325551234", email: "" });
-  check("Cotización: teléfono sin correo se admite", (await submit(p)) !== null);
+  check("Cotización: teléfono sin correo se bloquea", (await submit(p)) === null);
 
   await p.reload({ waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1200);
   await fillContact(p, { phone: "", email: "cliente@example.com" });
-  check("Cotización: correo sin teléfono se admite", (await submit(p)) !== null);
+  check("Cotización: correo sin teléfono se bloquea", (await submit(p)) === null);
 
   await p.reload({ waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1200);
-  await fillContact(p, { phone: "", email: "" });
-  check("Cotización: sin teléfono NI correo se bloquea", (await submit(p)) === null);
+  await fillContact(p, { phone: "8325551234", email: "cliente@example.com" });
+  check("Cotización: teléfono y correo válidos se admiten", (await submit(p)) !== null);
 
   await ctx.close();
 }
@@ -359,6 +369,17 @@ console.log(`--- motor: ${ENGINE} ---`);
     throw new Error(`El campo no retuvo el valor tras ${intentos} intentos: ${valor}`);
   };
 
+  // El select también es controlado: debe sobrevivir a la hidratación igual
+  // que los campos de texto, especialmente con varios navegadores en QA.
+  const selectSticky = async (page, campo, valor) => {
+    for (let i = 0; i < 5; i++) {
+      await campo.selectOption(valor);
+      await page.waitForTimeout(150);
+      if ((await campo.inputValue()) === valor) return;
+    }
+    throw new Error(`El selector no retuvo el valor: ${valor}`);
+  };
+
   const clickUntil = async (page, button, expected, intentos = 4) => {
     for (let i = 0; i < intentos; i++) {
       await button.click();
@@ -383,6 +404,7 @@ console.log(`--- motor: ${ENGINE} ---`);
       // Se espera al campo, no a un tiempo fijo: el runner de CI hidrata más
       // despacio que una máquina de desarrollo.
       await page.locator("#description").waitFor({ state: "visible" });
+      await selectSticky(page, page.locator("#service"), "other");
       await fillSticky(page, page.locator("#description"), description);
       await clickUntil(
         page,
@@ -392,6 +414,7 @@ console.log(`--- motor: ${ENGINE} ---`);
 
       await fillSticky(page, page.locator("#name"), name);
       await fillSticky(page, page.locator("#phone"), phone);
+      await fillSticky(page, page.locator("#email"), "cliente@example.com");
       await page.locator('input[name="channel"]').last().check();
       await page.locator("#consent").setChecked(true);
 
@@ -492,6 +515,7 @@ console.log(`--- motor: ${ENGINE} ---`);
   try {
     await pageEmail.goto(`${URL}/es/cotizacion`, { waitUntil: "domcontentloaded" });
     await pageEmail.locator("#description").waitFor({ state: "visible" });
+    await pageEmail.locator("#service").selectOption("other");
     await fillSticky(pageEmail, pageEmail.locator("#description"), "Prueba de canal de correo");
     await clickUntil(
       pageEmail,
@@ -500,7 +524,8 @@ console.log(`--- motor: ${ENGINE} ---`);
     );
     await fillSticky(pageEmail, pageEmail.locator("#name"), "Prueba Correo");
     await fillSticky(pageEmail, pageEmail.locator("#phone"), "8325550199");
-    await pageEmail.locator('input[name="channel"]').first().check(); // "email" es la primera opción
+    await fillSticky(pageEmail, pageEmail.locator("#email"), "cliente@example.com");
+    await pageEmail.locator('input[name="channel"][value="email"]').check();
     await pageEmail.locator("#consent").setChecked(true);
 
     const sendButton = pageEmail.locator("button", { hasText: /Enviar por correo|Send by email/ });
@@ -621,7 +646,7 @@ console.log(`--- motor: ${ENGINE} ---`);
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const p = await ctx.newPage();
   await p.goto(URL + "/es/cotizacion?servicio=kitchens-bathrooms", { waitUntil: "domcontentloaded" });
-  await p.waitForTimeout(1600);
+  await p.waitForFunction(() => document.querySelector('#service')?.value === 'kitchens-bathrooms');
   check("Cotización: preselecciona el servicio del enlace",
     (await p.locator("#service").inputValue()) === "kitchens-bathrooms");
 
@@ -652,16 +677,12 @@ console.log(`--- motor: ${ENGINE} ---`);
    * hasta que surta efecto. Es determinista y se detiene solo.
    */
   /*
-   * Fase 5: el disparador sigue mostrando el código (ES/EN), pero la opción
-   * dentro del desplegable muestra el nombre del IDIOMA DESTINO traducido al
-   * idioma ACTUAL de la página, no siempre en español — en `/en/...` el
-   * desplegable dice "Spanish"/"English", no "español"/"inglés". El primer
-   * intento fallaba justo en el sentido EN→ES porque buscaba "español" en
-   * una página que en ese momento decía "Spanish".
+   * El disparador muestra ES/EN y las opciones usan autodenominaciones:
+   * Español / English, independientemente del idioma de la página.
    */
   const OPTION_LABEL = {
-    "es-US": { EN: "inglés", ES: "español" },
-    "en-US": { EN: "English", ES: "Spanish" },
+    "es-US": { EN: "English", ES: "Español" },
+    "en-US": { EN: "English", ES: "Español" },
   };
 
   const switchAndGet = async (from, to, attempts = 5) => {

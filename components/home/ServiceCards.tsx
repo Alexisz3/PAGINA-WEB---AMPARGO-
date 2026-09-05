@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getPublishedServices } from "@/content/services";
 import type { AppLocale } from "@/i18n/routing";
@@ -10,13 +11,8 @@ import ArrowRight from "../icons/ArrowRight";
  * Cada tarjeta enlaza a SU detalle. Antes las cinco usaban `href="/services"`
  * y todas caían en el mismo índice, que es como no tener páginas de servicio.
  *
- * Móvil: carril horizontal con scroll-snap nativo. La tarjeta ocupa el 82%
- * del viewport para que asome la siguiente — eso comunica "hay más" sin
- * flechas ni instrucciones.
- * Escritorio: banda de cinco columnas montada sobre el hero, como en la
- * referencia aprobada.
- *
- * Sin JavaScript el carril sigue siendo desplazable: no depende de hidratación.
+ * Lista fotográfica compacta en móvil y cinco columnas en escritorio.
+ * Todos los destinos permanecen visibles sin carruseles ni JavaScript.
  */
 export default async function ServiceCards() {
   const locale = (await getLocale()) as AppLocale;
@@ -24,50 +20,53 @@ export default async function ServiceCards() {
   const services = getPublishedServices();
 
   return (
-    <section className="relative bg-paper">
-      <div className="mx-auto max-w-[1400px] lg:px-10">
-        <h2 className="eyebrow px-6 pt-12 text-accent lg:sr-only lg:px-0 lg:pt-0">
+    <section className="relative border-b border-line bg-paper py-10 lg:py-14">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <h2 className="eyebrow text-accent">
           {th("servicesEyebrow")}
         </h2>
 
         <ul
-          tabIndex={0}
           aria-label={th("servicesEyebrow")}
-          className="
-            mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4
-            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-            lg:mt-0 lg:-translate-y-24 lg:grid lg:grid-cols-5 lg:gap-px lg:overflow-visible
-            lg:bg-bone/10 lg:px-0 lg:pb-0
-          "
+          className="mt-6 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-5"
         >
           {services.map((service, i) => (
             <li
               key={service.id}
-              className="w-[82%] flex-none snap-start bg-carbon sm:w-[46%] lg:w-auto"
+              className="group min-w-0 border-t border-line py-5 lg:border-t-0 lg:py-0"
             >
               {/* La tarjeta entera es el enlace: la flecha es decorativa y no
                   un segundo control vacío que duplique el destino. */}
               <Link
                 href={{ pathname: "/services/[slug]", params: { slug: service.slugs[locale] } }}
-                className="group flex h-full min-h-[188px] flex-col justify-between p-6 transition-colors hover:bg-carbon-raised"
+                className="grid h-full grid-cols-[88px_minmax(0,1fr)] items-start gap-4 sm:grid-cols-1 lg:flex lg:flex-col lg:gap-0"
               >
-                <div>
-                  <span className="font-mono text-xs text-accent-ink" aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="mt-3 font-display text-lg font-semibold leading-tight text-bone">
-                    {service.title[locale]}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-bone/70">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-carbon sm:aspect-[4/3]">
+                  <Image
+                    src={`/images/proyectos/${service.heroImage}`}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 45vw, 88px"
+                    className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.035]"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col lg:pt-5">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1 font-mono text-xs text-accent" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="font-display text-lg font-semibold leading-snug text-ink">
+                      {service.title[locale]}
+                    </h3>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
                     {service.shortDescription[locale]}
                   </p>
+                  <span className="mt-auto inline-flex min-h-11 items-center gap-3 pt-2 text-sm font-medium text-accent">
+                    {th("serviceLearnMore")}
+                    <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />
+                  </span>
                 </div>
-                <span
-                  aria-hidden="true"
-                  className="mt-5 flex h-9 w-9 items-center justify-center rounded-full border border-bone/30 text-bone transition-colors group-hover:border-accent group-hover:bg-accent"
-                >
-                  <ArrowRight />
-                </span>
               </Link>
             </li>
           ))}

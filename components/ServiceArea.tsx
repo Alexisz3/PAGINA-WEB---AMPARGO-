@@ -86,7 +86,28 @@ export default async function ServiceArea() {
               </a>
               <p className="mt-4 text-sm text-muted">{tc("visitNote")}</p>
             </div>
-          ) : null}
+          ) : (
+            <div className="overflow-hidden border border-line bg-paper lg:border-l lg:pl-0">
+              <iframe
+                title={tc("mapTitle")}
+                src="https://www.google.com/maps?q=Houston%2C%20TX&z=9&output=embed"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="h-[320px] w-full border-0 lg:h-[360px]"
+              />
+              <div className="flex flex-col gap-3 border-t border-line bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-md text-sm leading-relaxed text-muted">{tc("mapHelp")}</p>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Houston%2C%20TX"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] flex-none items-center text-sm font-medium text-ink underline decoration-accent underline-offset-4 hover:text-accent"
+                >
+                  {tc("mapAction")}
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
